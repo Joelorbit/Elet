@@ -1,0 +1,73 @@
+export const lightTheme = {
+  background: "#FAF7F2",
+  surface: "#FFFFFF",
+  surfaceContainer: "#F3ECE1",
+  surfaceElevated: "#ECE3D4",
+  primary: "#8E4424", // Rich Ethiopian Terracotta
+  primaryContainer: "rgba(142, 68, 36, 0.12)",
+  activityLow: "rgba(142, 68, 36, 0.22)",
+  activityMedium: "#B25D38",
+  secondary: "#F3ECE1",
+  gold: "#C58936", // Warm Caramel Gold
+  goldContainer: "rgba(197, 137, 54, 0.14)",
+  emerald: "#1B664C",
+  emeraldContainer: "rgba(27, 102, 76, 0.12)",
+  text: "#1E1510", // Espresso Ink
+  muted: "#574A3E",
+  dim: "#857465",
+  border: "#E6DCCD",
+  outline: "#D7C9B6",
+  danger: "#9D4036",
+  dangerContainer: "#FFDAD5",
+  input: "#F3ECE1",
+};
+
+export const darkTheme = {
+  background: "#121110",
+  surface: "#1B1918",
+  surfaceContainer: "#24211F",
+  surfaceElevated: "#2D2825",
+  primary: "#C9BBA5",
+  primaryContainer: "#4B3D32",
+  activityLow: "#4B3D32",
+  activityMedium: "#8E6558",
+  secondary: "#38312D",
+  gold: "#D7AE58",
+  goldContainer: "#433415",
+  emerald: "#3B9372",
+  emeraldContainer: "rgba(59, 147, 114, 0.2)",
+  text: "#E9E1D8",
+  muted: "#BEB2A7",
+  dim: "#8E8378",
+  border: "#4C443E",
+  outline: "#94887C",
+  danger: "#D37B6B",
+  dangerContainer: "#572D28",
+  input: "#24211F",
+};
+
+export const sacredNightTheme = {
+  background: "#111011",
+  surface: "#1C1718",
+  surfaceContainer: "#281E1E",
+  surfaceElevated: "#332526",
+  primary: "#E5C2B9",
+  primaryContainer: "#58342E",
+  activityLow: "#58342E",
+  activityMedium: "#B46D60",
+  secondary: "#463534",
+  gold: "#F0C76E",
+  goldContainer: "#4B3A16",
+  emerald: "#4DB38A",
+  emeraldContainer: "rgba(77, 179, 138, 0.2)",
+  text: "#F5E8E3",
+  muted: "#D6C5BF",
+  dim: "#A8958F",
+  border: "#594442",
+  outline: "#AF9892",
+  danger: "#FFB4AB",
+  dangerContainer: "#70322C",
+  input: "#281E1E",
+};
+
+export type AppThemeColors = typeof lightTheme;

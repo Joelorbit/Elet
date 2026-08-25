@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "elet",
+    "name": "Elet",
+    "displayName": "Elet • ዕለት",
     "slug": "elet",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,16 +9,28 @@
     "scheme": "elet",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "supportsTablet": false,
+      "bundleIdentifier": "me.eyuel.elet",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Elet requires Face ID to unlock your confidential spiritual journals and confession notes."
+      }
     },
     "android": {
+      "package": "me.eyuel.elet",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#8E4424",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "monochromeImage": "./assets/images/android-icon-foreground.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "SCHEDULE_EXACT_ALARM"
+      ]
     },
     "web": {
       "output": "static",
@@ -28,9 +41,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#8E4424",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 160
         }
       ]
     ],
