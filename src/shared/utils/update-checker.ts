@@ -18,7 +18,7 @@ export interface UpdateCheckResult {
   releaseInfo?: ReleaseInfo;
 }
 
-const GITHUB_REPO = "eyuel/elet";
+const GITHUB_REPO = "Joelorbit/Elet";
 const GITHUB_RELEASES_API = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
 
 export async function checkGitHubRelease(): Promise<UpdateCheckResult> {
