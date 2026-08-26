@@ -440,6 +440,7 @@ export const SpiritualInsightGraph = memo(function SpiritualInsightGraph({
             horizontal
             showsHorizontalScrollIndicator={false}
             nestedScrollEnabled
+            style={{ flexGrow: 0 }}
             contentContainerStyle={styles.yearScrollContent}
           >
             <View style={styles.yearWeekdaysCol}>

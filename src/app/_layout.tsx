@@ -111,7 +111,6 @@ function MainAppShell() {
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="daily-scripture" options={{ presentation: "modal" }} />
-        <Stack.Screen name="bible-reader" options={{ presentation: "card" }} />
         <Stack.Screen name="practice/[section]" />
         <Stack.Screen name="intercessions" options={{ presentation: "modal" }} />
         <Stack.Screen name="note-editor" options={{ presentation: "modal" }} />

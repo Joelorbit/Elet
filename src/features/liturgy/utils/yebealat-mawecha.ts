@@ -19,192 +19,101 @@ export interface EthiopianYearLiturgicalData {
   tsomeDihnet: { month: number; day: number }; // ጾመ ድኅነት
 }
 
+// Canonical additions from Tsome Nenewe (Month 5/6, Day X)
+function addDaysToEthDate(startMonth: number, startDay: number, daysToAdd: number): { month: number; day: number } {
+  let m = startMonth;
+  let d = startDay + daysToAdd;
+  while (d > 30) {
+    d -= 30;
+    m += 1;
+  }
+  return { month: m, day: d };
+}
+
+function calculateBahireHasabForYear(year: number): EthiopianYearLiturgicalData {
+  const ameteAlem = year + 5500;
+  
+  // Evangelist
+  const evRemainder = ameteAlem % 4;
+  const evangelists = [
+    { am: "ዮሐንስ" as const, en: "John" as const },
+    { am: "ማቴዎስ" as const, en: "Matthew" as const },
+    { am: "ማርቆስ" as const, en: "Mark" as const },
+    { am: "ሉቃስ" as const, en: "Luke" as const },
+  ];
+  const evangelist = evangelists[evRemainder];
+
+  // Abektie & Metqie
+  const medeb = ameteAlem % 19;
+  const wenber = (medeb === 0 ? 19 : medeb) - 1;
+  const abektie = (wenber * 11) % 30;
+  const metqie = (30 - abektie) % 30 || 30;
+
+  // New Year day (Tinte Qemer)
+  const daysOfWeekAm = ["ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ", "እሑድ"];
+  const daysOfWeekEn = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const ameteKemer = Math.floor(ameteAlem / 4);
+  const ruz = (ameteAlem + ameteKemer) % 7;
+  const newYearIndex = (ruz + 5) % 7;
+
+  // Determine Tsome Nenewe Month & Day
+  let neneweMonth: number;
+  let neneweDay: number;
+
+  if (metqie > 14) {
+    // Metqie in Meskerem (Month 1)
+    neneweMonth = 5; // Tir
+    const metqieWeekday = (newYearIndex + metqie - 1) % 7;
+    // Tewsak table for weekdays (Nenewe starts on Monday)
+    const tewsak = [0, 6, 5, 4, 3, 2, 1][metqieWeekday];
+    let d = metqie + tewsak;
+    if (d > 30) {
+      d -= 30;
+      neneweMonth = 6; // Yekatit
+    }
+    neneweDay = d;
+  } else {
+    // Metqie in Tikimt (Month 2)
+    neneweMonth = 6; // Yekatit
+    const tikimtFirstWeekday = (newYearIndex + 30) % 7;
+    const metqieWeekday = (tikimtFirstWeekday + metqie - 1) % 7;
+    const tewsak = [0, 6, 5, 4, 3, 2, 1][metqieWeekday];
+    let d = metqie + tewsak;
+    neneweDay = d;
+  }
+
+  // Ensure canonical boundary
+  if (neneweMonth === 5 && neneweDay < 17) neneweDay = 17;
+  if (neneweMonth === 6 && neneweDay > 21) neneweDay = 21;
+
+  return {
+    year,
+    evangelist,
+    newYearDay: { am: daysOfWeekAm[newYearIndex], en: daysOfWeekEn[newYearIndex] },
+    abektie,
+    metqie,
+    tsomeNenewe: { month: neneweMonth, day: neneweDay },
+    abiyTsome: addDaysToEthDate(neneweMonth, neneweDay, 14),
+    debreZeyt: addDaysToEthDate(neneweMonth, neneweDay, 41),
+    hosanna: addDaysToEthDate(neneweMonth, neneweDay, 62),
+    siklet: addDaysToEthDate(neneweMonth, neneweDay, 67),
+    tensae: addDaysToEthDate(neneweMonth, neneweDay, 69),
+    rikbeKahnat: addDaysToEthDate(neneweMonth, neneweDay, 93),
+    erget: addDaysToEthDate(neneweMonth, neneweDay, 108),
+    peraqlitos: addDaysToEthDate(neneweMonth, neneweDay, 118),
+    tsomeHawaryat: addDaysToEthDate(neneweMonth, neneweDay, 119),
+    tsomeDihnet: addDaysToEthDate(neneweMonth, neneweDay, 121),
+  };
+}
+
 /**
- * Official Canonical Ethiopian Orthodox Tewahedo Church Bahire Hasab / Yebealat Mawecha
- * Extracted directly from Patriarchate Liturgical Calendar (2018 - 2041 ዓ.ም.)
+ * 24-Year Full Canonical Table (2018 - 2041 ዓ.ም.)
  */
-export const YEBEALAT_MAWECHA_2018_2041: Record<number, EthiopianYearLiturgicalData> = {
-  2018: {
-    year: 2018,
-    evangelist: { am: "ማርቆስ", en: "Mark" },
-    newYearDay: { am: "ሐሙስ", en: "Thursday" },
-    abektie: 15,
-    metqie: 15,
-    tsomeNenewe: { month: 5, day: 25 },
-    abiyTsome: { month: 6, day: 9 },
-    debreZeyt: { month: 7, day: 3 },
-    hosanna: { month: 7, day: 27 },
-    siklet: { month: 8, day: 2 },
-    tensae: { month: 8, day: 4 },
-    rikbeKahnat: { month: 8, day: 28 },
-    erget: { month: 9, day: 13 },
-    peraqlitos: { month: 9, day: 23 },
-    tsomeHawaryat: { month: 9, day: 24 },
-    tsomeDihnet: { month: 9, day: 26 },
-  },
-  2019: {
-    year: 2019,
-    evangelist: { am: "ሉቃስ", en: "Luke" },
-    newYearDay: { am: "ዓርብ", en: "Friday" },
-    abektie: 26,
-    metqie: 4,
-    tsomeNenewe: { month: 6, day: 15 },
-    abiyTsome: { month: 6, day: 29 },
-    debreZeyt: { month: 7, day: 23 },
-    hosanna: { month: 8, day: 27 },
-    siklet: { month: 9, day: 2 },
-    tensae: { month: 9, day: 4 },
-    rikbeKahnat: { month: 9, day: 28 },
-    erget: { month: 10, day: 13 },
-    peraqlitos: { month: 10, day: 23 },
-    tsomeHawaryat: { month: 10, day: 24 },
-    tsomeDihnet: { month: 10, day: 26 },
-  },
-  2020: {
-    year: 2020,
-    evangelist: { am: "ዮሐንስ", en: "John" },
-    newYearDay: { am: "እሑድ", en: "Sunday" },
-    abektie: 7,
-    metqie: 23,
-    tsomeNenewe: { month: 5, day: 29 },
-    abiyTsome: { month: 6, day: 13 },
-    debreZeyt: { month: 7, day: 7 },
-    hosanna: { month: 8, day: 1 },
-    siklet: { month: 8, day: 6 },
-    tensae: { month: 8, day: 8 },
-    rikbeKahnat: { month: 9, day: 2 },
-    erget: { month: 9, day: 17 },
-    peraqlitos: { month: 9, day: 27 },
-    tsomeHawaryat: { month: 9, day: 28 },
-    tsomeDihnet: { month: 9, day: 30 },
-  },
-  2021: {
-    year: 2021,
-    evangelist: { am: "ማቴዎስ", en: "Matthew" },
-    newYearDay: { am: "ሰኞ", en: "Monday" },
-    abektie: 18,
-    metqie: 12,
-    tsomeNenewe: { month: 5, day: 21 },
-    abiyTsome: { month: 6, day: 5 },
-    debreZeyt: { month: 6, day: 29 },
-    hosanna: { month: 7, day: 23 },
-    siklet: { month: 7, day: 28 },
-    tensae: { month: 7, day: 30 },
-    rikbeKahnat: { month: 8, day: 24 },
-    erget: { month: 9, day: 9 },
-    peraqlitos: { month: 9, day: 19 },
-    tsomeHawaryat: { month: 9, day: 20 },
-    tsomeDihnet: { month: 9, day: 22 },
-  },
-  2022: {
-    year: 2022,
-    evangelist: { am: "ማርቆስ", en: "Mark" },
-    newYearDay: { am: "ማክሰኞ", en: "Tuesday" },
-    abektie: 29,
-    metqie: 1,
-    tsomeNenewe: { month: 6, day: 11 },
-    abiyTsome: { month: 6, day: 25 },
-    debreZeyt: { month: 7, day: 19 },
-    hosanna: { month: 8, day: 23 },
-    siklet: { month: 8, day: 28 },
-    tensae: { month: 8, day: 30 },
-    rikbeKahnat: { month: 9, day: 24 },
-    erget: { month: 10, day: 9 },
-    peraqlitos: { month: 10, day: 19 },
-    tsomeHawaryat: { month: 10, day: 20 },
-    tsomeDihnet: { month: 10, day: 22 },
-  },
-  2023: {
-    year: 2023,
-    evangelist: { am: "ሉቃስ", en: "Luke" },
-    newYearDay: { am: "ረቡዕ", en: "Wednesday" },
-    abektie: 10,
-    metqie: 20,
-    tsomeNenewe: { month: 5, day: 26 },
-    abiyTsome: { month: 6, day: 10 },
-    debreZeyt: { month: 7, day: 4 },
-    hosanna: { month: 7, day: 28 },
-    siklet: { month: 8, day: 3 },
-    tensae: { month: 8, day: 5 },
-    rikbeKahnat: { month: 8, day: 29 },
-    erget: { month: 9, day: 14 },
-    peraqlitos: { month: 9, day: 24 },
-    tsomeHawaryat: { month: 9, day: 25 },
-    tsomeDihnet: { month: 9, day: 27 },
-  },
-  2024: {
-    year: 2024,
-    evangelist: { am: "ዮሐንስ", en: "John" },
-    newYearDay: { am: "ዓርብ", en: "Friday" },
-    abektie: 21,
-    metqie: 9,
-    tsomeNenewe: { month: 6, day: 15 },
-    abiyTsome: { month: 6, day: 29 },
-    debreZeyt: { month: 7, day: 23 },
-    hosanna: { month: 8, day: 27 },
-    siklet: { month: 9, day: 2 },
-    tensae: { month: 9, day: 4 },
-    rikbeKahnat: { month: 9, day: 28 },
-    erget: { month: 10, day: 13 },
-    peraqlitos: { month: 10, day: 23 },
-    tsomeHawaryat: { month: 10, day: 24 },
-    tsomeDihnet: { month: 10, day: 26 },
-  },
-  2025: {
-    year: 2025,
-    evangelist: { am: "ማቴዎስ", en: "Matthew" },
-    newYearDay: { am: "ቅዳሜ", en: "Saturday" },
-    abektie: 0,
-    metqie: 30,
-    tsomeNenewe: { month: 6, day: 7 },
-    abiyTsome: { month: 6, day: 21 },
-    debreZeyt: { month: 7, day: 15 },
-    hosanna: { month: 8, day: 19 },
-    siklet: { month: 8, day: 24 },
-    tensae: { month: 8, day: 26 },
-    rikbeKahnat: { month: 9, day: 20 },
-    erget: { month: 10, day: 5 },
-    peraqlitos: { month: 10, day: 15 },
-    tsomeHawaryat: { month: 10, day: 16 },
-    tsomeDihnet: { month: 10, day: 18 },
-  },
-  2026: {
-    year: 2026,
-    evangelist: { am: "ማርቆስ", en: "Mark" },
-    newYearDay: { am: "እሑድ", en: "Sunday" },
-    abektie: 11,
-    metqie: 19,
-    tsomeNenewe: { month: 5, day: 27 },
-    abiyTsome: { month: 6, day: 11 },
-    debreZeyt: { month: 7, day: 5 },
-    hosanna: { month: 7, day: 29 },
-    siklet: { month: 8, day: 4 },
-    tensae: { month: 8, day: 6 },
-    rikbeKahnat: { month: 8, day: 30 },
-    erget: { month: 9, day: 15 },
-    peraqlitos: { month: 9, day: 25 },
-    tsomeHawaryat: { month: 9, day: 26 },
-    tsomeDihnet: { month: 9, day: 28 },
-  },
-  2027: {
-    year: 2027,
-    evangelist: { am: "ሉቃስ", en: "Luke" },
-    newYearDay: { am: "ሰኞ", en: "Monday" },
-    abektie: 22,
-    metqie: 8,
-    tsomeNenewe: { month: 6, day: 17 },
-    abiyTsome: { month: 7, day: 1 },
-    debreZeyt: { month: 7, day: 25 },
-    hosanna: { month: 8, day: 29 },
-    siklet: { month: 9, day: 4 },
-    tensae: { month: 9, day: 6 },
-    rikbeKahnat: { month: 10, day: 1 },
-    erget: { month: 10, day: 15 },
-    peraqlitos: { month: 10, day: 25 },
-    tsomeHawaryat: { month: 10, day: 26 },
-    tsomeDihnet: { month: 10, day: 28 },
-  },
-};
+export const YEBEALAT_MAWECHA_2018_2041: Record<number, EthiopianYearLiturgicalData> = {};
+
+for (let y = 2018; y <= 2041; y++) {
+  YEBEALAT_MAWECHA_2018_2041[y] = calculateBahireHasabForYear(y);
+}
 
 function isDateInRange(
   target: { month: number; day: number },
@@ -225,7 +134,7 @@ export interface EthiopianFastInfo {
 }
 
 export function getEthiopianFastForDate(date: EthiopianDate): EthiopianFastInfo | undefined {
-  const cal = YEBEALAT_MAWECHA_2018_2041[date.year] || YEBEALAT_MAWECHA_2018_2041[2018];
+  const cal = YEBEALAT_MAWECHA_2018_2041[date.year] || calculateBahireHasabForYear(date.year);
 
   // 1. ጾመ ነቢያት (Fast of the Prophets / Advent): ኅዳር 15 – ታኅሣሥ 28
   if ((date.month === 3 && date.day >= 15) || (date.month === 4 && date.day <= 28)) {
@@ -329,7 +238,7 @@ export interface MovableFeastInfo {
 }
 
 export function getMovableFeastForDate(date: EthiopianDate): MovableFeastInfo | undefined {
-  const cal = YEBEALAT_MAWECHA_2018_2041[date.year] || YEBEALAT_MAWECHA_2018_2041[2018];
+  const cal = YEBEALAT_MAWECHA_2018_2041[date.year] || calculateBahireHasabForYear(date.year);
   if (!cal) return undefined;
 
   const match = (m: number, d: number) => date.month === m && date.day === d;

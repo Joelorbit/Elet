@@ -69,9 +69,13 @@ export function ethiopianToGregorian(date: EthiopianDate): Date {
   return new Date(start.getFullYear(), start.getMonth(), start.getDate() + offset);
 }
 
+export function isLeapEthiopianYear(year: number): boolean {
+  return year % 4 === 3;
+}
+
 export function daysInEthiopianMonth(year: number, month: number) {
   if (month < 13) return 30;
-  return year % 4 === 3 ? 6 : 5;
+  return isLeapEthiopianYear(year) ? 6 : 5;
 }
 
 export function formatEthiopianDate(date: EthiopianDate, language: AppLanguage) {

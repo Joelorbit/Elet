@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Switch, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import * as Haptics from "expo-haptics";
 
 import {
   AppScreen,
@@ -18,13 +19,13 @@ import { translate } from "@/src/shared/utils/i18n";
 import type { NoteCategory } from "@/src/types/app";
 
 const categories: NoteCategory[] = [
-  "sermon",
+  "reflection",
   "prayer",
+  "confession",
   "verse",
   "priest",
+  "sermon",
   "gratitude",
-  "reflection",
-  "confession",
   "service",
 ];
 
@@ -45,6 +46,7 @@ export default function NoteEditorScreen() {
 
   const handleSave = () => {
     if (!title.trim() && !body.trim()) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     saveNote({
       id,
       title: title.trim(),
@@ -58,6 +60,7 @@ export default function NoteEditorScreen() {
 
   const handleDelete = () => {
     if (id) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
       deleteNote(id);
       router.back();
     }
@@ -88,6 +91,7 @@ export default function NoteEditorScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.categoryScrollContainer}
         contentContainerStyle={styles.categoryScroll}
       >
         {categories.map((cat) => {
@@ -95,7 +99,10 @@ export default function NoteEditorScreen() {
           return (
             <Pressable
               key={cat}
-              onPress={() => setCategory(cat)}
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                setCategory(cat);
+              }}
               style={[
                 styles.categoryChip,
                 {
@@ -109,6 +116,7 @@ export default function NoteEditorScreen() {
                 style={{
                   color: isSelected ? "#FFFFFF" : colors.text,
                   fontWeight: isSelected ? "800" : "600",
+                  fontSize: 12,
                 }}
               >
                 {noteCategoryLabels[cat][language]}
@@ -184,12 +192,24 @@ export default function NoteEditorScreen() {
 const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", marginTop: 6, marginBottom: 4 },
   title: { fontSize: 20, fontWeight: "900" },
-  categoryScroll: { flexDirection: "row", gap: 8, paddingVertical: 4 },
+  categoryScrollContainer: {
+    flexGrow: 0,
+    maxHeight: 44,
+    marginVertical: 4,
+  },
+  categoryScroll: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   categoryChip: {
+    height: 36,
     paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
     borderWidth: 1,
+    flexShrink: 0,
   },
   optionRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12 },
   optionInfo: { flex: 1, minWidth: 0, gap: 2 },

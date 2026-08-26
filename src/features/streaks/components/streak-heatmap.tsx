@@ -207,6 +207,7 @@ export const StreakHeatmap = memo(function StreakHeatmap({
             horizontal
             showsHorizontalScrollIndicator={false}
             nestedScrollEnabled
+            style={{ flexGrow: 0 }}
             contentContainerStyle={styles.yearScrollContent}
           >
             <View style={styles.yearWeekdaysCol}>

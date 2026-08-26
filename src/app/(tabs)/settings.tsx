@@ -19,6 +19,7 @@ import {
 } from "@/src/theme/app-ui";
 import { useAppStore } from "@/src/features/settings/store/app-store";
 import { translate } from "@/src/shared/utils/i18n";
+import { promptUpdateCheck } from "@/src/shared/utils/update-checker";
 import type { AppLockMode, AutoLockTimeout, ThemeMode } from "@/src/types/app";
 
 export default function SettingsScreen() {
@@ -269,6 +270,20 @@ export default function SettingsScreen() {
         />
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
         <SettingRow
+          icon="book-open"
+          title={language === "am" ? "የንባብ ማሳሰቢያ ደወል" : "Reading Plan Reminders"}
+          detail={language === "am" ? "ለተመረጡ የንባብ ሰዓቶች" : "For scheduled reading hours"}
+          accessory={
+            <Switch
+              value={preferences.readingRemindersEnabled !== false}
+              onValueChange={(val) => updatePreferences({ readingRemindersEnabled: val })}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor="#FFFFFF"
+            />
+          }
+        />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+        <SettingRow
           icon="utensils"
           title={t("fastingNotifications")}
           detail={language === "am" ? "የጾም መጀመሪያና መፍቻ ሰዓት" : "Fasting morning & break time"}
@@ -276,6 +291,34 @@ export default function SettingsScreen() {
             <Switch
               value={preferences.fastingRemindersEnabled !== false}
               onValueChange={(val) => updatePreferences({ fastingRemindersEnabled: val })}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor="#FFFFFF"
+            />
+          }
+        />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+        <SettingRow
+          icon="flame"
+          title={language === "am" ? "የጸሎት ጉዞ ማሳሰቢያ" : "Streak Protection Warning"}
+          detail={language === "am" ? "ምሽት 2:30 የዕለቱ ጸሎት እንዳይቋረጥ" : "Evening 8:30 PM reminder to protect streak"}
+          accessory={
+            <Switch
+              value={preferences.streakProtectionReminderEnabled !== false}
+              onValueChange={(val) => updatePreferences({ streakProtectionReminderEnabled: val })}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor="#FFFFFF"
+            />
+          }
+        />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+        <SettingRow
+          icon="book-open"
+          title={language === "am" ? "የዕለቱ ቅዱስ ቃል" : "Daily Scripture Notification"}
+          detail={language === "am" ? "ቀትር 6:00 የዕለቱን ቃል ይልካል" : "Noon 12:00 PM scripture inspiration"}
+          accessory={
+            <Switch
+              value={preferences.dailyVerseReminderEnabled !== false}
+              onValueChange={(val) => updatePreferences({ dailyVerseReminderEnabled: val })}
               trackColor={{ false: colors.border, true: colors.primary }}
               thumbColor="#FFFFFF"
             />
@@ -419,6 +462,13 @@ export default function SettingsScreen() {
           </View>
         )}
 
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+        <SettingRow
+          icon="sparkles"
+          title={language === "am" ? "የአዲስ ስሪት ምርመራ" : "Check for Updates"}
+          detail={language === "am" ? "አዳዲስ የGitHub ስሪቶችን ይመልከቱ" : "Check GitHub for latest release APK"}
+          onPress={() => void promptUpdateCheck(language)}
+        />
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
         <SettingRow
           icon="info"

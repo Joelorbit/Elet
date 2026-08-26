@@ -246,10 +246,15 @@ export function IconCircle({
         {
           width: size,
           height: size,
+          minWidth: size,
+          minHeight: size,
+          maxWidth: size,
+          maxHeight: size,
           borderRadius: size / 2,
           backgroundColor: palette.background,
           borderColor: palette.borderColor,
           borderWidth: 1.5,
+          flexShrink: 0,
         },
       ]}
     >
@@ -268,9 +273,14 @@ export function AppLogo({ size = 48 }: { size?: number }) {
         {
           width: size,
           height: size,
+          minWidth: size,
+          minHeight: size,
+          maxWidth: size,
+          maxHeight: size,
           borderRadius: radius,
           borderColor: colors.gold,
           backgroundColor: colors.surface,
+          flexShrink: 0,
         },
       ]}
     >
@@ -288,12 +298,17 @@ export function AppEmblem({ icon = "church", size = 84 }: { icon?: IconName; siz
       style={{
         width: size,
         height: size,
+        minWidth: size,
+        minHeight: size,
+        maxWidth: size,
+        maxHeight: size,
         borderRadius: size / 2,
         borderWidth: 2,
         borderColor: colors.gold,
         backgroundColor: colors.goldContainer,
         alignItems: "center",
         justifyContent: "center",
+        flexShrink: 0,
       }}
     >
       <LucideIcon name={icon} size={Math.round(size * 0.5)} color={colors.gold} strokeWidth={2.2} />
@@ -328,10 +343,15 @@ export function IconButton({
         {
           width: size,
           height: size,
+          minWidth: size,
+          minHeight: size,
+          maxWidth: size,
+          maxHeight: size,
           borderRadius: size / 2,
           backgroundColor: backgroundColor || colors.secondary,
           borderWidth: 1.5,
           borderColor: colors.border,
+          flexShrink: 0,
           opacity: pressed ? 0.75 : 1,
           transform: [{ scale: pressed ? 0.95 : 1 }],
         },

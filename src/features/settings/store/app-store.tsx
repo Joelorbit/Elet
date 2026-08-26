@@ -5,6 +5,8 @@ import type {
   AppLanguage,
   AppStateData,
   ConfessionSession,
+  CustomFastPlan,
+  CustomReadingPlan,
   FastingPreferences,
   Intercession,
   JournalNote,
@@ -16,6 +18,7 @@ import type {
   UserPreferences,
 } from "@/src/types/app";
 import { formatDateKey } from "@/src/features/streaks/utils/streaks";
+import { syncAllAppReminders } from "@/src/features/settings/utils/reminders";
 
 const STORAGE_KEY = "@elet_state_v2";
 
@@ -92,11 +95,58 @@ const DEFAULT_PRAYERS: PrayerRoutine[] = [
   },
 ];
 
+const DEFAULT_READINGS: CustomReadingPlan[] = [
+  {
+    id: "reading-1",
+    theme: { am: "ወንጌል", en: "Gospels" },
+    title: { am: "የማቴዎስ ወንጌል — ተራራው ስብከት", en: "Gospel of Matthew — Sermon on the Mount" },
+    reference: "Matthew 5–7",
+    completedDates: [],
+    custom: false,
+    reminderHour: 8,
+    reminderMinute: 0,
+    reminderEnabled: true,
+  },
+  {
+    id: "reading-2",
+    theme: { am: "ጥበብና መዝሙር", en: "Psalms & Wisdom" },
+    title: { am: "መዝሙረ ዳዊት — የጠዋት ምስጋና", en: "Book of Psalms — Morning Praise" },
+    reference: "Psalm 1–5",
+    completedDates: [],
+    custom: false,
+    reminderHour: 13,
+    reminderMinute: 0,
+    reminderEnabled: true,
+  },
+  {
+    id: "reading-3",
+    theme: { am: "ቀኖና 81", en: "Canon 81" },
+    title: { am: "መጽሐፈ ሄኖክ — የጻድቃን በረከት", en: "Book of Enoch — Blessing of the Righteous" },
+    reference: "1 Enoch 1–2",
+    completedDates: [],
+    custom: false,
+    reminderHour: 18,
+    reminderMinute: 0,
+    reminderEnabled: true,
+  },
+  {
+    id: "reading-4",
+    theme: { am: "መልእክታት", en: "Epistles" },
+    title: { am: "ወደ ሮሜ ሰዎች — የእምነት ጽድቅ", en: "Epistle to the Romans — Life in the Spirit" },
+    reference: "Romans 8",
+    completedDates: [],
+    custom: false,
+    reminderHour: 20,
+    reminderMinute: 0,
+    reminderEnabled: true,
+  },
+];
+
 const DEFAULT_PREFERENCES: UserPreferences = {
   language: "en",
   themeMode: "system",
   textScale: "standard",
-  onboardingComplete: false, // Default false so fresh install & clear data land on Onboarding
+  onboardingComplete: false,
   dailyReminderEnabled: true,
   reminderHour: 7,
   reminderMinute: 30,
@@ -104,6 +154,9 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   feastReminderHour: 7,
   prayerRemindersEnabled: true,
   fastingRemindersEnabled: true,
+  readingRemindersEnabled: true,
+  streakProtectionReminderEnabled: true,
+  dailyVerseReminderEnabled: true,
   appLockEnabled: false,
   appLockMode: "none",
   autoLockTimeout: "immediately",
@@ -115,6 +168,21 @@ const DEFAULT_FASTING: FastingPreferences = {
   fastingReminderEnabled: true,
   customRules: [],
   personalVowNote: "",
+  customFastPlans: [
+    {
+      id: "fast-sample-1",
+      title: "5-Day Penance Fast (የ5 ቀን የንስሐ ጾም)",
+      startDateKey: formatDateKey(new Date()),
+      endDateKey: formatDateKey(new Date(Date.now() + 5 * 86400000)),
+      targetDays: 5,
+      breakFastHour: 15,
+      breakFastMinute: 0,
+      notes: "Assigned by spiritual father for spiritual preparation & prayer.",
+      completedDates: [],
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    },
+  ],
 };
 
 const DEFAULT_SPIRITUAL_FATHER: SpiritualFatherProfile = {
@@ -143,6 +211,7 @@ const DEFAULT_SPIRITUAL_FATHER: SpiritualFatherProfile = {
 interface AppStoreContextType {
   preferences: UserPreferences;
   prayers: PrayerRoutine[];
+  readingPlans: CustomReadingPlan[];
   fastingPreferences: FastingPreferences;
   spiritualFather: SpiritualFatherProfile;
   readingProgress: ReadingProgress;
@@ -159,6 +228,14 @@ interface AppStoreContextType {
   addCustomPrayer: (prayer: { titleAm: string; titleEn: string; timeLabel: string; hour: number; minute?: number }) => void;
   updatePrayer: (id: string, patch: Partial<PrayerRoutine>) => void;
   deletePrayer: (id: string) => void;
+  toggleReadingCompletion: (readingId: string) => void;
+  addCustomReading: (reading: { titleAm: string; titleEn: string; themeAm?: string; themeEn?: string; reference: string; hour?: number; minute?: number }) => void;
+  deleteReading: (id: string) => void;
+  updateReading: (id: string, patch: Partial<CustomReadingPlan>) => void;
+  createCustomFastPlan: (plan: Omit<CustomFastPlan, "id" | "createdAt" | "completedDates" | "isActive">) => void;
+  toggleCustomFastDate: (planId: string, dateKey: string) => void;
+  deleteCustomFastPlan: (planId: string) => void;
+  updateFastingPreferences: (patch: Partial<FastingPreferences>) => void;
   togglePenanceItem: (penanceId: string) => void;
   addPenanceItem: (title: string, targetCount?: number) => void;
   deletePenanceItem: (id: string) => void;
@@ -178,6 +255,7 @@ const AppStoreContext = createContext<AppStoreContextType | null>(null);
 export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_PREFERENCES);
   const [prayers, setPrayers] = useState<PrayerRoutine[]>(DEFAULT_PRAYERS);
+  const [readingPlans, setReadingPlans] = useState<CustomReadingPlan[]>(DEFAULT_READINGS);
   const [fastingPreferences, setFastingPreferences] = useState<FastingPreferences>(DEFAULT_FASTING);
   const [spiritualFather, setSpiritualFather] = useState<SpiritualFatherProfile>(DEFAULT_SPIRITUAL_FATHER);
   const [readingProgress, setReadingProgress] = useState<ReadingProgress>({
@@ -195,18 +273,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     }
     return dates;
   });
-  const [notes, setNotes] = useState<JournalNote[]>([
-    {
-      id: "note-welcome",
-      title: "Welcome to Elet (እንኳን ወደ ዕለት በደህና መጡ)",
-      body: "A sacred, offline spiritual companion built with orthodox canonical precision. Your notes, prayers, and confessions are stored 100% locally on this device.",
-      category: "reflection",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      pinned: true,
-      sensitive: false,
-    },
-  ]);
+  const [notes, setNotes] = useState<JournalNote[]>([]);
   const [confessionSessions, setConfessionSessions] = useState<ConfessionSession[]>([]);
   const [intercessions, setIntercessions] = useState<Intercession[]>([
     {
@@ -231,7 +298,14 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
           const parsed = JSON.parse(raw) as Partial<AppStateData>;
           if (parsed.preferences) setPreferences((prev) => ({ ...prev, ...parsed.preferences }));
           if (parsed.prayers) setPrayers(parsed.prayers);
-          if (parsed.fastingPreferences) setFastingPreferences(parsed.fastingPreferences);
+          if (parsed.readingPlans) setReadingPlans(parsed.readingPlans);
+          if (parsed.fastingPreferences) {
+            setFastingPreferences({
+              ...DEFAULT_FASTING,
+              ...parsed.fastingPreferences,
+              customFastPlans: parsed.fastingPreferences.customFastPlans || DEFAULT_FASTING.customFastPlans,
+            });
+          }
           if (parsed.spiritualFather) setSpiritualFather(parsed.spiritualFather);
           if (parsed.readingProgress) setReadingProgress(parsed.readingProgress);
           if (parsed.dailyPracticeDates) setDailyPracticeDates(parsed.dailyPracticeDates);
@@ -254,6 +328,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     const dataToStore: AppStateData = {
       preferences,
       prayers,
+      readingPlans,
       fastingPreferences,
       spiritualFather,
       readingProgress,
@@ -267,6 +342,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     isReady,
     preferences,
     prayers,
+    readingPlans,
     fastingPreferences,
     spiritualFather,
     readingProgress,
@@ -274,6 +350,37 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     notes,
     confessionSessions,
     intercessions,
+  ]);
+
+  // Automatically keep device notifications in sync with settings, routines & fasts
+  useEffect(() => {
+    if (!isReady || !preferences.onboardingComplete) return;
+    const timer = setTimeout(() => {
+      void syncAllAppReminders({
+        preferences,
+        prayers,
+        readingPlans,
+        fastingPreferences,
+      });
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [
+    isReady,
+    preferences.onboardingComplete,
+    preferences.dailyReminderEnabled,
+    preferences.reminderHour,
+    preferences.reminderMinute,
+    preferences.feastReminderEnabled,
+    preferences.feastReminderHour,
+    preferences.prayerRemindersEnabled,
+    preferences.fastingRemindersEnabled,
+    preferences.readingRemindersEnabled,
+    preferences.streakProtectionReminderEnabled,
+    preferences.dailyVerseReminderEnabled,
+    preferences.language,
+    prayers,
+    readingPlans,
+    fastingPreferences,
   ]);
 
   const setLanguage = useCallback((language: AppLanguage) => {
@@ -334,6 +441,105 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
 
   const deletePrayer = useCallback((id: string) => {
     setPrayers((prev) => prev.filter((p) => p.id !== id));
+  }, []);
+
+  const toggleReadingCompletion = useCallback((readingId: string) => {
+    const todayKey = formatDateKey(new Date());
+    setReadingPlans((prev) =>
+      prev.map((r) => {
+        if (r.id !== readingId) return r;
+        const exists = r.completedDates.includes(todayKey);
+        const nextDates = exists
+          ? r.completedDates.filter((d) => d !== todayKey)
+          : [...r.completedDates, todayKey];
+        return { ...r, completedDates: nextDates };
+      })
+    );
+    setDailyPracticeDates((prev) => (prev.includes(todayKey) ? prev : [...prev, todayKey]));
+  }, []);
+
+  const addCustomReading = useCallback(
+    ({
+      titleAm,
+      titleEn,
+      themeAm = "ንባብ",
+      themeEn = "Reading",
+      reference,
+      hour = 8,
+      minute = 0,
+    }: {
+      titleAm: string;
+      titleEn: string;
+      themeAm?: string;
+      themeEn?: string;
+      reference: string;
+      hour?: number;
+      minute?: number;
+    }) => {
+      const newReading: CustomReadingPlan = {
+        id: `reading-custom-${Date.now()}`,
+        theme: { am: themeAm, en: themeEn },
+        title: { am: titleAm || titleEn, en: titleEn || titleAm },
+        reference,
+        completedDates: [],
+        custom: true,
+        reminderHour: hour,
+        reminderMinute: minute,
+        reminderEnabled: true,
+      };
+      setReadingPlans((prev) => [...prev, newReading]);
+    },
+    []
+  );
+
+  const deleteReading = useCallback((id: string) => {
+    setReadingPlans((prev) => prev.filter((r) => r.id !== id));
+  }, []);
+
+  const updateReading = useCallback((id: string, patch: Partial<CustomReadingPlan>) => {
+    setReadingPlans((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  }, []);
+
+  const createCustomFastPlan = useCallback(
+    (planInput: Omit<CustomFastPlan, "id" | "createdAt" | "completedDates" | "isActive">) => {
+      const newPlan: CustomFastPlan = {
+        ...planInput,
+        id: `fast-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        completedDates: [],
+        isActive: true,
+      };
+      setFastingPreferences((prev) => ({
+        ...prev,
+        customFastPlans: [newPlan, ...(prev.customFastPlans || [])],
+      }));
+    },
+    []
+  );
+
+  const toggleCustomFastDate = useCallback((planId: string, dateKey: string) => {
+    setFastingPreferences((prev) => ({
+      ...prev,
+      customFastPlans: (prev.customFastPlans || []).map((p) => {
+        if (p.id !== planId) return p;
+        const exists = p.completedDates.includes(dateKey);
+        const nextDates = exists
+          ? p.completedDates.filter((d) => d !== dateKey)
+          : [...p.completedDates, dateKey];
+        return { ...p, completedDates: nextDates };
+      }),
+    }));
+  }, []);
+
+  const deleteCustomFastPlan = useCallback((planId: string) => {
+    setFastingPreferences((prev) => ({
+      ...prev,
+      customFastPlans: (prev.customFastPlans || []).filter((p) => p.id !== planId),
+    }));
+  }, []);
+
+  const updateFastingPreferences = useCallback((patch: Partial<FastingPreferences>) => {
+    setFastingPreferences((prev) => ({ ...prev, ...patch }));
   }, []);
 
   const togglePenanceItem = useCallback((penanceId: string) => {
@@ -463,6 +669,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     } catch {}
     setPreferences(DEFAULT_PREFERENCES);
     setPrayers(DEFAULT_PRAYERS);
+    setReadingPlans(DEFAULT_READINGS);
     setFastingPreferences(DEFAULT_FASTING);
     setSpiritualFather(DEFAULT_SPIRITUAL_FATHER);
     setReadingProgress({ completedIds: [], reflections: {}, favoriteIds: [] });
@@ -476,6 +683,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     () => ({
       preferences,
       prayers,
+      readingPlans,
       fastingPreferences,
       spiritualFather,
       readingProgress,
@@ -492,6 +700,14 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       addCustomPrayer,
       updatePrayer,
       deletePrayer,
+      toggleReadingCompletion,
+      addCustomReading,
+      deleteReading,
+      updateReading,
+      createCustomFastPlan,
+      toggleCustomFastDate,
+      deleteCustomFastPlan,
+      updateFastingPreferences,
       togglePenanceItem,
       addPenanceItem,
       deletePenanceItem,
@@ -508,6 +724,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     [
       preferences,
       prayers,
+      readingPlans,
       fastingPreferences,
       spiritualFather,
       readingProgress,
@@ -524,6 +741,14 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       addCustomPrayer,
       updatePrayer,
       deletePrayer,
+      toggleReadingCompletion,
+      addCustomReading,
+      deleteReading,
+      updateReading,
+      createCustomFastPlan,
+      toggleCustomFastDate,
+      deleteCustomFastPlan,
+      updateFastingPreferences,
       togglePenanceItem,
       addPenanceItem,
       deletePenanceItem,

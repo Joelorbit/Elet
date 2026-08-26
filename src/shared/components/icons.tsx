@@ -36,6 +36,7 @@ import {
   Download as LucideDownload,
   RefreshCw as LucideRefreshCw,
   Star as LucideStar,
+  Flame as LucideFlame,
 } from "lucide-react-native";
 
 export interface IconProps extends LucideProps {
@@ -113,6 +114,7 @@ export type IconName =
   | "refresh"
   | "system-update"
   | "star"
+  | "flame"
   | "cross";
 
 const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
@@ -183,6 +185,7 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   refresh: LucideRefreshCw,
   "system-update": LucideRefreshCw,
   star: LucideStar,
+  flame: LucideFlame,
 };
 
 export function LucideIcon({
@@ -194,7 +197,17 @@ export function LucideIcon({
   ...props
 }: IconProps & { name: IconName | string }) {
   const Component = ICON_MAP[name] || LucideChurch;
-  return <Component size={size} color={color} strokeWidth={strokeWidth} style={style} {...props} />;
+  return (
+    <Component
+      size={size}
+      width={size}
+      height={size}
+      color={color}
+      strokeWidth={strokeWidth}
+      style={[{ width: size, height: size, flexShrink: 0 }, style]}
+      {...props}
+    />
+  );
 }
 
 export const AppIcon = LucideIcon;

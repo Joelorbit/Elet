@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, StyleSheet, Switch, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 
@@ -17,22 +17,29 @@ import {
   useAppColors,
 } from "@/src/theme/app-ui";
 import { useAppStore, useTodayKey } from "@/src/features/settings/store/app-store";
-import { dailyReadings, confessionPrompts } from "@/src/features/bible/utils/content";
+import { confessionPrompts } from "@/src/features/bible/utils/content";
 import { translate } from "@/src/shared/utils/i18n";
 import { FastingTimerWidget } from "@/src/features/liturgy/components/orthodox-widgets";
-import { useAppLock } from "@/src/features/auth/hooks/use-app-lock";
+import { authenticateBiometrics } from "@/src/features/auth/hooks/use-app-lock";
+import { formatDateKey } from "@/src/features/streaks/utils/streaks";
 
 export default function PracticeSectionScreen() {
   const { section } = useLocalSearchParams<{ section: string }>();
   const {
     preferences,
     prayers,
-    readingProgress,
+    readingPlans,
+    fastingPreferences,
     spiritualFather,
-    confessionSessions,
     togglePrayerCompletion,
     addCustomPrayer,
     deletePrayer,
+    toggleReadingCompletion,
+    addCustomReading,
+    deleteReading,
+    createCustomFastPlan,
+    toggleCustomFastDate,
+    deleteCustomFastPlan,
     togglePenanceItem,
     addPenanceItem,
     deletePenanceItem,
@@ -42,7 +49,6 @@ export default function PracticeSectionScreen() {
   const language = preferences.language;
   const t = (key: Parameters<typeof translate>[1]) => translate(language, key);
   const todayKey = useTodayKey();
-  const { authenticate } = useAppLock();
 
   // Custom Prayer Form State
   const [showAddPrayer, setShowAddPrayer] = useState(false);
@@ -50,6 +56,22 @@ export default function PracticeSectionScreen() {
   const [customPrayerTitleEn, setCustomPrayerTitleEn] = useState("");
   const [customPrayerTimeLabel, setCustomPrayerTimeLabel] = useState("6:00 AM");
   const [customPrayerHour, setCustomPrayerHour] = useState("6");
+
+  // Custom Reading Form State
+  const [showAddReading, setShowAddReading] = useState(false);
+  const [readingTitleAm, setReadingTitleAm] = useState("");
+  const [readingTitleEn, setReadingTitleEn] = useState("");
+  const [readingThemeAm, setReadingThemeAm] = useState("የግል ንባብ");
+  const [readingThemeEn, setReadingThemeEn] = useState("Custom Reading");
+  const [readingRef, setReadingRef] = useState("");
+  const [readingHour, setReadingHour] = useState("8");
+
+  // Custom Fast Form State
+  const [showAddFast, setShowAddFast] = useState(false);
+  const [fastTitle, setFastTitle] = useState("");
+  const [fastDays, setFastDays] = useState("5");
+  const [fastHour, setFastHour] = useState("15");
+  const [fastNotes, setFastNotes] = useState("");
 
   // Confession form state
   const isLockRequired = preferences.appLockMode === "confession" || preferences.appLockMode === "app";
@@ -77,8 +99,50 @@ export default function PracticeSectionScreen() {
     setShowAddPrayer(false);
   };
 
+  const handleAddCustomReading = () => {
+    if (!readingTitleAm.trim() && !readingTitleEn.trim() && !readingRef.trim()) return;
+    addCustomReading({
+      titleAm: readingTitleAm.trim() || readingTitleEn.trim() || readingRef.trim(),
+      titleEn: readingTitleEn.trim() || readingTitleAm.trim() || readingRef.trim(),
+      themeAm: readingThemeAm.trim() || "የግል ንባብ",
+      themeEn: readingThemeEn.trim() || "Custom Reading",
+      reference: readingRef.trim() || "Holy Scripture",
+      hour: parseInt(readingHour, 10) || 8,
+    });
+    setReadingTitleAm("");
+    setReadingTitleEn("");
+    setReadingRef("");
+    setShowAddReading(false);
+  };
+
+  const handleCreateFast = () => {
+    if (!fastTitle.trim()) return;
+    const targetDays = parseInt(fastDays, 10) || 5;
+    const now = new Date();
+    const endDate = new Date(now.getTime() + targetDays * 86400000);
+    createCustomFastPlan({
+      title: fastTitle.trim(),
+      startDateKey: formatDateKey(now),
+      endDateKey: formatDateKey(endDate),
+      targetDays,
+      breakFastHour: parseInt(fastHour, 10) || 15,
+      breakFastMinute: 0,
+      notes: fastNotes.trim() || undefined,
+    });
+    setFastTitle("");
+    setFastNotes("");
+    setShowAddFast(false);
+  };
+
   const handleUnlockConfession = async () => {
-    const success = await authenticate();
+    const success = await authenticateBiometrics({
+      promptMessage:
+        language === "am"
+          ? "የንስሐ ዝግጅትዎን ለመክፈት የጣት አሻራዎን ይጠቀሙ"
+          : "Unlock Confession Preparation",
+      fallbackLabel: language === "am" ? "ይለፍ ቃል ተጠቀም" : "Use Passcode",
+      cancelLabel: language === "am" ? "ሰርዝ" : "Cancel",
+    });
     if (success) {
       setConfessionLocked(false);
     }
@@ -108,7 +172,7 @@ export default function PracticeSectionScreen() {
     setShowAddPenance(false);
   };
 
-  // Section 1: Prayer Hours (ሰዓታት) with Full Custom Prayer CRUD
+  // Section 1: Prayer Hours (ሰዓታት) with Full CRUD (Delete any prayer & Add custom)
   if (section === "prayer") {
     return (
       <AppScreen scroll>
@@ -126,7 +190,7 @@ export default function PracticeSectionScreen() {
 
         {/* Add Custom Prayer Button */}
         <PrimaryButton
-          label={showAddPrayer ? (language === "am" ? "ዝጋ" : "Close") : (language === "am" ? "አዲስ የጸሎት ሰዓት ጨምር" : "Add Custom Prayer Hour")}
+          label={showAddPrayer ? (language === "am" ? "ዝጋ" : "Close") : (language === "am" ? "+ አዲስ የጸሎት ሰዓት ጨምር" : "+ Add Custom Prayer Hour")}
           icon={showAddPrayer ? "x" : "plus"}
           tone={showAddPrayer ? "soft" : "primary"}
           onPress={() => setShowAddPrayer((prev) => !prev)}
@@ -171,7 +235,7 @@ export default function PracticeSectionScreen() {
           </Card>
         )}
 
-        <SectionHeader title={language === "am" ? "ሰባቱ ቀኖናዊ ሰዓታት" : "Canonical Prayer Routines"} />
+        <SectionHeader title={language === "am" ? "የጸሎት ሰዓታት ዝርዝር" : "Configured Prayer Routines"} />
 
         <View style={styles.list}>
           {prayers.map((prayer) => {
@@ -193,16 +257,14 @@ export default function PracticeSectionScreen() {
                   </View>
 
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                    {prayer.custom && (
-                      <IconButton
-                        icon="trash"
-                        size={36}
-                        color={colors.danger}
-                        backgroundColor={colors.dangerContainer}
-                        accessibilityLabel="Delete prayer"
-                        onPress={() => deletePrayer(prayer.id)}
-                      />
-                    )}
+                    <IconButton
+                      icon="trash"
+                      size={36}
+                      color={colors.danger}
+                      backgroundColor={colors.dangerContainer}
+                      accessibilityLabel="Delete prayer"
+                      onPress={() => deletePrayer(prayer.id)}
+                    />
                     <Pressable
                       onPress={() => {
                         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -228,7 +290,7 @@ export default function PracticeSectionScreen() {
     );
   }
 
-  // Section 2: Readings with Link to Full 81-Canon Bible Reader
+  // Section 2: Readings with Full Custom Reading Plans & Link to 81-Canon Reader
   if (section === "readings") {
     return (
       <AppScreen scroll>
@@ -244,57 +306,110 @@ export default function PracticeSectionScreen() {
           </View>
         </View>
 
-        {/* Big Entry Card to Full 81-Canon Bible Reader */}
-        <Pressable
-          onPress={() => router.push("/bible-reader" as never)}
-          style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}
-        >
-          <Card style={[styles.bibleReaderCard, { backgroundColor: colors.surface, borderColor: colors.gold }]}>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
-              <IconCircle icon="book-open" color="gold" size={54} />
-              <View style={{ flex: 1, gap: 2 }}>
-                <Text tone="title" style={{ fontSize: 17, fontWeight: "900", color: colors.text }}>
-                  {language === "am" ? "ሙሉውን 81 መጻሕፍት ክፈት" : "Open 81-Canon Bible Reader"}
-                </Text>
-                <Text style={{ fontSize: 13, color: colors.muted, lineHeight: 18 }}>
-                  {language === "am"
-                    ? "ከዘፍጥረት እስከ ራእይ፣ መጽሐፈ ሄኖክ፣ ኩፋሌ፣ ሲራክና መዝሙረ ዳዊት።"
-                    : "Genesis to Revelation, Enoch, Jubilees, Sirach, Wisdom & all 150 Psalms."}
-                </Text>
+        {/* Add Custom Reading Plan Button */}
+        <PrimaryButton
+          label={showAddReading ? (language === "am" ? "ዝጋ" : "Close") : (language === "am" ? "+ አዲስ የመጽሐፍ ቅዱስ ንባብ ጨምር" : "+ Add Custom Reading Plan")}
+          icon={showAddReading ? "x" : "plus"}
+          tone={showAddReading ? "soft" : "primary"}
+          onPress={() => setShowAddReading((prev) => !prev)}
+        />
+
+        {showAddReading && (
+          <Card style={{ backgroundColor: colors.surface, borderColor: colors.gold, gap: 10, borderWidth: 1.5 }}>
+            <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text }}>
+              {language === "am" ? "አዲስ የግል የንባብ መርሐ ግብር" : "New Custom Reading Plan"}
+            </Text>
+            <AppTextInput
+              value={readingTitleAm}
+              onChangeText={setReadingTitleAm}
+              placeholder={language === "am" ? "የንባቡ ርዕስ (ለምሳሌ፡ የዮሐንስ ወንጌል ጥናት)..." : "Reading Title (e.g. Gospel of John Study)..."}
+            />
+            <AppTextInput
+              value={readingRef}
+              onChangeText={setReadingRef}
+              placeholder={language === "am" ? "የመጽሐፍ ቅዱስ ክፍል (ለምሳሌ፡ ዮሐንስ 1-3)..." : "Scripture Reference (e.g. John 1–3)..."}
+            />
+            <View style={{ flexDirection: "row", gap: 8 }}>
+              <View style={{ flex: 1 }}>
+                <AppTextInput
+                  value={readingThemeAm}
+                  onChangeText={setReadingThemeAm}
+                  placeholder={language === "am" ? "ጭብጥ (ለምሳሌ፡ ወንጌል / ጥበብ)..." : "Theme..."}
+                />
               </View>
-              <View style={[styles.chevronSlot, { backgroundColor: colors.secondary, borderColor: colors.border }]}>
-                <LucideIcon name="chevron-right" size={20} color={colors.primary} strokeWidth={2.4} />
+              <View style={{ width: 120 }}>
+                <AppTextInput
+                  value={readingHour}
+                  onChangeText={setReadingHour}
+                  placeholder={language === "am" ? "ማሳሰቢያ ሰዓት (8)..." : "Hour (8)..."}
+                />
               </View>
             </View>
+            <PrimaryButton
+              label={language === "am" ? "የንባብ ዕቅዱን አስቀምጥ" : "Save Reading Plan"}
+              icon="check"
+              onPress={handleAddCustomReading}
+            />
           </Card>
-        </Pressable>
+        )}
 
-        <SectionHeader title={language === "am" ? "ዕለታዊ የተመረጡ ንባባት" : "Daily Liturgical Scripture Plan"} />
+        <SectionHeader title={language === "am" ? "የንባብ መርሐ ግብሮች" : "Configured Reading Plans"} />
 
         <View style={styles.list}>
-          {dailyReadings.map((reading) => (
-            <Card key={reading.id} style={{ backgroundColor: colors.surface, borderColor: colors.border, gap: 8 }}>
-              <View style={styles.rowBetween}>
-                <View style={{ flex: 1 }}>
-                  <Text tone="label" style={[styles.themeLabel, { color: colors.gold }]}>
-                    {reading.theme[language] || reading.theme.en}
-                  </Text>
-                  <Text tone="title" style={[styles.cardTitle, { color: colors.text }]}>
-                    {reading.title[language] || reading.title.en}
-                  </Text>
-                  <Text style={[styles.refText, { color: colors.primary }]}>{reading.reference}</Text>
+          {readingPlans.map((reading) => {
+            const isCompleted = reading.completedDates.includes(todayKey);
+            return (
+              <Card key={reading.id} style={{ backgroundColor: colors.surface, borderColor: colors.border, gap: 8 }}>
+                <View style={styles.rowBetween}>
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Text tone="label" style={[styles.themeLabel, { color: colors.gold }]}>
+                      {reading.theme[language] || reading.theme.en}
+                      {reading.reminderHour !== undefined ? ` • ${reading.reminderHour}:00` : ""}
+                    </Text>
+                    <Text tone="title" style={[styles.cardTitle, { color: colors.text }]}>
+                      {reading.title[language] || reading.title.en}
+                    </Text>
+                    <Text style={[styles.refText, { color: colors.primary }]}>{reading.reference}</Text>
+                  </View>
+
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                    <IconButton
+                      icon="trash"
+                      size={36}
+                      color={colors.danger}
+                      backgroundColor={colors.dangerContainer}
+                      accessibilityLabel="Delete reading"
+                      onPress={() => deleteReading(reading.id)}
+                    />
+                    <Pressable
+                      onPress={() => {
+                        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                        toggleReadingCompletion(reading.id);
+                      }}
+                      style={[
+                        styles.checkButton,
+                        {
+                          backgroundColor: isCompleted ? colors.primary : colors.secondary,
+                          borderColor: isCompleted ? colors.primary : colors.border,
+                        },
+                      ]}
+                    >
+                      <LucideIcon name="check" size={18} color={isCompleted ? "#FFFFFF" : colors.muted} strokeWidth={2.6} />
+                    </Pressable>
+                  </View>
                 </View>
-                <IconCircle icon="book-open" color="gold" size={46} />
-              </View>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </View>
       </AppScreen>
     );
   }
 
-  // Section 3: Fasting
+  // Section 3: Fasting (Live Timer + Custom Fasting Plans + 7 Canonical Fasts)
   if (section === "fasting") {
+    const customPlans = fastingPreferences?.customFastPlans || [];
+
     return (
       <AppScreen scroll>
         <View style={styles.header}>
@@ -309,12 +424,148 @@ export default function PracticeSectionScreen() {
           </View>
         </View>
 
-        <FastingTimerWidget language={language} />
+        {/* Live Fasting Countdown Clock */}
+        <FastingTimerWidget
+          language={language}
+          breakFastHour={fastingPreferences?.breakFastHour ?? 15}
+          breakFastMinute={fastingPreferences?.breakFastMinute ?? 0}
+        />
+
+        {/* Add Custom Fasting Plan Button */}
+        <PrimaryButton
+          label={showAddFast ? (language === "am" ? "ዝጋ" : "Close") : (language === "am" ? "+ አዲስ የስእለት / የንስሐ ጾም ጨምር" : "+ Add Custom Fasting Plan")}
+          icon={showAddFast ? "x" : "plus"}
+          tone={showAddFast ? "soft" : "primary"}
+          onPress={() => setShowAddFast((prev) => !prev)}
+        />
+
+        {showAddFast && (
+          <Card style={{ backgroundColor: colors.surface, borderColor: colors.primary, gap: 10, borderWidth: 1.5 }}>
+            <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text }}>
+              {language === "am" ? "አዲስ የግል / የንስሐ ጾም መርሐ ግብር" : "New Custom Fasting Plan"}
+            </Text>
+            <AppTextInput
+              value={fastTitle}
+              onChangeText={setFastTitle}
+              placeholder={language === "am" ? "የጾሙ ስም (ለምሳሌ፡ የንስሐ አባት ያዘዙት የ5 ቀን ጾም)..." : "Fasting Title (e.g. 5-Day Penance Fast)..."}
+            />
+            <View style={{ flexDirection: "row", gap: 8 }}>
+              <View style={{ flex: 1 }}>
+                <AppTextInput
+                  value={fastDays}
+                  onChangeText={setFastDays}
+                  placeholder={language === "am" ? "የቀናት ብዛት (5)..." : "Target Days (e.g. 5)..."}
+                />
+              </View>
+              <View style={{ width: 120 }}>
+                <AppTextInput
+                  value={fastHour}
+                  onChangeText={setFastHour}
+                  placeholder={language === "am" ? "መፍቻ ሰዓት (15)..." : "Break Hour (15)..."}
+                />
+              </View>
+            </View>
+            <AppTextInput
+              value={fastNotes}
+              onChangeText={setFastNotes}
+              placeholder={language === "am" ? "የካህኑ ትዕዛዝ ወይም የግል ዓላማ ማስታወሻ..." : "Notes or instructions from spiritual father..."}
+              multiline
+            />
+            <PrimaryButton
+              label={language === "am" ? "የጾም መርሐ ግብሩን አስቀምጥ" : "Save Fasting Plan"}
+              icon="check"
+              onPress={handleCreateFast}
+            />
+          </Card>
+        )}
+
+        {/* Active Custom Fast Plans */}
+        {customPlans.length > 0 && (
+          <>
+            <SectionHeader title={language === "am" ? "የግልና የንስሐ አጽዋማት" : "My Custom Fasting Plans"} />
+            <View style={{ gap: 10 }}>
+              {customPlans.map((plan) => {
+                const isTodayDone = plan.completedDates.includes(todayKey);
+                const completedCount = plan.completedDates.length;
+                const progressPct = Math.min(100, Math.round((completedCount / plan.targetDays) * 100));
+
+                return (
+                  <Card key={plan.id} style={{ backgroundColor: colors.surface, borderColor: colors.gold, borderWidth: 1.5, gap: 10 }}>
+                    <View style={styles.rowBetween}>
+                      <View style={{ flex: 1, gap: 2 }}>
+                        <Text tone="title" style={{ fontSize: 16, fontWeight: "800", color: colors.text }}>
+                          {plan.title}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: colors.muted }}>
+                          {completedCount}/{plan.targetDays} {language === "am" ? "ቀናት ተፈጽመዋል" : "days completed"} • {plan.breakFastHour > 12 ? plan.breakFastHour - 12 : plan.breakFastHour}:00 {plan.breakFastHour >= 12 ? "PM" : "AM"}
+                        </Text>
+                      </View>
+                      <IconButton
+                        icon="trash"
+                        size={34}
+                        color={colors.danger}
+                        backgroundColor={colors.dangerContainer}
+                        accessibilityLabel="Delete fast"
+                        onPress={() => deleteCustomFastPlan(plan.id)}
+                      />
+                    </View>
+
+                    {/* Progress Bar */}
+                    <View style={[styles.progressBarTrack, { backgroundColor: colors.secondary }]}>
+                      <View
+                        style={[
+                          styles.progressBarFill,
+                          {
+                            backgroundColor: completedCount >= plan.targetDays ? colors.emerald : colors.gold,
+                            width: `${progressPct}%`,
+                          },
+                        ]}
+                      />
+                    </View>
+
+                    {/* Today Fast Check-off Button with safe horizontal layout */}
+                    <View style={[styles.rowBetween, { alignItems: "center", gap: 8 }]}>
+                      <Text style={{ flex: 1, minWidth: 0, fontSize: 12, color: colors.muted }} numberOfLines={1}>
+                        {plan.notes || (language === "am" ? "የተቀደሰ የጾም ጊዜ" : "Active Fasting Journey")}
+                      </Text>
+                      <Pressable
+                        onPress={() => {
+                          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                          toggleCustomFastDate(plan.id, todayKey);
+                        }}
+                        style={[
+                          styles.fastCheckButton,
+                          {
+                            backgroundColor: isTodayDone ? colors.primary : colors.secondary,
+                            borderColor: isTodayDone ? colors.primary : colors.border,
+                            flexShrink: 0,
+                          },
+                        ]}
+                      >
+                        <LucideIcon name="check" size={14} color={isTodayDone ? "#FFFFFF" : colors.muted} strokeWidth={2.8} />
+                        <Text
+                          tone="label"
+                          style={{
+                            color: isTodayDone ? "#FFFFFF" : colors.text,
+                            fontWeight: "800",
+                            fontSize: 11,
+                          }}
+                        >
+                          {isTodayDone ? (language === "am" ? "ተፈጽሟል ✓" : "Done ✓") : (language === "am" ? "ፈጽም" : "Mark")}
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </Card>
+                );
+              })}
+            </View>
+          </>
+        )}
 
         <SectionHeader title={language === "am" ? "7ቱ ቀኖናዊ አጽዋማት" : "The 7 Canonical Fasts"} />
         <Card style={{ backgroundColor: colors.surface, borderColor: colors.border, gap: 12 }}>
           <View style={styles.fastingItem}>
-            <Pill label={language === "am" ? "1. ዐቢይ ጾም (ሁዳዴ)" : "1. Great Lent (55 Days)"} tone="primary" />
+            <Pill label={language === "am" ? "1. ዐቢይ ጾም (ሁዳዴ - 55 ቀናት)" : "1. Great Lent (55 Days)"} tone="primary" />
             <Text style={[styles.fastingDesc, { color: colors.muted }]}>
               {language === "am"
                 ? "ጌታችን ኢየሱስ ክርስቶስ በገዳመ ቆሮንቶስ የጾመው የ55 ቀናት ታላቅ ጾም።"
@@ -322,19 +573,19 @@ export default function PracticeSectionScreen() {
             </Text>
           </View>
           <View style={styles.fastingItem}>
-            <Pill label={language === "am" ? "2. ጾመ ነቢያት (የገና ጾም)" : "2. Fast of Prophets (44 Days)"} tone="gold" />
+            <Pill label={language === "am" ? "2. ጾመ ነቢያት (የገና ጾም - 44 ቀናት)" : "2. Fast of Prophets (44 Days)"} tone="gold" />
             <Text style={[styles.fastingDesc, { color: colors.muted }]}>
               {language === "am" ? "ከኅዳር 15 እስከ ታኅሣሥ 28 የሚጾም የገና ጾም።" : "Advent fast observed from Hidar 15 to Tahsas 28."}
             </Text>
           </View>
           <View style={styles.fastingItem}>
-            <Pill label={language === "am" ? "3. ጾመ ነነዌ" : "3. Fast of Nineveh (3 Days)"} tone="primary" />
+            <Pill label={language === "am" ? "3. ጾመ ነነዌ (3 ቀናት)" : "3. Fast of Nineveh (3 Days)"} tone="primary" />
             <Text style={[styles.fastingDesc, { color: colors.muted }]}>
               {language === "am" ? "የነነዌ ሰዎች በንስሐ የዳኑበት የ3 ቀናት ጾም።" : "3 days of repentance and mercy."}
             </Text>
           </View>
           <View style={styles.fastingItem}>
-            <Pill label={language === "am" ? "4. ጾመ ፍልሰታ" : "4. Fast of Filseta (16 Days)"} tone="gold" />
+            <Pill label={language === "am" ? "4. ጾመ ፍልሰታ (16 ቀናት)" : "4. Fast of Filseta (16 Days)"} tone="gold" />
             <Text style={[styles.fastingDesc, { color: colors.muted }]}>
               {language === "am" ? "ከነሐሴ 1 እስከ 16 የእመቤታችን የዕርገት ጾም።" : "Assumption of the Virgin Mary, Nehase 1–16."}
             </Text>
@@ -588,6 +839,17 @@ const styles = StyleSheet.create({
   chevronSlot: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center", borderWidth: 1 },
   fastingItem: { gap: 4 },
   fastingDesc: { fontSize: 12, lineHeight: 17 },
+  progressBarTrack: { height: 8, borderRadius: 4, overflow: "hidden", width: "100%" },
+  progressBarFill: { height: "100%", borderRadius: 4 },
+  fastCheckButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
   promptItem: {
     flexDirection: "row",
     alignItems: "center",

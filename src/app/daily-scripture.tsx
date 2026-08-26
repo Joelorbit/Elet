@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, Share, StyleSheet, View } from "react-native";
 import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
 
 import {
   AppScreen,
@@ -8,21 +9,23 @@ import {
   Card,
   IconButton,
   IconCircle,
+  LucideIcon,
   Pill,
   PrimaryButton,
+  SectionHeader,
   useAppColors,
 } from "@/src/theme/app-ui";
 import { useAppLanguage } from "@/src/features/settings/store/app-store";
 import {
-  CANONICAL_BOOKS,
   dailyBibleReferences,
   getRandomBibleVerse,
   type BibleCategory,
 } from "@/src/features/bible/utils/daily-bible";
 import { translate } from "@/src/shared/utils/i18n";
+import { pauseAppLock } from "@/src/features/auth/hooks/use-app-lock";
 
 const categories: Array<{ id: BibleCategory; labelEn: string; labelAm: string }> = [
-  { id: "all", labelEn: "All", labelAm: "ሁሉም" },
+  { id: "all", labelEn: "All 81 Books", labelAm: "81ዱ መጻሕፍት" },
   { id: "gospels", labelEn: "Gospels", labelAm: "ወንጌላት" },
   { id: "wisdom", labelEn: "Wisdom & Psalms", labelAm: "ጥበብና መዝሙር" },
   { id: "canon81", labelEn: "81-Canon (Enoch/Sirach)", labelAm: "ቀኖና 81 (ሄኖክ/ሲራክ)" },
@@ -45,7 +48,19 @@ export default function DailyScriptureScreen() {
       : dailyBibleReferences.filter((v) => v.category === selectedCategory);
 
   const pickRandom = () => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     setFeaturedVerse(getRandomBibleVerse(language, selectedCategory));
+  };
+
+  const handleShare = async (ref: string, verseText: string) => {
+    pauseAppLock(3500);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    try {
+      await Share.share({
+        message: `«${verseText}»\n— ${ref} (ዕለት • Elet App)`,
+        title: ref,
+      });
+    } catch {}
   };
 
   return (
@@ -69,20 +84,28 @@ export default function DailyScriptureScreen() {
       {/* Featured Verse Inspiration Card */}
       <Card style={[styles.featuredCard, { backgroundColor: colors.surface, borderColor: colors.gold }]}>
         <View style={styles.featuredHeader}>
-          <IconCircle icon="book-open" color="gold" size={42} />
-          <View style={{ flex: 1 }}>
-            <Text tone="label" style={[styles.focusLabel, { color: colors.gold }]}>
+          <IconCircle icon="book-open" color="gold" size={44} />
+          <View style={styles.featuredInfo}>
+            <Text tone="label" style={[styles.focusLabel, { color: colors.gold }]} numberOfLines={1}>
               {featuredVerse.focusText}
             </Text>
-            <Text tone="title" style={[styles.featuredRef, { color: colors.text }]}>
+            <Text tone="title" style={[styles.featuredRef, { color: colors.text }]} numberOfLines={1}>
               {featuredVerse.referenceText}
             </Text>
           </View>
-          <Pill label="81-Canon" tone="gold" />
+          <Pressable
+            hitSlop={8}
+            onPress={() => handleShare(featuredVerse.referenceText, featuredVerse.verseText)}
+            style={{ padding: 4 }}
+          >
+            <LucideIcon name="download" size={18} color={colors.primary} strokeWidth={2.2} />
+          </Pressable>
         </View>
+
         <Text style={[styles.featuredText, { color: colors.text }]}>
           «{featuredVerse.verseText}»
         </Text>
+
         <PrimaryButton
           label={t("randomVerse")}
           icon="sparkles"
@@ -95,6 +118,7 @@ export default function DailyScriptureScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.categoryScrollContainer}
         contentContainerStyle={styles.categoryScroll}
       >
         {categories.map((cat) => {
@@ -102,7 +126,10 @@ export default function DailyScriptureScreen() {
           return (
             <Pressable
               key={cat.id}
-              onPress={() => setSelectedCategory(cat.id)}
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                setSelectedCategory(cat.id);
+              }}
               style={[
                 styles.categoryChip,
                 {
@@ -116,6 +143,7 @@ export default function DailyScriptureScreen() {
                 style={{
                   color: isSelected ? "#FFFFFF" : colors.text,
                   fontWeight: isSelected ? "800" : "600",
+                  fontSize: 12,
                 }}
               >
                 {language === "am" ? cat.labelAm : cat.labelEn}
@@ -126,20 +154,36 @@ export default function DailyScriptureScreen() {
       </ScrollView>
 
       {/* Verses Catalog List */}
+      <SectionHeader title={`${filteredVerses.length} ${language === "am" ? "የተመረጡ ጥቅሶች" : "Selected Verses"}`} />
+
       <View style={styles.verseList}>
-        {filteredVerses.map((verse) => (
-          <Card key={verse.id} style={{ backgroundColor: colors.surface, borderColor: colors.border, gap: 8 }}>
-            <View style={styles.rowBetween}>
-              <Text tone="title" style={[styles.verseRef, { color: colors.primary }]}>
-                {verse.reference[language] || verse.reference.en}
+        {filteredVerses.map((verse) => {
+          const refText = verse.reference[language] || verse.reference.en;
+          const bodyText = verse.text[language] || verse.text.en;
+
+          return (
+            <Card key={verse.id} style={{ backgroundColor: colors.surface, borderColor: colors.border, gap: 8 }}>
+              <View style={styles.rowBetween}>
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  <Text tone="title" style={[styles.verseRef, { color: colors.primary }]}>
+                    {refText}
+                  </Text>
+                  <Pill label={verse.focus[language] || verse.focus.en} tone="muted" />
+                </View>
+                <Pressable
+                  hitSlop={8}
+                  onPress={() => handleShare(refText, bodyText)}
+                  style={{ padding: 6 }}
+                >
+                  <LucideIcon name="download" size={16} color={colors.muted} strokeWidth={2.2} />
+                </Pressable>
+              </View>
+              <Text style={[styles.verseBody, { color: colors.text }]}>
+                «{bodyText}»
               </Text>
-              <Pill label={verse.focus[language] || verse.focus.en} tone="muted" />
-            </View>
-            <Text style={[styles.verseBody, { color: colors.text }]}>
-              «{verse.text[language] || verse.text.en}»
-            </Text>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
       </View>
     </AppScreen>
   );
@@ -151,18 +195,31 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: "900", marginTop: 1 },
   featuredCard: { padding: 16, gap: 12, borderWidth: 1.5 },
   featuredHeader: { flexDirection: "row", alignItems: "center", gap: 12, width: "100%" },
+  featuredInfo: { flex: 1, minWidth: 0, gap: 2 },
   focusLabel: { fontSize: 11, fontWeight: "800", textTransform: "uppercase" },
   featuredRef: { fontSize: 16, fontWeight: "800" },
   featuredText: { fontSize: 15, lineHeight: 22, fontStyle: "italic" },
-  categoryScroll: { flexDirection: "row", gap: 8, paddingVertical: 4 },
+  categoryScrollContainer: {
+    flexGrow: 0,
+    maxHeight: 44,
+    marginVertical: 4,
+  },
+  categoryScroll: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   categoryChip: {
+    height: 36,
     paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
     borderWidth: 1,
+    flexShrink: 0,
   },
   verseList: { gap: 10, marginTop: 4 },
-  rowBetween: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 },
+  rowBetween: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: 8 },
   verseRef: { fontSize: 15, fontWeight: "800" },
   verseBody: { fontSize: 14, lineHeight: 21 },
 });

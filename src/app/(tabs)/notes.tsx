@@ -71,40 +71,17 @@ export default function NotesScreen() {
       <SectionHeader title={query ? t("searchNotes") : t("notes")} />
 
       {filtered.length === 0 ? (
-        <View style={{ gap: 14 }}>
-          <EmptyState
-            icon="book-open"
-            title={query ? t("emptySearch") : t("noNotes")}
-            detail={
-              query
-                ? t("searchNotes")
-                : language === "am"
-                ? "ማስታወሻዎችዎ በመሣሪያዎ ላይ ብቻ በምስጢር ይቀመጣሉ።"
-                : "Your private journal entries stay local-only on your device."
-            }
-          />
-          {!query && (
-            <Card style={{ backgroundColor: colors.surface, borderColor: colors.border, gap: 10 }}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                <IconCircle icon="lock" color="gold" size={40} />
-                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-                  <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text }}>
-                    {language === "am" ? "የግልና ሚስጥራዊ ደህንነት" : "Local & Private Storage"}
-                  </Text>
-                  <Text style={{ fontSize: 12, color: colors.muted, lineHeight: 17 }}>
-                    {language === "am"
-                      ? "ማስታወሻዎችዎ ሙሉ በሙሉ ሚስጥራዊ ሆነው በመሣሪያዎ ብቻ ይቀመጣሉ።"
-                      : "Zero-knowledge private storage. Notes stay strictly on your device."}
-                  </Text>
-                </View>
-              </View>
-              <Pill
-                label={language === "am" ? "አካባቢያዊ ብቻ • 100% ሚስጥራዊ" : "Sensitive and local-only"}
-                tone="gold"
-              />
-            </Card>
-          )}
-        </View>
+        <EmptyState
+          icon="book-open"
+          title={query ? t("emptySearch") : t("noNotes")}
+          detail={
+            query
+              ? t("searchNotes")
+              : language === "am"
+              ? "ማስታወሻዎችዎ በመሣሪያዎ ላይ ብቻ በምስጢር ይቀመጣሉ።"
+              : "Your private journal entries stay local-only on your device."
+          }
+        />
       ) : (
         <View style={styles.list}>
           {filtered.map((note) => (
@@ -115,21 +92,32 @@ export default function NotesScreen() {
               }
               style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}
             >
-              <Card style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
+              <Card style={{ backgroundColor: colors.surface, borderColor: colors.border, gap: 8, padding: 14 }}>
                 <View style={styles.noteHeader}>
                   <View style={styles.noteTitleWrap}>
-                    {note.pinned ? <LucideIcon name="pin" size={15} color={colors.gold} strokeWidth={2.2} /> : null}
-                    <Text tone="title" style={[styles.noteTitle, { color: colors.text }]}>
+                    {note.pinned ? (
+                      <LucideIcon name="pin" size={14} color={colors.gold} strokeWidth={2.4} />
+                    ) : null}
+                    <Text tone="title" numberOfLines={1} style={[styles.noteTitle, { color: colors.text }]}>
                       {note.title || t("newNote")}
                     </Text>
                   </View>
-                  {note.sensitive ? <Pill label={t("sensitive")} tone="danger" /> : null}
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                    <Pill
+                      label={noteCategoryLabels[note.category][language]}
+                      tone={note.category === "confession" ? "gold" : "muted"}
+                    />
+                    {note.sensitive ? <Pill label={t("sensitive")} tone="danger" /> : null}
+                  </View>
                 </View>
-                <Text numberOfLines={2} style={[styles.noteBody, { color: colors.muted }]}>
-                  {note.body}
-                </Text>
+
+                {note.body ? (
+                  <Text numberOfLines={2} style={[styles.noteBody, { color: colors.muted }]}>
+                    {note.body}
+                  </Text>
+                ) : null}
+
                 <Text tone="label" style={[styles.noteMeta, { color: colors.muted }]}>
-                  {noteCategoryLabels[note.category][language]} ·{" "}
                   {new Intl.DateTimeFormat(language === "am" ? "am-ET" : "en-GB", {
                     day: "numeric",
                     month: "short",
@@ -152,8 +140,8 @@ const styles = StyleSheet.create({
   searchIconWrap: { position: "absolute", left: 14, zIndex: 1, pointerEvents: "none" },
   list: { gap: 10 },
   noteHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 },
-  noteTitleWrap: { flex: 1, flexDirection: "row", alignItems: "center", gap: 6 },
+  noteTitleWrap: { flex: 1, flexDirection: "row", alignItems: "center", gap: 6, minWidth: 0 },
   noteTitle: { flex: 1, fontSize: 16, fontWeight: "800" },
   noteBody: { fontSize: 13, lineHeight: 19 },
-  noteMeta: { fontSize: 11, fontWeight: "700" },
+  noteMeta: { fontSize: 11, fontWeight: "600", marginTop: 2 },
 });

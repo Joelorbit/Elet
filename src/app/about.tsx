@@ -1,7 +1,6 @@
 import React from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { router } from "expo-router";
-import * as Linking from "expo-linking";
 
 import {
   AppLogo,
@@ -21,18 +20,6 @@ export default function AboutScreen() {
   const language = useAppLanguage();
   const colors = useAppColors();
   const t = (key: Parameters<typeof translate>[1]) => translate(language, key);
-
-  const openCreatorWebsite = async () => {
-    try {
-      const url = "https://eyuel.me";
-      const can = await Linking.canOpenURL(url);
-      if (can) {
-        await Linking.openURL(url);
-      }
-    } catch {
-      // ignore
-    }
-  };
 
   return (
     <AppScreen scroll>
@@ -111,29 +98,6 @@ export default function AboutScreen() {
           </View>
         </View>
       </Card>
-
-      {/* Creator Credit matching Settings */}
-      <View style={[styles.credit, { borderTopColor: colors.border }]}>
-        <Text tone="label" style={[styles.creditLabel, { color: colors.muted }]}>
-          {language === "am" ? "የተሠራው በ" : "Crafted by"}
-        </Text>
-        <Pressable
-          accessibilityRole="link"
-          accessibilityLabel="eyuel.me"
-          onPress={() => {
-            void openCreatorWebsite();
-          }}
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.65 : 1,
-            paddingHorizontal: 4,
-            paddingVertical: 2,
-          })}
-        >
-          <Text tone="title" style={[styles.creditName, { color: colors.primary }]}>
-            eyuel.me
-          </Text>
-        </Pressable>
-      </View>
     </AppScreen>
   );
 }
@@ -147,14 +111,4 @@ const styles = StyleSheet.create({
   brandSubtitle: { fontSize: 13, textAlign: "center", maxWidth: 300, lineHeight: 18 },
   sourceItem: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
   divider: { height: 1, width: "100%" },
-  credit: {
-    alignItems: "center",
-    gap: 2,
-    marginTop: 10,
-    marginBottom: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-  },
-  creditLabel: { fontSize: 12, fontWeight: "600" },
-  creditName: { fontSize: 15, fontWeight: "900" },
 });

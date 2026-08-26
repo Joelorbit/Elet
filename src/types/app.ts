@@ -15,6 +15,32 @@ export type NoteCategory =
 
 export type LocalizedText = Record<AppLanguage, string>;
 
+export interface CustomFastPlan {
+  id: string;
+  title: string;
+  startDateKey: string;
+  endDateKey: string;
+  targetDays: number;
+  breakFastHour: number; // e.g. 15 for 3:00 PM
+  breakFastMinute: number;
+  notes?: string;
+  completedDates: string[];
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface CustomReadingPlan {
+  id: string;
+  title: LocalizedText;
+  theme: LocalizedText;
+  reference: string;
+  reminderHour?: number;
+  reminderMinute?: number;
+  reminderEnabled?: boolean;
+  completedDates: string[];
+  custom: boolean;
+}
+
 export interface UserPreferences {
   language: AppLanguage;
   themeMode: ThemeMode;
@@ -27,6 +53,9 @@ export interface UserPreferences {
   feastReminderHour?: number;
   prayerRemindersEnabled?: boolean;
   fastingRemindersEnabled?: boolean;
+  readingRemindersEnabled?: boolean;
+  streakProtectionReminderEnabled?: boolean;
+  dailyVerseReminderEnabled?: boolean;
   appLockEnabled: boolean;
   appLockMode: AppLockMode;
   autoLockTimeout: AutoLockTimeout;
@@ -49,6 +78,7 @@ export interface FastingPreferences {
   fastingReminderEnabled: boolean;
   customRules: string[];
   personalVowNote: string;
+  customFastPlans: CustomFastPlan[];
 }
 
 export interface PenanceItem {
@@ -110,6 +140,7 @@ export interface Intercession {
 export interface AppStateData {
   preferences: UserPreferences;
   prayers: PrayerRoutine[];
+  readingPlans?: CustomReadingPlan[];
   fastingPreferences?: FastingPreferences;
   spiritualFather?: SpiritualFatherProfile;
   readingProgress: ReadingProgress;

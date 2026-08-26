@@ -1,7 +1,8 @@
-import React from "react";
+import React, { memo } from "react";
 import { Tabs } from "expo-router";
 import { Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
 
 import { LucideIcon, useAppColors } from "@/src/theme/app-ui";
 import { useAppLanguage } from "@/src/features/settings/store/app-store";
@@ -17,6 +18,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        lazy: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
@@ -45,6 +47,11 @@ export default function TabLayout() {
           lineHeight: 16,
           fontWeight: "800",
           marginTop: 4,
+        },
+      }}
+      screenListeners={{
+        tabPress: () => {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
         },
       }}
     >
@@ -97,7 +104,7 @@ export default function TabLayout() {
   );
 }
 
-function NavigationIcon({
+const NavigationIcon = memo(function NavigationIcon({
   icon,
   color,
   focused,
@@ -110,15 +117,15 @@ function NavigationIcon({
   return (
     <View
       style={{
-        width: 58,
-        height: 34,
-        borderRadius: 17,
+        width: 54,
+        height: 32,
+        borderRadius: 16,
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: focused ? colors.primaryContainer : "transparent",
       }}
     >
-      <LucideIcon name={icon} size={26} color={color} strokeWidth={focused ? 2.5 : 2.0} />
+      <LucideIcon name={icon} size={24} color={color} strokeWidth={focused ? 2.5 : 2.0} />
     </View>
   );
-}
+});
