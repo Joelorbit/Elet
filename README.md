@@ -1,56 +1,51 @@
-# Welcome to your Expo app 👋
+# 🕊️ Elet (ዕለት)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**The Offline Spiritual Companion for the Ethiopian Orthodox Tewahedo Church**  
+*የኢትዮጵያ ኦርቶዶክስ ተዋሕዶ መንፈሳዊ ጓደኛ — 100% ከመስመር ውጭ የሚሠራ*
 
-## Get started
+---
 
-1. Install dependencies
+## 🌟 Core Highlights
 
-   ```bash
-   npm install
-   ```
+- **📅 24-Year Bahire Hasab (2018–2041 ዓ.ም.)**: Exact mathematical calculation of movable fasts & major feasts (*ዐቢይ ጾም፣ ትንሣኤ፣ ጾመ ነነዌ፣ ዕርገት፣ ጰራቅሊጦስ*).
+- **⛪ 30 Monthly Tabot Commemorations & Annual Feasts**: Full 13-month calendar with bilingual Amharic & English details.
+- **⏰ The 7 Canonical Prayer Hours (ሰዓታት)**: Configurable prayer hours (*ነግህ፣ ሠለስት፣ ቀትር፣ ተስዓት፣ ሰርክ፣ ንዋም፣ መንፈቀ ሌሊት*) with 3D Roller Time Picker & exact Android alarms.
+- **🍽️ Live Fasting Clock**: Real-time countdown timer to fasting break hours with canonical fast guidance.
+- **📖 81-Canon Scriptures & Daily Verse**: Offline Deuterocanon & random inspirational verse generator.
+- **🔒 Biometric Spiritual Journal & Confession Hub**: Face ID / Fingerprint protected notes and penance checklist.
+- **🔥 Pure Zero-Seeded Clean Slate**: Clean start with 0 days and interactive streak tracking heatmap.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## 🚀 Quickstart
 
 ```bash
-npm run reset-project
+# 1. Install dependencies
+npm install
+
+# 2. Run test suite (330+ unit tests)
+npm test
+
+# 3. Start local development server
+npx expo start
+
+# 4. Build and run on Android
+npx expo run:android
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## 🛠️ Tech Stack
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- **Framework**: React Native 0.76.7 / Expo SDK 52 (Expo Router v4)
+- **Typography**: `@expo-google-fonts/lexend`, `@expo-google-fonts/noto-sans-ethiopic`, `@expo-google-fonts/outfit`
+- **Security & Storage**: `expo-local-authentication`, `@react-native-async-storage/async-storage`
+- **Notifications**: `expo-notifications` with native Android 8.0+ channel priorities
+- **Theme**: Terracotta Sacred Dark / Light Mode with gold accents
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 📄 License & Creator
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Designed & Built with reverence by **[eyuel.me](https://eyuel.me)**.  
+All liturgical algorithms verified against Ethiopian Orthodox Tewahedo Church canonical records.

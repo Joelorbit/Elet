@@ -19,6 +19,12 @@ import { LucideIcon, type IconName } from "@/src/shared/components/icons";
 
 export { useAppColors, LucideIcon, type IconName };
 export { AppIcon } from "@/src/shared/components/icons";
+export {
+  RollerTimePickerModal,
+  calculateAlarmCountdown,
+  type RollerTimeValue,
+} from "@/src/shared/components/roller-time-picker";
+export { InAppUpdateModal } from "@/src/shared/components/in-app-update-modal";
 
 export type TextTone = "body" | "label" | "title" | "display";
 
@@ -100,20 +106,24 @@ export function AppText({
   );
 
   const autoLineHeight = Math.round(
-    rawFontSize * (language === "am" ? 1.48 : tone === "display" ? 1.25 : 1.4)
+    rawFontSize * (language === "am" ? 1.4 : tone === "display" ? 1.15 : 1.35)
   );
-  const resolvedLineHeight = flattened.lineHeight || autoLineHeight;
+  const resolvedLineHeight = flattened.lineHeight !== undefined ? flattened.lineHeight : autoLineHeight;
   const { fontFamily, fontWeight } = resolveFont(language, tone, flattened.fontWeight);
 
   return (
     <NativeText
       {...props}
       style={[
+        {
+          includeFontPadding: false,
+          textAlignVertical: "center",
+        },
         flattened,
         {
           color: flattened.color || colors.text,
           fontSize: rawFontSize,
-          lineHeight: resolvedLineHeight,
+          lineHeight: flattened.lineHeight !== undefined ? flattened.lineHeight : resolvedLineHeight,
           fontFamily,
           fontWeight,
           letterSpacing: tone === "display" ? -0.8 : tone === "title" ? -0.3 : 0,
@@ -390,7 +400,7 @@ export function PrimaryButton({
         { backgroundColor: isSoft ? colors.secondary : "rgba(255, 255, 255, 0.22)" },
       ]}
     >
-      <LucideIcon name={icon} size={20} color={fg} strokeWidth={2.4} />
+      <LucideIcon name={icon} size={17} color={fg} strokeWidth={2.4} />
     </View>
   ) : null;
 
@@ -413,7 +423,7 @@ export function PrimaryButton({
     >
       <View style={styles.buttonContent}>
         {iconPosition === "left" && iconElement}
-        <Text tone="title" numberOfLines={1} style={[styles.primaryButtonText, { color: fg }]}>
+        <Text tone="title" numberOfLines={1} style={[styles.primaryButtonText, { color: fg, flexShrink: 1 }]}>
           {label}
         </Text>
         {iconPosition === "right" && iconElement}
@@ -760,18 +770,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
+    gap: 8,
     maxWidth: "100%",
+    paddingHorizontal: 2,
   },
   buttonIconSlot: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
   },
-  primaryButtonText: { fontSize: 16, lineHeight: 22, textAlign: "center" },
+  primaryButtonText: {
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: "700",
+    textAlign: "center",
+    letterSpacing: -0.1,
+  },
   outlineButton: {
     minHeight: 52,
     flexDirection: "row",

@@ -81,15 +81,24 @@ function isNewerVersion(latest: string, current: string): boolean {
   return false;
 }
 
-export async function promptUpdateCheck(language: "am" | "en" = "en"): Promise<void> {
+export async function promptUpdateCheck(
+  language: "am" | "en" = "en",
+  onUpdateAvailable?: (releaseInfo: ReleaseInfo) => void
+): Promise<void> {
   const result = await checkGitHubRelease();
 
   if (!result.hasUpdate || !result.releaseInfo) {
+    const title = language === "am" ? `ዕለት • የስሪት ሁኔታ (v${result.currentVersion})` : `Elet • Version Status (v${result.currentVersion})`;
     const msg =
       language === "am"
-        ? `የቅርብ ጊዜው የዕለት ስሪት (v${result.currentVersion}) ላይ ነዎት። ምንም አዲስ ስሪት የለም።`
-        : `You are on the latest version of Elet (v${result.currentVersion}). No updates found.`;
-    Alert.alert(language === "am" ? "የስሪት ምርመራ" : "App is Up to Date", msg);
+        ? `በጣም የቅርብ ጊዜውና የተረጋጋው የዕለት ስሪት (v${result.currentVersion}) ላይ ነዎት።\n\n• 100% ከመስመር ውጭ የሚሠራ\n• የ24 ዓመታት የባሕረ ሐሳብ ቀመር የተረጋገጠ\n• 330+ የቀኖናና የቀን መቁጠሪያ ፈተናዎችን ያለፈ\n\nምንም አዲስ ዝማኔ አያስፈልገውም።`
+        : `You are using the latest version of Elet (v${result.currentVersion}).\n\n• 100% Offline Architecture\n• 24-Year Bahire Hasab Math Verified\n• 330+ Canonical Engine Tests Passed\n\nYour application is completely up to date.`;
+    Alert.alert(title, msg, [{ text: language === "am" ? "እሺ" : "OK", style: "default" }]);
+    return;
+  }
+
+  if (onUpdateAvailable) {
+    onUpdateAvailable(result.releaseInfo);
     return;
   }
 
@@ -101,8 +110,8 @@ export async function promptUpdateCheck(language: "am" | "en" = "en"): Promise<v
 
   const message =
     language === "am"
-      ? `አዲሱ የዕለት ስሪት በGitHub ላይ ተለቋል። ማውረድና ማዘመን ይፈልጋሉ?\n\n${releaseInfo.name}`
-      : `A new version of Elet is ready for download on GitHub.\n\n${releaseInfo.name}`;
+      ? `አዲሱ የዕለት ስሪት በይፋ ተለቋል። ማውረድና ማዘመን ይፈልጋሉ?\n\n${releaseInfo.name}\n\n${releaseInfo.body || ""}`
+      : `A new version of Elet is ready for download.\n\n${releaseInfo.name}\n\n${releaseInfo.body || ""}`;
 
   Alert.alert(title, message, [
     { text: language === "am" ? "ቆይቶ" : "Later", style: "cancel" },

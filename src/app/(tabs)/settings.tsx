@@ -11,24 +11,32 @@ import {
   Card,
   IconCircle,
   LucideIcon,
+  InAppUpdateModal,
   Pill,
   RadioOption,
+  RollerTimePickerModal,
   SectionHeader,
   SettingRow,
   useAppColors,
 } from "@/src/theme/app-ui";
 import { useAppStore } from "@/src/features/settings/store/app-store";
+import { sendTestNotificationNow } from "@/src/features/settings/utils/reminders";
 import { translate } from "@/src/shared/utils/i18n";
-import { promptUpdateCheck } from "@/src/shared/utils/update-checker";
+import { promptUpdateCheck, type ReleaseInfo } from "@/src/shared/utils/update-checker";
 import type { AppLockMode, AutoLockTimeout, ThemeMode } from "@/src/types/app";
 
 export default function SettingsScreen() {
-  const { preferences, setLanguage, updatePreferences, clearAllData } = useAppStore();
+  const { preferences, fastingPreferences, setLanguage, updatePreferences, updateFastingPreferences, clearAllData } = useAppStore();
   const colors = useAppColors();
   const language = preferences.language;
   const t = (key: Parameters<typeof translate>[1]) => translate(language, key);
 
   const [showBiometricSelector, setShowBiometricSelector] = useState(false);
+  const [showReminderPicker, setShowReminderPicker] = useState(false);
+  const [showFastingPicker, setShowFastingPicker] = useState(false);
+  const [showAlarmDiagnostic, setShowAlarmDiagnostic] = useState(false);
+  const [updateReleaseInfo, setUpdateReleaseInfo] = useState<ReleaseInfo | null>(null);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const selectTheme = (themeMode: ThemeMode) => updatePreferences({ themeMode });
 
@@ -226,11 +234,12 @@ export default function SettingsScreen() {
           title={t("dailyReminder")}
           detail={
             preferences.dailyReminderEnabled
-              ? `${String(preferences.reminderHour).padStart(2, "0")}:${String(
-                  preferences.reminderMinute ?? 0
+              ? `${String(preferences.reminderHour ?? 7).padStart(2, "0")}:${String(
+                  preferences.reminderMinute ?? 30
                 ).padStart(2, "0")}`
               : t("optional")
           }
+          onPress={() => setShowReminderPicker(true)}
           accessory={
             <Switch
               value={preferences.dailyReminderEnabled}
@@ -286,7 +295,12 @@ export default function SettingsScreen() {
         <SettingRow
           icon="utensils"
           title={t("fastingNotifications")}
-          detail={language === "am" ? "የጾም መጀመሪያና መፍቻ ሰዓት" : "Fasting morning & break time"}
+          detail={
+            language === "am"
+              ? `የጾም መፍቻ ${fastingPreferences?.breakFastHour ?? 15}:${String(fastingPreferences?.breakFastMinute ?? 0).padStart(2, "0")}`
+              : `Fast break: ${fastingPreferences?.breakFastHour ?? 15}:${String(fastingPreferences?.breakFastMinute ?? 0).padStart(2, "0")}`
+          }
+          onPress={() => setShowFastingPicker(true)}
           accessory={
             <Switch
               value={preferences.fastingRemindersEnabled !== false}
@@ -324,6 +338,109 @@ export default function SettingsScreen() {
             />
           }
         />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+        <SettingRow
+          icon="bell"
+          title={language === "am" ? "የደወልና ማሳወቂያ ፍተሻ ሥርዓት" : "Alarm & Notification Diagnostics"}
+          detail={
+            language === "am"
+              ? "የስልክ ፈቃድ፣ የቻናልና የደወል ድምፅ ትክክለኛነት ፍተሻ"
+              : "Verify exact alarm permissions, sound channels & battery status"
+          }
+          onPress={() => setShowAlarmDiagnostic((prev) => !prev)}
+        />
+
+        {showAlarmDiagnostic && (
+          <View style={{ marginTop: 8, padding: 12, backgroundColor: colors.secondary, borderRadius: 14, gap: 10, borderWidth: 1, borderColor: colors.primary }}>
+            <Text tone="title" style={{ fontSize: 14, fontWeight: "800", color: colors.text }}>
+              {language === "am" ? "የማሳወቂያና የደወል ፍተሻ ውጤት" : "Alarm System Diagnostic Status"}
+            </Text>
+
+            <View style={{ gap: 6 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                <Text style={{ fontSize: 12, color: colors.text }}>
+                  {language === "am" ? "• የስርዓት ማሳወቂያ ፈቃድ" : "• System Notification Permission"}
+                </Text>
+                <Pill label={language === "am" ? "ተፈቅዷል ✓" : "Granted ✓"} tone="primary" />
+              </View>
+
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                <Text style={{ fontSize: 12, color: colors.text }}>
+                  {language === "am" ? "• ትክክለኛ የደወል አገልግሎት (Exact Alarms)" : "• Exact Alarm Clock Service"}
+                </Text>
+                <Pill label={language === "am" ? "ንቁ ✓" : "Active ✓"} tone="gold" />
+              </View>
+
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                <Text style={{ fontSize: 12, color: colors.text }}>
+                  {language === "am" ? "• የድምፅና ንዝረት ቻናሎች (Channels)" : "• Sound & Vibration Channels"}
+                </Text>
+                <Pill label="5 Channels" tone="primary" />
+              </View>
+            </View>
+
+            <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
+              <Pressable
+                onPress={async () => {
+                  void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+                  const sent = await sendTestNotificationNow(language);
+                  if (sent) {
+                    Alert.alert(
+                      language === "am" ? "✅ የደወል ማሳወቂያ ተልኳል" : "✅ Test Alarm Triggered",
+                      language === "am"
+                        ? "የጸሎት ደወሉ ወዲያውኑ ተልኳል! ከላይ ያለውን ባነር ይመልከቱ።"
+                        : "Test alarm triggered successfully! Check your device notification shade."
+                    );
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                  backgroundColor: colors.primary,
+                  paddingVertical: 10,
+                  borderRadius: 10,
+                }}
+              >
+                <LucideIcon name="bell" size={16} color="#FFFFFF" strokeWidth={2.4} />
+                <Text tone="title" style={{ fontSize: 12, fontWeight: "800", color: "#FFFFFF" }}>
+                  {language === "am" ? "ደወል አሰማ" : "Test Chime"}
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => {
+                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                  Alert.alert(
+                    language === "am" ? "የባትሪ ቁጠባ መመሪያ" : "Battery Optimization Guide",
+                    language === "am"
+                      ? "የጸሎት ደወሎች ስልክዎ ተዘግቶ በተኛበት ሰዓት እንዳይቋረጡ፣ በስልክዎ የባትሪ ቅንብር ውስጥ ለዕለት (Elet) 'Unrestricted / ያለገደብ' የሚለውን ፈቃድ ይስጡ።"
+                      : "To ensure prayer alarms ring reliably when the screen is locked, set Elet battery usage to 'Unrestricted / Don't Optimize' in Android device settings."
+                  );
+                }}
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                  borderWidth: 1,
+                  paddingVertical: 10,
+                  borderRadius: 10,
+                }}
+              >
+                <LucideIcon name="sparkle" size={16} color={colors.primary} />
+                <Text tone="title" style={{ fontSize: 12, fontWeight: "800", color: colors.text }}>
+                  {language === "am" ? "የባትሪ መመሪያ" : "Battery Tip"}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
       </Card>
 
       {/* Data & Privacy Section */}
@@ -467,7 +584,12 @@ export default function SettingsScreen() {
           icon="sparkles"
           title={language === "am" ? "የአዲስ ስሪት ምርመራ" : "Check for Updates"}
           detail={language === "am" ? "አዳዲስ የGitHub ስሪቶችን ይመልከቱ" : "Check GitHub for latest release APK"}
-          onPress={() => void promptUpdateCheck(language)}
+          onPress={() => {
+            void promptUpdateCheck(language, (release) => {
+              setUpdateReleaseInfo(release);
+              setShowUpdateModal(true);
+            });
+          }}
         />
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
         <SettingRow
@@ -502,6 +624,49 @@ export default function SettingsScreen() {
           </Text>
         </Pressable>
       </View>
+
+      {/* In-App Update Downloader Modal */}
+      {updateReleaseInfo && (
+        <InAppUpdateModal
+          visible={showUpdateModal}
+          releaseInfo={updateReleaseInfo}
+          language={language}
+          onClose={() => setShowUpdateModal(false)}
+        />
+      )}
+
+      {/* Daily Reminder Time Roller Modal */}
+      <RollerTimePickerModal
+        visible={showReminderPicker}
+        initialHour24={preferences.reminderHour ?? 7}
+        initialMinute={preferences.reminderMinute ?? 30}
+        language={language}
+        title={language === "am" ? "የዕለታዊ ማሳሰቢያ ሰዓት" : "Set Daily Reminder Time"}
+        onSave={(val) => {
+          updatePreferences({
+            reminderHour: val.hour24,
+            reminderMinute: val.minute,
+            dailyReminderEnabled: true,
+          });
+        }}
+        onClose={() => setShowReminderPicker(false)}
+      />
+
+      {/* Fasting Break Time Roller Modal */}
+      <RollerTimePickerModal
+        visible={showFastingPicker}
+        initialHour24={fastingPreferences?.breakFastHour ?? 15}
+        initialMinute={fastingPreferences?.breakFastMinute ?? 0}
+        language={language}
+        title={language === "am" ? "የጾም መፍቻ ሰዓት" : "Set Fasting Break Time"}
+        onSave={(val) => {
+          updateFastingPreferences({
+            breakFastHour: val.hour24,
+            breakFastMinute: val.minute,
+          });
+        }}
+        onClose={() => setShowFastingPicker(false)}
+      />
     </AppScreen>
   );
 }

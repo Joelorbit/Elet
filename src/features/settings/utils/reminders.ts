@@ -14,7 +14,6 @@ async function getNotificationsApi() {
       notificationsApi = await import("expo-notifications");
       notificationsApi.setNotificationHandler({
         handleNotification: async () => ({
-          shouldShowAlert: true,
           shouldPlaySound: true,
           shouldSetBadge: true,
           shouldShowBanner: true,
@@ -70,7 +69,8 @@ export async function setupNotificationChannels(): Promise<void> {
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: "#8E4424",
-      sound: "default",
+      enableVibrate: true,
+      enableLights: true,
     });
 
     await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL, {
@@ -78,28 +78,32 @@ export async function setupNotificationChannels(): Promise<void> {
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 300, 200, 300],
       lightColor: "#C89D42",
-      sound: "default",
+      enableVibrate: true,
+      enableLights: true,
     });
 
     await Notifications.setNotificationChannelAsync(FEAST_CHANNEL, {
       name: "Daily Tabot & Feasts",
       importance: Notifications.AndroidImportance.DEFAULT,
       lightColor: "#2D6A4F",
-      sound: "default",
+      enableVibrate: true,
+      enableLights: true,
     });
 
     await Notifications.setNotificationChannelAsync(FASTING_CHANNEL, {
       name: "Fasting Alarms & Break Times",
       importance: Notifications.AndroidImportance.HIGH,
       lightColor: "#C89D42",
-      sound: "default",
+      enableVibrate: true,
+      enableLights: true,
     });
 
     await Notifications.setNotificationChannelAsync(SCRIPTURE_CHANNEL, {
       name: "Daily Holy Scripture",
       importance: Notifications.AndroidImportance.DEFAULT,
       lightColor: "#8E4424",
-      sound: "default",
+      enableVibrate: true,
+      enableLights: true,
     });
   } catch {
     // Ignore channel creation errors
@@ -158,12 +162,12 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
     if (preferences.dailyReminderEnabled) {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: language === "am" ? "ዕለት — የጠዋት ጸሎትና ንባብ" : "Elet — Morning Devotion",
+          title: language === "am" ? "ዕለት • የጠዋት ጸሎትና ንባብ" : "Elet • Morning Devotion",
           body:
             language === "am"
               ? "ቀንዎን በእግዚአብሔር ቃልና በጸሎት ይጀምሩ።"
-              : "Begin your day with prayer, scripture, and canonical reflection.",
-          sound: "default",
+              : "Begin your day with prayer, holy scripture, and canonical reflection.",
+          sound: true,
           color: "#8E4424",
         },
         trigger: dailyTrigger(
@@ -187,12 +191,12 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
 
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: language === "am" ? `🔔 የዕለቱ ታቦት፡ ${feastTitle}` : `🔔 Today's Saint: ${feastTitle}`,
+          title: language === "am" ? `የዕለቱ ቅዱስ ታቦት • ${feastTitle}` : `Daily Commemoration • ${feastTitle}`,
           body:
             language === "am"
               ? `${ethDate.day} ቀን — ${commemoration?.description?.[language] || "የቅዱሳን በረከት ይደርብን።"}`
               : `Blessed commemoration of ${feastTitle}.`,
-          sound: "default",
+          sound: true,
           color: "#2D6A4F",
         },
         trigger: dailyTrigger(Notifications, preferences.feastReminderHour ?? 7, 30, FEAST_CHANNEL),
@@ -203,9 +207,9 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
     if (preferences.dailyVerseReminderEnabled !== false) {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: language === "am" ? `📖 የዕለቱ ቅዱስ ቃል (${dailyBible.reference[language]})` : `📖 Daily Scripture (${dailyBible.reference.en})`,
+          title: language === "am" ? `የዕለቱ ቅዱስ ቃል • ${dailyBible.reference[language]}` : `Daily Holy Scripture • ${dailyBible.reference.en}`,
           body: `«${dailyBible.verseText}»`,
-          sound: "default",
+          sound: true,
           color: "#8E4424",
         },
         trigger: dailyTrigger(Notifications, 12, 0, SCRIPTURE_CHANNEL),
@@ -216,12 +220,12 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
     if (preferences.streakProtectionReminderEnabled !== false) {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: language === "am" ? "🔥 የጸሎት ጉዞዎ እንዳይቋረጥ!" : "🔥 Protect Your Spiritual Streak!",
+          title: language === "am" ? "ዕለት • የጸሎት ጽናት ማሳሰቢያ" : "Elet • Daily Devotion Reminder",
           body:
             language === "am"
               ? "የዛሬውን የሠርክ ወይም የንዋም ጸሎት ለመፈጸም ጥቂት ደቂቃዎችን ይውሰዱ።"
-              : "Take 5 minutes for your evening or compline prayer before the day concludes.",
-          sound: "default",
+              : "Take a few moments for your evening or compline prayer before the day concludes.",
+          sound: true,
           color: "#C89D42",
         },
         trigger: dailyTrigger(Notifications, 20, 30, DAILY_CHANNEL),
@@ -234,12 +238,12 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
         if (prayer.reminderEnabled !== false && prayer.reminderHour !== undefined) {
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: language === "am" ? `⛪ ${prayer.title.am}` : `⛪ ${prayer.title.en}`,
+              title: language === "am" ? `የሰዓታት ጸሎት • ${prayer.title.am}` : `Canonical Prayer • ${prayer.title.en}`,
               body:
                 language === "am"
-                  ? `የ${prayer.timeLabel.am} የጸሎት ሰዓት ደርሷል — በጸሎት ወደ ፈጣሪዎ ይቅረቡ።`
-                  : `Canonical prayer hour: ${prayer.title.en}.`,
-              sound: "default",
+                  ? `የ${prayer.timeLabel.am} የጸሎት ሰዓት ደርሷል — በጸሎትና በምስጋና ወደ ፈጣሪዎ ይቅረቡ።`
+                  : `Canonical prayer hour: ${prayer.title.en}. Lift your heart in prayer.`,
+              sound: true,
               color: "#C89D42",
             },
             trigger: dailyTrigger(
@@ -259,12 +263,12 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
         if (reading.reminderEnabled !== false && reading.reminderHour !== undefined) {
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: language === "am" ? `📖 ${reading.title.am}` : `📖 ${reading.title.en}`,
+              title: language === "am" ? `የመጽሐፍ ቅዱስ ንባብ • ${reading.title.am}` : `Scripture Reading • ${reading.title.en}`,
               body:
                 language === "am"
                   ? `የዕለቱ የመጽሐፍ ቅዱስ ንባብ ሰዓት ደርሷል (${reading.reference})።`
                   : `Scripture reading reminder: ${reading.reference}.`,
-              sound: "default",
+              sound: true,
               color: "#8E4424",
             },
             trigger: dailyTrigger(
@@ -285,12 +289,12 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
 
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: language === "am" ? "🍽️ የጾም ሰዓት ተፈጽሟል" : "🍽️ Fasting Target Completed",
+          title: language === "am" ? "የጾም ፍጻሜ • መፍቻ ሰዓት ደርሷል" : "Fasting Completed • Break Fast Hour",
           body:
             language === "am"
-              ? "የዛሬው የጾም ሰዓት ተፈጽሟል፤ በምስጋና ይፍቱ። በረከቱ ይደርብን።"
-              : "Today's fasting hours completed. Break fast with prayer and thanksgiving.",
-          sound: "default",
+              ? "የዛሬው የጾም ሰዓት ተፈጽሟል፤ በጸሎትና በምስጋና ይፍቱ። በረከቱ ይደርብን።"
+              : "Today's canonical fasting hours are completed. Break fast with thanksgiving and prayer.",
+          sound: true,
           color: "#C89D42",
         },
         trigger: dailyTrigger(Notifications, bHour, bMinute, FASTING_CHANNEL),
@@ -298,5 +302,33 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
     }
   } catch {
     // Gracefully handle background schedule failure
+  }
+}
+
+export async function sendTestNotificationNow(language: "am" | "en" = "am"): Promise<boolean> {
+  const Notifications = await getNotificationsApi();
+  if (!Notifications) return false;
+
+  try {
+    const granted = await requestNotificationPermissions();
+    if (!granted) return false;
+
+    await setupNotificationChannels();
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: language === "am" ? "ዕለት • የጸሎት ደወልና ማሳወቂያ" : "Elet • Canonical Bell & Notification",
+        body:
+          language === "am"
+            ? "የሰዓታት ጸሎት፣ የአጽዋማትና የበዓላት ማሳወቂያ ሥርዓት በተሟላ ሁኔታ እየሠራ ነው።"
+            : "Canonical prayer bells, fasting alerts, and liturgical notifications are active and working flawlessly.",
+        sound: true,
+        color: "#8E4424",
+      },
+      trigger: null, // deliver immediately
+    });
+    return true;
+  } catch {
+    return false;
   }
 }

@@ -152,6 +152,79 @@ for (let i = 0; i < 20; i++) {
 }
 assert(duplicateConsecutiveCount === 0, "Zero consecutive duplicate verses in 20 random rolls");
 
+// SUITE 9: Major & Minor Annual Orthodox Feasts Verification
+console.log("\n[Suite 9] Annual Orthodox Feasts & Saint Commemorations");
+const hamle7 = getAnnualFeast(11, 7);
+assert(hamle7 !== undefined && hamle7.title.am.includes("ሥላሴ"), "Hamle 7 is Annual Holy Trinity (ሐምሌ ሥላሴ)");
+assert(hamle7 !== undefined && hamle7.title.en.includes("Trinity"), "Hamle 7 English title contains Trinity");
+
+const nehase13 = getAnnualFeast(12, 13);
+assert(nehase13 !== undefined && (nehase13.title.am.includes("ደብረ ታቦር") || nehase13.title.am.includes("ቡሄ")), "Nehase 13 is Debre Tabor / Buhe (ደብረ ታቦር / ቡሄ)");
+
+const hidar12 = getAnnualFeast(3, 12);
+assert(hidar12 !== undefined && hidar12.title.am.includes("ሚካኤል"), "Hidar 12 is Annual Archangel Michael (ኅዳር ሚካኤል)");
+
+const sene12 = getAnnualFeast(10, 12);
+assert(sene12 !== undefined && sene12.title.am.includes("ሚካኤል"), "Sene 12 is Annual Archangel Michael (ሰኔ ሚካኤል)");
+
+const ginbot12 = getAnnualFeast(9, 12);
+assert(ginbot12 !== undefined && ginbot12.title.am.includes("ሚካኤል"), "Ginbot 12 is Annual Archangel Michael (ግንቦት ሚካኤል)");
+
+const tir12 = getAnnualFeast(5, 12);
+assert(tir12 !== undefined && tir12.title.am.includes("ቃና ዘገሊላ"), "Tir 12 is Cana of Galilee / Tir Michael");
+
+const tahsas19 = getAnnualFeast(4, 19);
+assert(tahsas19 !== undefined && tahsas19.title.am.includes("ገብርኤል"), "Tahsas 19 is Kulubi Saint Gabriel (ታኅሣሥ ገብርኤል)");
+
+const megabit10 = getAnnualFeast(7, 10);
+assert(megabit10 !== undefined && megabit10.title.am.includes("መስቀል"), "Megabit 10 is Manifestation of the Holy Cross (መገለጸ መስቀል)");
+
+// SUITE 10: 2018–2041 Exact Canonical Benchmark Calculations
+console.log("\n[Suite 10] 2018–2041 Exact Canonical Benchmark Dates");
+// 2018 E.C. (Mark): Tir 25 Nenewe, Miyazya 4 Tensae
+const b2018 = YEBEALAT_MAWECHA_2018_2041[2018];
+assert(b2018.evangelist.am === "ማርቆስ", "2018 Evangelist is Mark (ማርቆስ)");
+assert(b2018.newYearDay.am === "ሐሙስ", "2018 New Year starts on Thursday (ሐሙስ)");
+assert(b2018.tsomeNenewe.month === 5 && b2018.tsomeNenewe.day === 25, "2018 Tsome Nenewe is Tir 25 (ጥር 25)");
+assert(b2018.abiyTsome.month === 6 && b2018.abiyTsome.day === 9, "2018 Abiy Tsome is Yekatit 9 (የካቲት 9)");
+assert(b2018.tensae.month === 8 && b2018.tensae.day === 4, "2018 Tensae is Miyazya 4 (ሚያዝያ 4)");
+
+// 2019 E.C. (Luke): Yekatit 15 Nenewe, Miyazya 24 Tensae
+const b2019 = YEBEALAT_MAWECHA_2018_2041[2019];
+assert(b2019.evangelist.am === "ሉቃስ", "2019 Evangelist is Luke (ሉቃስ)");
+assert(b2019.newYearDay.am === "ዓርብ", "2019 New Year starts on Friday (ዓርብ)");
+assert(b2019.tsomeNenewe.month === 6 && b2019.tsomeNenewe.day === 15, "2019 Tsome Nenewe is Yekatit 15 (የካቲት 15)");
+assert(b2019.tensae.month === 8 && b2019.tensae.day === 24, "2019 Tensae is Miyazya 24 (ሚያዝያ 24)");
+
+// 2020 E.C. (John - Leap): Tir 29 Nenewe, Miyazya 8 Tensae
+const b2020 = YEBEALAT_MAWECHA_2018_2041[2020];
+assert(b2020.evangelist.am === "ዮሐንስ", "2020 Evangelist is John (ዮሐንስ)");
+assert(b2020.newYearDay.am === "እሑድ", "2020 New Year starts on Sunday (እሑድ)");
+assert(b2020.tsomeNenewe.month === 5 && b2020.tsomeNenewe.day === 29, "2020 Tsome Nenewe is Tir 29 (ጥር 29)");
+assert(b2020.tensae.month === 8 && b2020.tensae.day === 8, "2020 Tensae is Miyazya 8 (ሚያዝያ 8)");
+
+// 2041 E.C. (Matthew): Yekatit 8 Nenewe, Miyazya 17 Tensae
+const b2041 = YEBEALAT_MAWECHA_2018_2041[2041];
+assert(b2041.evangelist.am === "ማቴዎስ", "2041 Evangelist is Matthew (ማቴዎስ)");
+assert(b2041.newYearDay.am === "ዓርብ", "2041 New Year starts on Friday (ዓርብ)");
+assert(b2041.tsomeNenewe.month === 6 && b2041.tsomeNenewe.day === 8, "2041 Tsome Nenewe is Yekatit 8 (የካቲት 8)");
+assert(b2041.tensae.month === 8 && b2041.tensae.day === 17, "2041 Tensae is Miyazya 17 (ሚያዝያ 17)");
+
+// SUITE 11: 3D Roller Time Picker & Dynamic Alarm Countdown Logic
+console.log("\n[Suite 11] 3D Roller Time Picker & Alarm Countdown Arithmetic");
+import { calculateAlarmCountdown } from "../src/shared/utils/alarm-countdown";
+
+const countdownAm = calculateAlarmCountdown(12, 0, "am");
+assert(typeof countdownAm === "string" && countdownAm.length > 0, "Amharic alarm countdown string is valid");
+
+const countdownEn = calculateAlarmCountdown(15, 30, "en");
+assert(typeof countdownEn === "string" && countdownEn.length > 0, "English alarm countdown string is valid");
+
+assert(countdownEn.includes("Ring") || countdownEn.includes("min") || countdownEn.includes("hour"), "English countdown contains expected time keywords");
+assert(countdownAm.includes("ይደውላል") || countdownAm.includes("ሰዓት") || countdownAm.includes("ደቂቃ"), "Amharic countdown contains expected Geez/Amharic time keywords");
+
 console.log("\n==========================================");
 console.log(`🎉 ALL ${passedCount}/${totalCount} TEST CASES PASSED WITH 100% SUCCESS!`);
 console.log("==========================================");
+
+

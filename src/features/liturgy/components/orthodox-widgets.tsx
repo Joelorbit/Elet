@@ -35,7 +35,7 @@ export function DailyCommemorationWidget({ language, date = new Date() }: DailyC
   const colors = useAppColors();
   const ethDate = gregorianToEthiopian(date);
   const commemoration = getMonthlyCommemoration(ethDate.day);
-  const annualFeast = getAnnualFeast(ethDate.month, ethDate.day);
+  const annualFeast = getAnnualFeast(ethDate.month, ethDate.day, ethDate.year);
   const movableFeast = getMovableFeastForDate(ethDate);
 
   const feastTitle = movableFeast
@@ -264,10 +264,28 @@ export function SpiritualProgressWidget({
 
       {nextIncompletePrayer && onTogglePrayer && (
         <View style={[styles.widgetActionBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <View style={{ flex: 1 }}>
-            <Text tone="label" style={[styles.nextActionLabel, { color: colors.muted }]}>
-              {language === "am" ? "ቀጣይ ጸሎት" : "Next Prayer"}
-            </Text>
+          <View style={{ flex: 1, gap: 2 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+              <LucideIcon
+                name={
+                  nextIncompletePrayer.id.includes("morning") ||
+                  nextIncompletePrayer.id.includes("3rd") ||
+                  nextIncompletePrayer.id.includes("noon")
+                    ? "sun"
+                    : nextIncompletePrayer.id.includes("evening") ||
+                      nextIncompletePrayer.id.includes("bedtime") ||
+                      nextIncompletePrayer.id.includes("midnight")
+                    ? "moon"
+                    : "church"
+                }
+                size={14}
+                color={colors.primary}
+                strokeWidth={2.4}
+              />
+              <Text tone="label" style={[styles.nextActionLabel, { color: colors.muted }]}>
+                {language === "am" ? "ቀጣይ ጸሎት" : "Next Prayer"}
+              </Text>
+            </View>
             <Text tone="title" style={[styles.nextActionTitle, { color: colors.text }]}>
               {nextIncompletePrayer.title[language] || nextIncompletePrayer.title.en}
             </Text>
@@ -279,7 +297,7 @@ export function SpiritualProgressWidget({
               { backgroundColor: colors.primary, opacity: pressed ? 0.7 : 1 },
             ]}
           >
-            <LucideIcon name="check" size={15} color="#FFFFFF" strokeWidth={2.6} />
+            <LucideIcon name="check-circle" size={16} color="#FFFFFF" strokeWidth={2.4} />
             <Text tone="label" style={styles.quickCheckText}>
               {language === "am" ? "ፈጽም" : "Done"}
             </Text>

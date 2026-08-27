@@ -31,6 +31,17 @@ import { getDailyReading } from "@/src/features/bible/utils/content";
 import { getDailyBibleReference } from "@/src/features/bible/utils/daily-bible";
 import { translate } from "@/src/shared/utils/i18n";
 
+function getPrayerIcon(prayerId?: string): "sun" | "moon" | "church" {
+  if (!prayerId) return "church";
+  if (prayerId.includes("morning") || prayerId.includes("3rd") || prayerId.includes("noon")) {
+    return "sun";
+  }
+  if (prayerId.includes("evening") || prayerId.includes("bedtime") || prayerId.includes("midnight")) {
+    return "moon";
+  }
+  return "church";
+}
+
 export default function TodayScreen() {
   const {
     preferences,
@@ -146,7 +157,11 @@ export default function TodayScreen() {
       <Card style={{ gap: 12 }}>
         <View style={styles.rowBetween}>
           <View style={styles.row}>
-            <IconCircle icon="church" color="primary" size={48} />
+            <IconCircle
+              icon={completedPrayers === prayers.length ? "church" : getPrayerIcon(nextPrayer?.id)}
+              color="primary"
+              size={48}
+            />
             <View style={{ flex: 1 }}>
               <Text tone="title" style={[styles.cardTitle, { color: colors.text }]}>{t("prayer")}</Text>
               <Text style={[styles.cardDetail, { color: colors.muted }]}>{`${completedPrayers}/${prayers.length} ${t(
@@ -166,7 +181,7 @@ export default function TodayScreen() {
                 ? t("open")
                 : `${t("complete")}: ${nextPrayer.title[language] || nextPrayer.title.en}`
             }
-            icon={completedPrayers === prayers.length ? "arrow-right" : "check"}
+            icon={completedPrayers === prayers.length ? "arrow-right" : "check-circle"}
             onPress={() =>
               completedPrayers === prayers.length
                 ? router.push("/practice/prayer" as never)

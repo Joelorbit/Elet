@@ -3,7 +3,7 @@
     "name": "Elet",
     "displayName": "Elet • ዕለት",
     "slug": "elet",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "elet",
@@ -17,6 +17,7 @@
     },
     "android": {
       "package": "me.eyuel.elet",
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#8E4424",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -29,8 +30,12 @@
         "USE_FINGERPRINT",
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
+        "WAKE_LOCK",
         "SCHEDULE_EXACT_ALARM",
-        "POST_NOTIFICATIONS"
+        "USE_EXACT_ALARM",
+        "POST_NOTIFICATIONS",
+        "REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
+        "REQUEST_INSTALL_PACKAGES"
       ]
     },
     "web": {
@@ -58,6 +63,18 @@
         "expo-local-authentication",
         {
           "faceIDPermission": "Elet requires Face ID to unlock your confidential spiritual journals and confession notes."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26,
+            "targetSdkVersion": 35,
+            "compileSdkVersion": 36,
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
         }
       ]
     ],

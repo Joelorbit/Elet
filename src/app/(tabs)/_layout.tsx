@@ -43,9 +43,18 @@ export default function TabLayout() {
         },
         tabBarItemStyle: { borderRadius: 14, marginHorizontal: 2 },
         tabBarLabelStyle: {
-          fontSize: 12,
-          lineHeight: 16,
-          fontWeight: "800",
+          fontFamily:
+            Platform.OS === "web"
+              ? language === "am"
+                ? "'Noto Sans Ethiopic', sans-serif"
+                : "'Lexend', sans-serif"
+              : language === "am"
+              ? "NotoSansEthiopic_700Bold"
+              : "Lexend_600SemiBold",
+          fontSize: 11,
+          lineHeight: 14,
+          fontWeight: Platform.OS === "web" ? "700" : undefined,
+          letterSpacing: language === "am" ? 0 : 0.2,
           marginTop: 4,
         },
       }}
@@ -117,15 +126,21 @@ const NavigationIcon = memo(function NavigationIcon({
   return (
     <View
       style={{
-        width: 54,
+        width: 52,
         height: 32,
         borderRadius: 16,
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: focused ? colors.primaryContainer : "transparent",
+        transform: [{ scale: focused ? 1.10 : 1.0 }],
       }}
     >
-      <LucideIcon name={icon} size={24} color={color} strokeWidth={focused ? 2.5 : 2.0} />
+      <LucideIcon
+        name={icon}
+        size={focused ? 24 : 22}
+        color={color}
+        strokeWidth={focused ? 2.6 : 2.0}
+      />
     </View>
   );
 });

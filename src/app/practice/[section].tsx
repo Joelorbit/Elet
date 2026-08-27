@@ -13,6 +13,7 @@ import {
   LucideIcon,
   Pill,
   PrimaryButton,
+  RollerTimePickerModal,
   SectionHeader,
   useAppColors,
 } from "@/src/theme/app-ui";
@@ -52,25 +53,31 @@ export default function PracticeSectionScreen() {
 
   // Custom Prayer Form State
   const [showAddPrayer, setShowAddPrayer] = useState(false);
+  const [showPrayerTimePicker, setShowPrayerTimePicker] = useState(false);
   const [customPrayerTitleAm, setCustomPrayerTitleAm] = useState("");
   const [customPrayerTitleEn, setCustomPrayerTitleEn] = useState("");
   const [customPrayerTimeLabel, setCustomPrayerTimeLabel] = useState("6:00 AM");
   const [customPrayerHour, setCustomPrayerHour] = useState("6");
+  const [customPrayerMinute, setCustomPrayerMinute] = useState("0");
 
   // Custom Reading Form State
   const [showAddReading, setShowAddReading] = useState(false);
+  const [showReadingTimePicker, setShowReadingTimePicker] = useState(false);
   const [readingTitleAm, setReadingTitleAm] = useState("");
   const [readingTitleEn, setReadingTitleEn] = useState("");
   const [readingThemeAm, setReadingThemeAm] = useState("የግል ንባብ");
   const [readingThemeEn, setReadingThemeEn] = useState("Custom Reading");
   const [readingRef, setReadingRef] = useState("");
   const [readingHour, setReadingHour] = useState("8");
+  const [readingMinute, setReadingMinute] = useState("0");
 
   // Custom Fast Form State
   const [showAddFast, setShowAddFast] = useState(false);
+  const [showFastTimePicker, setShowFastTimePicker] = useState(false);
   const [fastTitle, setFastTitle] = useState("");
   const [fastDays, setFastDays] = useState("5");
   const [fastHour, setFastHour] = useState("15");
+  const [fastMinute, setFastMinute] = useState("0");
   const [fastNotes, setFastNotes] = useState("");
 
   // Confession form state
@@ -211,22 +218,41 @@ export default function PracticeSectionScreen() {
               onChangeText={setCustomPrayerTitleEn}
               placeholder={language === "am" ? "የጸሎቱ ስም በእንግሊዝኛ..." : "Prayer name in English..."}
             />
-            <View style={{ flexDirection: "row", gap: 8 }}>
+            <Pressable
+              onPress={() => setShowPrayerTimePicker(true)}
+              style={[
+                styles.timePickerButton,
+                { backgroundColor: colors.secondary, borderColor: colors.border },
+              ]}
+            >
+              <LucideIcon name="bell" size={18} color={colors.primary} />
               <View style={{ flex: 1 }}>
-                <AppTextInput
-                  value={customPrayerTimeLabel}
-                  onChangeText={setCustomPrayerTimeLabel}
-                  placeholder={language === "am" ? "የሰዓት መግለጫ (6:00 AM)..." : "Time Label (e.g. 6:00 AM)..."}
-                />
+                <Text tone="label" style={{ fontSize: 11, color: colors.muted }}>
+                  {language === "am" ? "የጸሎት ሰዓት ይምረጡ" : "Select Prayer Time"}
+                </Text>
+                <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text }}>
+                  {customPrayerTimeLabel}
+                </Text>
               </View>
-              <View style={{ width: 90 }}>
-                <AppTextInput
-                  value={customPrayerHour}
-                  onChangeText={setCustomPrayerHour}
-                  placeholder="Hour (0-23)"
-                />
-              </View>
-            </View>
+              <LucideIcon name="chevron-right" size={18} color={colors.primary} />
+            </Pressable>
+
+            <RollerTimePickerModal
+              visible={showPrayerTimePicker}
+              initialHour24={parseInt(customPrayerHour, 10) || 6}
+              initialMinute={parseInt(customPrayerMinute, 10) || 0}
+              language={language}
+              title={language === "am" ? "የጸሎት ሰዓት ማስተካከያ" : "Set Prayer Time"}
+              onSave={(val) => {
+                const hour12 = val.hour24 % 12 === 0 ? 12 : val.hour24 % 12;
+                const period = val.hour24 >= 12 ? "PM" : "AM";
+                const label = `${hour12}:${String(val.minute).padStart(2, "0")} ${period}`;
+                setCustomPrayerHour(String(val.hour24));
+                setCustomPrayerMinute(String(val.minute));
+                setCustomPrayerTimeLabel(label);
+              }}
+              onClose={() => setShowPrayerTimePicker(false)}
+            />
             <PrimaryButton
               label={language === "am" ? "የጸሎት ሰዓቱን አስቀምጥ" : "Save Prayer Routine"}
               icon="check"
@@ -329,22 +355,44 @@ export default function PracticeSectionScreen() {
               onChangeText={setReadingRef}
               placeholder={language === "am" ? "የመጽሐፍ ቅዱስ ክፍል (ለምሳሌ፡ ዮሐንስ 1-3)..." : "Scripture Reference (e.g. John 1–3)..."}
             />
-            <View style={{ flexDirection: "row", gap: 8 }}>
+            <AppTextInput
+              value={readingThemeAm}
+              onChangeText={setReadingThemeAm}
+              placeholder={language === "am" ? "ጭብጥ (ለምሳሌ፡ ወንጌል / ጥበብ)..." : "Theme..."}
+            />
+
+            <Pressable
+              onPress={() => setShowReadingTimePicker(true)}
+              style={[
+                styles.timePickerButton,
+                { backgroundColor: colors.secondary, borderColor: colors.border },
+              ]}
+            >
+              <LucideIcon name="bell" size={18} color={colors.gold} />
               <View style={{ flex: 1 }}>
-                <AppTextInput
-                  value={readingThemeAm}
-                  onChangeText={setReadingThemeAm}
-                  placeholder={language === "am" ? "ጭብጥ (ለምሳሌ፡ ወንጌል / ጥበብ)..." : "Theme..."}
-                />
+                <Text tone="label" style={{ fontSize: 11, color: colors.muted }}>
+                  {language === "am" ? "የንባብ ማሳሰቢያ ሰዓት" : "Reading Reminder Time"}
+                </Text>
+                <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text }}>
+                  {`${parseInt(readingHour, 10) % 12 === 0 ? 12 : parseInt(readingHour, 10) % 12}:${String(readingMinute).padStart(2, "0")} ${parseInt(readingHour, 10) >= 12 ? "PM" : "AM"}`}
+                </Text>
               </View>
-              <View style={{ width: 120 }}>
-                <AppTextInput
-                  value={readingHour}
-                  onChangeText={setReadingHour}
-                  placeholder={language === "am" ? "ማሳሰቢያ ሰዓት (8)..." : "Hour (8)..."}
-                />
-              </View>
-            </View>
+              <LucideIcon name="chevron-right" size={18} color={colors.primary} />
+            </Pressable>
+
+            <RollerTimePickerModal
+              visible={showReadingTimePicker}
+              initialHour24={parseInt(readingHour, 10) || 8}
+              initialMinute={parseInt(readingMinute, 10) || 0}
+              language={language}
+              title={language === "am" ? "የንባብ ሰዓት ማስተካከያ" : "Set Reading Reminder Time"}
+              onSave={(val) => {
+                setReadingHour(String(val.hour24));
+                setReadingMinute(String(val.minute));
+              }}
+              onClose={() => setShowReadingTimePicker(false)}
+            />
+
             <PrimaryButton
               label={language === "am" ? "የንባብ ዕቅዱን አስቀምጥ" : "Save Reading Plan"}
               icon="check"
@@ -449,22 +497,44 @@ export default function PracticeSectionScreen() {
               onChangeText={setFastTitle}
               placeholder={language === "am" ? "የጾሙ ስም (ለምሳሌ፡ የንስሐ አባት ያዘዙት የ5 ቀን ጾም)..." : "Fasting Title (e.g. 5-Day Penance Fast)..."}
             />
-            <View style={{ flexDirection: "row", gap: 8 }}>
+            <AppTextInput
+              value={fastDays}
+              onChangeText={setFastDays}
+              placeholder={language === "am" ? "የቀናት ብዛት (5)..." : "Target Days (e.g. 5)..."}
+            />
+
+            <Pressable
+              onPress={() => setShowFastTimePicker(true)}
+              style={[
+                styles.timePickerButton,
+                { backgroundColor: colors.secondary, borderColor: colors.border },
+              ]}
+            >
+              <LucideIcon name="utensils" size={18} color={colors.primary} />
               <View style={{ flex: 1 }}>
-                <AppTextInput
-                  value={fastDays}
-                  onChangeText={setFastDays}
-                  placeholder={language === "am" ? "የቀናት ብዛት (5)..." : "Target Days (e.g. 5)..."}
-                />
+                <Text tone="label" style={{ fontSize: 11, color: colors.muted }}>
+                  {language === "am" ? "የጾም መፍቻ ሰዓት" : "Fast Break Time"}
+                </Text>
+                <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text }}>
+                  {`${parseInt(fastHour, 10) % 12 === 0 ? 12 : parseInt(fastHour, 10) % 12}:${String(fastMinute).padStart(2, "0")} ${parseInt(fastHour, 10) >= 12 ? "PM" : "AM"}`}
+                </Text>
               </View>
-              <View style={{ width: 120 }}>
-                <AppTextInput
-                  value={fastHour}
-                  onChangeText={setFastHour}
-                  placeholder={language === "am" ? "መፍቻ ሰዓት (15)..." : "Break Hour (15)..."}
-                />
-              </View>
-            </View>
+              <LucideIcon name="chevron-right" size={18} color={colors.primary} />
+            </Pressable>
+
+            <RollerTimePickerModal
+              visible={showFastTimePicker}
+              initialHour24={parseInt(fastHour, 10) || 15}
+              initialMinute={parseInt(fastMinute, 10) || 0}
+              language={language}
+              title={language === "am" ? "የጾም መፍቻ ሰዓት ማስተካከያ" : "Set Fast Break Time"}
+              onSave={(val) => {
+                setFastHour(String(val.hour24));
+                setFastMinute(String(val.minute));
+              }}
+              onClose={() => setShowFastTimePicker(false)}
+            />
+
             <AppTextInput
               value={fastNotes}
               onChangeText={setFastNotes}
@@ -832,6 +902,15 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     alignItems: "center",
     justifyContent: "center",
+  },
+  timePickerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 14,
+    borderWidth: 1.5,
   },
   themeLabel: { fontSize: 11, fontWeight: "700", textTransform: "uppercase" },
   refText: { fontSize: 13, fontWeight: "700", marginTop: 2 },

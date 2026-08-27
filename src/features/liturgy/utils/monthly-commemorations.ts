@@ -61,80 +61,463 @@ export const dailyReflection: LocalizedText = {
 };
 
 export const majorAnnualFeasts: AnnualFeast[] = [
-  // Meskerem
-  { month: 1, day: 1, title: { en: "Enkutatash / Saint John (New Year)", am: "እንቁጣጣሽ / ቅዱስ ዮሐንስ (ርእሰ ዐውደ ዓመት)" }, significance: { en: "Ethiopian Orthodox New Year and feast of Saint John.", am: "የኢትዮጵያ አዲስ ዓመት እና የቅዱስ ዮሐንስ መጥምቅ ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 1, day: 17, title: { en: "Finding of the True Cross (Meskel / Demera)", am: "ደመራ እና በዓለ ቅዱስ መስቀል" }, significance: { en: "The discovery of the Life-Giving True Cross by Queen Helena.", am: "ንግሥት ዕሌኒ የከበረውን የጌታችንን መስቀል ያስቆፈረችበት ታላቅ ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 1, day: 21, title: { en: "Gishen Debre Kerbe Mariam", am: "ግሸን ደብረ ከርቤ ማርያም" }, significance: { en: "Deposition of the Right Half of the True Cross at Gishen Amba.", am: "ግማደ መስቀሉ በግሸን አምባ የገባበትና የእመቤታችን ታላቅ የንግሥ በዓል።" }, isMajorNigis: true },
+  // 1. Meskerem (መስከረም)
+  {
+    month: 1,
+    day: 1,
+    title: { en: "Enkutatash / Saint John (New Year)", am: "እንቁጣጣሽ / ቅዱስ ዮሐንስ (ርእሰ ዐውደ ዓመት)" },
+    significance: { en: "Ethiopian Orthodox New Year and annual feast of Saint John the Baptist.", am: "የኢትዮጵያ አዲስ ዓመት እና የቅዱስ ዮሐንስ መጥምቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 1,
+    day: 17,
+    title: { en: "Finding of the True Cross (Meskel / Demera)", am: "ደመራ እና በዓለ ቅዱስ መስቀል" },
+    significance: { en: "The discovery of the Life-Giving True Cross by Empress Helena.", am: "ንግሥት ዕሌኒ የከበረውን የጌታችንን መስቀል ያስቆፈረችበት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 1,
+    day: 18,
+    title: { en: "Abune Ewostatewos", am: "መስከረም አቡነ ኤዎስጣቴዎስ" },
+    significance: { en: "The holy repose of Saint Abune Ewostatewos in Armenia.", am: "የታላቁ ኢትዮጵያዊ አባት የአቡነ ኤዎስጣቴዎስ የዕረፍት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 1,
+    day: 21,
+    title: { en: "Gishen Debre Kerbe Mariam", am: "ግሸን ደብረ ከርቤ ማርያም" },
+    significance: { en: "Deposition of the Right Half of the True Cross (Gimade Meskel) at Gishen Amba.", am: "ግማደ መስቀሉ በግሸን አምባ የገባበትና የእመቤታችን ታላቅ የንግሥ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Tikemt
-  { month: 2, day: 5, title: { en: "Abune Gebre Menfes Kidus (Tikemt Abo)", am: "ጥቅምት አቡነ ገብረ መንፈስ ቅዱስ" }, significance: { en: "Annual commemoration of the great desert father Abune Gebre Menfes Kidus.", am: "የታላቁ ጻድቅ የአቡነ ገብረ መንፈስ ቅዱስ ዓመታዊ መታሰቢያ።" }, isMajorNigis: true },
-  { month: 2, day: 14, title: { en: "Abune Aregawi (Debre Damo)", am: "አቡነ አረጋዊ (ደብረ ዳሞ)" }, significance: { en: "Commemoration of Abune Aregawi of the Nine Saints.", am: "የተስዓቱ ቅዱሳን አለቃ የአቡነ አረጋዊ ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 2, day: 24, title: { en: "Birth of Abune Tekle Haymanot", am: "አቡነ ተክለ ሃይማኖት (ዘልደት)" }, significance: { en: "The miraculous birth of Saint Tekle Haymanot.", am: "የኢትዮጵያ ብርሃን የጻድቁ አቡነ ተክለ ሃይማኖት የልደት በዓል።" }, isMajorNigis: true },
-  { month: 2, day: 27, title: { en: "Tikemt Medhane Alem", am: "ጥቅምት መድኃኔዓለም" }, significance: { en: "Annual feast of the Savior of the World.", am: "የዓለም መድኃኒት የመድኃኔዓለም ታላቅ ዓመታዊ በዓል።" }, isMajorNigis: true },
+  // 2. Tikemt (ጥቅምት)
+  {
+    month: 2,
+    day: 5,
+    title: { en: "Abune Gebre Menfes Kidus (Tikemt Abo)", am: "ጥቅምት አቡነ ገብረ መንፈስ ቅዱስ" },
+    significance: { en: "Annual commemoration of the great desert father Abune Gebre Menfes Kidus.", am: "የታላቁ ጻድቅ የአቡነ ገብረ መንፈስ ቅዱስ ታላቅ ዓመታዊ መታሰቢያ።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 2,
+    day: 14,
+    title: { en: "Abune Aregawi (Debre Damo)", am: "አቡነ አረጋዊ (ደብረ ዳሞ)" },
+    significance: { en: "Annual feast of Abune Aregawi, leader of the Nine Saints of Ethiopia.", am: "የተስዓቱ ቅዱሳን መሪ የአቡነ አረጋዊ ዓመታዊ የንግሥ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 2,
+    day: 24,
+    title: { en: "Birth of Abune Tekle Haymanot", am: "አቡነ ተክለ ሃይማኖት (ዘልደት)" },
+    significance: { en: "The miraculous birth of Saint Tekle Haymanot in Zorare.", am: "የኢትዮጵያ ብርሃን የጻድቁ አቡነ ተክለ ሃይማኖት የልደት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 2,
+    day: 27,
+    title: { en: "Tikemt Medhane Alem", am: "ጥቅምት መድኃኔዓለም" },
+    significance: { en: "Annual feast of Our Lord Jesus Christ, Savior of the World.", am: "የዓለም መድኃኒት የመድኃኔዓለም ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Hidar
-  { month: 3, day: 6, title: { en: "Kuskwaam Mariam (End of Flight to Egypt)", am: "ቁስቋም ማርያም (የስደት ፍጻሜ)" }, significance: { en: "The return of the Holy Family from Mount Kuskwaam in Egypt.", am: "እመቤታችን ከልጇ ጋር ከስደት ወደ ናዝሬት የተመለሰችበት የቁስቋም ማርያም በዓል።" }, isMajorNigis: true },
-  { month: 3, day: 12, title: { en: "Hidar Saint Michael", am: "ኅዳር ሚካኤል" }, significance: { en: "Deliverance of the faithful through the intercession of Archangel Michael.", am: "የቅዱስ ሚካኤል ሊቀ መላእክት ታላቅ ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 3, day: 21, title: { en: "Hidar Zion Saint Mary (Axum Tsion)", am: "ኅዳር ጽዮን ማርያም (አክሱም ጽዮን)" }, significance: { en: "The Ark of the Covenant arriving at Axum and St. Mary of Zion.", am: "ታቦተ ጽዮን ወደ አክሱም የገባችበት የታላቋ ጽዮን ማርያም ዓመታዊ በዓል።" }, isMajorNigis: true },
+  // 3. Hidar (ኅዳር)
+  {
+    month: 3,
+    day: 6,
+    title: { en: "Kuskwaam Mariam (End of Flight to Egypt)", am: "ቁስቋም ማርያም (የስደት ፍጻሜ)" },
+    significance: { en: "The return of the Holy Family from Mount Kuskwaam in Egypt.", am: "እመቤታችን ከልጇ ጋር ከስደት ወደ ናዝሬት የተመለሰችበት የቁስቋም ማርያም በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 3,
+    day: 8,
+    title: { en: "Four Heavenly Living Creatures (Arba'etu Ensisa)", am: "አርባዕቱ እንስሳ" },
+    significance: { en: "Commemoration of the Four Incorporeal Heavenly Living Creatures before the Throne.", am: "የእግዚአብሔርን ዙፋን የሚሸከሙት የአራቱ ኪሩቤል (አርባዕቱ እንስሳ) ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 3,
+    day: 9,
+    title: { en: "318 Orthodox Fathers of Nicaea (SelesTu Mi'it)", am: "ሠለስቱ ምእት (የኒቅያ አባቶች)" },
+    significance: { en: "Commemoration of the 318 Holy Orthodox Fathers of the First Ecumenical Council of Nicaea.", am: "የ318ቱ የኒቅያ ቅዱሳን ኦርቶዶክሳውያን አባቶች ታላቅ ዓመታዊ ጉባኤ መታሰቢያ።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 3,
+    day: 12,
+    title: { en: "Hidar Saint Michael the Archangel", am: "ኅዳር ሚካኤል" },
+    significance: { en: "Deliverance of King Durtawos and defense of the faithful by Archangel Michael.", am: "የሊቀ መላእክት የቅዱስ ሚካኤል ታላቅ ዓመታዊ በዓል፤ ዱርታዎስን ያዳነበትና የዳዊትን ዘር የጠበቀበት።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 3,
+    day: 13,
+    title: { en: "Hidar Saint Raphael the Archangel", am: "ኅዳር ሩፋኤል" },
+    significance: { en: "Dedication of the church of St. Raphael in Alexandria.", am: "በእስክንድርያ በአንበሪ ጀርባ ላይ የታነጸችው የቅዱስ ሩፋኤል ቤተ ክርስቲያን የተመረቀችበት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 3,
+    day: 21,
+    title: { en: "Hidar Zion Saint Mary (Axum Tsion)", am: "ኅዳር ጽዮን ማርያም (አክሱም ጽዮን)" },
+    significance: { en: "Arrival of the Ark of the Covenant at Axum and the first Marian Cathedral.", am: "ታቦተ ጽዮን ወደ አክሱም የገባችበትና የመጀመሪያዋ ማርያም ቤተ መቅደስ የታነጸችበት የታላቋ ጽዮን ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 3,
+    day: 23,
+    title: { en: "Hidar Saint George (Dedication of Church in Lydda)", am: "ኅዳር ቅዱስ ጊዮርጊስ" },
+    significance: { en: "Consecration of the first church of Saint George in Lydda.", am: "በልዳ አገር የከበረው የቅዱስ ጊዮርጊስ ቤተ ክርስቲያን የተመረቀበት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 3,
+    day: 24,
+    title: { en: "24 Heavenly Priests (Kahnate Semay)", am: "24ቱ ካህናተ ሰማይ" },
+    significance: { en: "Commemoration of the 24 Priests of Heaven offering incense before the Throne.", am: "በዙፋኑ ፊት ዕጣን የሚያሳርጉት የሃያ አራቱ ካህናተ ሰማይ ዓመታዊ መታሰቢያ።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 3,
+    day: 25,
+    title: { en: "Saint Mercurius the Martyr (Merkorios Abu Seifein)", am: "ኅዳር ቅዱስ መርቆሬዎስ" },
+    significance: { en: "Annual feast of the Two-Sword Martyr Saint Mercurius.", am: "ባለ ሁለት ሰይፉ ሰማዕት የቅዱስ መርቆሬዎስ ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 3,
+    day: 26,
+    title: { en: "Abune Habte Mariam", am: "ኅዳር አቡነ ሀብተ ማርያም" },
+    significance: { en: "The holy repose of Righteous Father Abune Habte Mariam.", am: "የጻድቁ አባታችን የአቡነ ሀብተ ማርያም የዕረፍት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Tahsas
-  { month: 4, day: 3, title: { en: "Ba'eta Mariam (Entry to the Temple)", am: "በዓታ ለማርያም" }, significance: { en: "The presentation of 3-year-old Mary into the Holy of Holies.", am: "እመቤታችን በሦስት ዓመቷ ወደ ቤተ መቅደስ የገባችበት ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 4, day: 19, title: { en: "Tahsas Saint Gabriel (Kulubi Gabriel)", am: "ታኅሣሥ ገብርኤል (ቁልቢ ገብርኤል)" }, significance: { en: "Deliverance of the Three Holy Youths; Kulubi Pilgrimage.", am: "ሠለስቱ ደቂቅን ከእቶን እሳት ያዳነበትና የቁልቢ ገብርኤል ታላቅ ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 4, day: 29, title: { en: "Genna / Nativity of Our Lord Jesus Christ", am: "ልደተ ክርስቶስ / በዓለ ገና" }, significance: { en: "The Holy Nativity and Incarnation of Our Lord Jesus Christ.", am: "የጌታችን የመድኃኒታችን የኢየሱስ ክርስቶስ የልደት በዓል (ገና)።" }, isMajorNigis: true },
+  // 4. Tahsas (ታኅሣሥ)
+  {
+    month: 4,
+    day: 3,
+    title: { en: "Ba'eta Mariam (Entry of Mary to the Temple)", am: "በዓታ ለማርያም" },
+    significance: { en: "Presentation of 3-year-old Mary into the Holy of Holies.", am: "እመቤታችን በሦስት ዓመቷ ወደ ቤተ መቅደስ የገባችበት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 4,
+    day: 6,
+    title: { en: "Tahsas Saint Arsema", am: "ታኅሣሥ ቅድስት አርሴማ" },
+    significance: { en: "Martyrdom and annual commemoration of Holy Virgin Martyr Saint Arsema.", am: "የሰማዕቷ የቅድስት አርሴማ የሰማዕትነት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 4,
+    day: 19,
+    title: { en: "Tahsas Saint Gabriel (Kulubi Gabriel)", am: "ታኅሣሥ ገብርኤል (ቁልቢ ገብርኤል)" },
+    significance: { en: "Deliverance of the Three Holy Youths from the fiery furnace; Kulubi Pilgrimage.", am: "ሠለስቱ ደቂቅን ከእቶን እሳት ያዳነበትና የቁልቢ ገብርኤል ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 4,
+    day: 22,
+    title: { en: "Saint Dexius (Deqsyos)", am: "ታኅሣሥ ቅዱስ ደቅስዮስ" },
+    significance: { en: "Saint Dexius, author of the praises of the Virgin Mary.", am: "የእመቤታችንን ምስጋና የደረሰው የቅዱስ ደቅስዮስ ዓመታዊ መታሰቢያ።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 4,
+    day: 24,
+    title: { en: "Tahsas Saint Tekle Haymanot", am: "ታኅሣሥ አቡነ ተክለ ሃይማኖት" },
+    significance: { en: "Miraculous preservation of Saint Tekle Haymanot when his cave collapsed.", am: "የጻድቁ አባታችን የአቡነ ተክለ ሃይማኖት ዋሻቸው የፈረሰበትና የተረፉበት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 4,
+    day: 29,
+    title: { en: "Genna / Nativity of Our Lord Jesus Christ", am: "ልደተ ክርስቶስ / በዓለ ገና" },
+    significance: { en: "The Holy Nativity and Incarnation of Our Lord and Savior Jesus Christ (Tahsas 28 in Leap Year).", am: "የጌታችን የመድኃኒታችን የኢየሱስ ክርስቶስ የልደት በዓል (ገና — በዘመነ ዮሐንስ ታኅሣሥ 28 ይከበራል)።" },
+    isMajorNigis: true,
+  },
 
-  // Tir
-  { month: 5, day: 11, title: { en: "Timkat / Feast of the Epiphany", am: "ከተራ እና በዓለ ጥምቀት" }, significance: { en: "The Holy Baptism of Jesus Christ in the Jordan River.", am: "ጌታችን በዮርዳኖስ ወንዝ የተጠመቀበት ታላቅ የጥምቀት በዓል።" }, isMajorNigis: true },
-  { month: 5, day: 12, title: { en: "Feast of Cana of Galilee / Saint Michael", am: "ቃና ዘገሊላ / ጥር ሚካኤል" }, significance: { en: "The first miracle of Jesus turning water into wine.", am: "ጌታችን በቃና ዘገሊላ ውኃውን ወደ ወይን የለወጠበትና የጥር ሚካኤል በዓል።" }, isMajorNigis: true },
-  { month: 5, day: 21, title: { en: "Aster'eyo Mariam (Dormition of Saint Mary)", am: "አስተርእዮ ማርያም (ዕረፍተ ድንግል)" }, significance: { en: "The falling asleep (Dormition) of the Most Holy Theotokos.", am: "የእመቤታችን የቅድስት ድንግል ማርያም የዕረፍት ዓመታዊ በዓል።" }, isMajorNigis: true },
+  // 5. Tir (ጥር)
+  {
+    month: 5,
+    day: 2,
+    title: { en: "Abba Paul the Hermit (Abba Pawli)", am: "ጥር አባ ጳውሊ" },
+    significance: { en: "Commemoration of Abba Paul the Hermit, the first anchorite.", am: "የባሕታውያን አባት የታላቁ አባ ጳውሊ ዓመታዊ መታሰቢያ።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 5,
+    day: 4,
+    title: { en: "Saint John the Evangelist (Yohannis Wolde Negedguad)", am: "ጥር ዮሐንስ ወልደ ነጎድጓድ" },
+    significance: { en: "The repose of Saint John the Apostle, Evangelist, and Beloved Disciple.", am: "የሐዋርያውና የወንጌላዊው የቅዱስ ዮሐንስ ወልደ ነጎድጓድ የዕረፍት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 5,
+    day: 6,
+    title: { en: "Gizret (Circumcision of Jesus Christ)", am: "ግዝረተ ክርስቶስ" },
+    significance: { en: "Circumcision of Our Lord Jesus Christ on the eighth day according to the Law.", am: "ጌታችን ኢየሱስ ክርስቶስ በስምንተኛው ቀን እንደ ሕጉ የተገረዘበት ንዑስ የጌታ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 5,
+    day: 7,
+    title: { en: "Tir Holy Trinity", am: "ጥር ሥላሴ" },
+    significance: { en: "Annual commemoration of the Most Holy Trinity.", am: "አንድ አምላክ የሚሆን የአብ፣ የወልድ፣ የመንፈስ ቅዱስ የቅድስት ሥላሴ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 5,
+    day: 11,
+    title: { en: "Timkat / Feast of the Epiphany", am: "ከተራ እና በዓለ ጥምቀት" },
+    significance: { en: "The Holy Baptism of Jesus Christ by John in the Jordan River.", am: "ጌታችን በዮርዳኖስ ወንዝ የተጠመቀበት ታላቅ የጥምቀት በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 5,
+    day: 12,
+    title: { en: "Feast of Cana of Galilee / Tir Saint Michael", am: "ቃና ዘገሊላ / ጥር ሚካኤል" },
+    significance: { en: "Jesus turning water into wine at Cana of Galilee and annual feast of Archangel Michael.", am: "ጌታችን በቃና ዘገሊላ ውኃውን ወደ ወይን የለወጠበት ንዑስ የጌታ በዓል እና የጥር ሚካኤል በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 5,
+    day: 15,
+    title: { en: "Tir Saint Kirkos and Saint Iyalota", am: "ጥር ቂርቆስ እና እየሉጣ" },
+    significance: { en: "Martyrdom of Saint Kirkos and his mother Saint Iyalota in the fiery cauldron.", am: "ሕፃኑ ቅዱስ ቂርቆስና እናቱ ቅድስት እየሉጣ በፈላ የናስ ጋን ውስጥ የጸኑበት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 5,
+    day: 17,
+    title: { en: "Saint Stephen the Protomartyr", am: "ጥር ቅዱስ እስጢፋኖስ" },
+    significance: { en: "Martyrdom of Saint Stephen the Archdeacon and First Martyr.", am: "የቀዳሜ ሰማዕት የቅዱስ እስጢፋኖስ ሊቀ ዲያቆናት የሰማዕትነት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 5,
+    day: 21,
+    title: { en: "Aster'eyo Mariam (Dormition of Saint Mary)", am: "አስተርእዮ ማርያም (ዕረፍተ ድንግል)" },
+    significance: { en: "The falling asleep (Dormition) of the Most Holy Virgin Mary.", am: "የእመቤታችን የቅድስት ድንግል ማርያም የዕረፍት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 5,
+    day: 22,
+    title: { en: "Tir Saint Urael the Archangel", am: "ጥር ዑራኤል" },
+    significance: { en: "Saint Urael giving Ezra the scribe the cup of wisdom and descending with mercy.", am: "ቅዱስ ዑራኤል ነቢዩ ዕዝራን ጥበብ የመገበበትና ምሕረት ያወረደበት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Yekatit
-  { month: 6, day: 16, title: { en: "Yekatit Kidane Mihret (Covenant of Mercy)", am: "የካቲት ኪዳነ ምሕረት" }, significance: { en: "The Great Covenant given by Christ to His Holy Mother.", am: "ጌታችን ለእመቤታችን በጎልጎታ የማትፈርሰውን ቃል ኪዳን የሰጠበት ታላቅ ዓመታዊ በዓል።" }, isMajorNigis: true },
+  // 6. Yekatit (የካቲት)
+  {
+    month: 6,
+    day: 8,
+    title: { en: "Simeon the Elder (Lidete Simeon)", am: "ስምዖን አረጋዊ" },
+    significance: { en: "Righteous Simeon receiving the Christ Child into his arms in the Temple.", am: "አረጋዊው ቅዱስ ስምዖን ሕፃኑን ጌታ በቤተ መቅደስ በክንዱ የታቀፈበት ንዑስ የጌታ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 6,
+    day: 16,
+    title: { en: "Yekatit Kidane Mihret (Covenant of Mercy)", am: "የካቲት ኪዳነ ምሕረት" },
+    significance: { en: "The Eternal Covenant given by Christ to His Holy Mother at Golgotha.", am: "ጌታችን ለእመቤታችን በጎልጎታ የማትፈርሰውን ቃል ኪዳን የሰጠበት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Megabit
-  { month: 7, day: 10, title: { en: "Manifestation of the Holy Cross", am: "መገለጸ መስቀል (ዕለተ መስቀል)" }, significance: { en: "The unearthing and revelation of the Holy Cross.", am: "ቅዱስ መስቀል ተቆፍሮ የወጣበት ታላቅ ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 7, day: 27, title: { en: "Megabit Medhane Alem", am: "መጋቢት መድኃኔዓለም" }, significance: { en: "The Crucifixion and Redemption of mankind by Our Savior.", am: "ጌታችን ለዓለም ድኅነት በመስቀል ላይ የዋለበት መታሰቢያ።" }, isMajorNigis: true },
-  { month: 7, day: 29, title: { en: "Feast of the Annunciation (Tsinset)", am: "በዓለ ጽንሰት (ብስራተ ገብርኤል)" }, significance: { en: "Archangel Gabriel announcing the Incarnation.", am: "ቅዱስ ገብርኤል ለእመቤታችን የልደተ ክርስቶስን ብስራት ያበሰረበት በዓል።" }, isMajorNigis: true },
+  // 7. Megabit (መጋቢት)
+  {
+    month: 7,
+    day: 5,
+    title: { en: "Repose of Abune Gebre Menfes Kidus (Megabit Abo)", am: "መጋቢት አቡነ ገብረ መንፈስ ቅዱስ" },
+    significance: { en: "The holy repose and translation of Saint Abune Gebre Menfes Kidus.", am: "የታላቁ ጻድቅ የአቡነ ገብረ መንፈስ ቅዱስ (አቦ) የዕረፍት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 7,
+    day: 10,
+    title: { en: "Manifestation of the Holy Cross", am: "መገለጸ መስቀል (ዕለተ መስቀል)" },
+    significance: { en: "The unearthing and revelation of the Holy Cross by Empress Helena.", am: "ቅዱስ መስቀል ተቆፍሮ የወጣበት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 7,
+    day: 27,
+    title: { en: "Megabit Medhane Alem", am: "መጋቢት መድኃኔዓለም" },
+    significance: { en: "The Crucifixion and Redemption of mankind by Our Savior Jesus Christ.", am: "ጌታችን ለዓለም ድኅነት በመስቀል ላይ የዋለበት ዓመታዊ መታሰቢያ።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 7,
+    day: 29,
+    title: { en: "Feast of the Annunciation (Tsinset)", am: "በዓለ ጽንሰት (ብስራተ ገብርኤል)" },
+    significance: { en: "Archangel Gabriel announcing the Divine Incarnation to the Virgin Mary.", am: "ቅዱስ ገብርኤል ለእመቤታችን የልደተ ክርስቶስን ብስራት ያበሰረበት ታላቅ የጌታ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Miyazya
-  { month: 8, day: 23, title: { en: "Martyrdom of Saint George", am: "ሚያዝያ ቅዱስ ጊዮርጊስ (ዕረፍቱ)" }, significance: { en: "The crown of martyrdom received by Saint George.", am: "የሰማዕታት አለቃ የቅዱስ ጊዮርጊስ የዕረፍትና የሰማዕትነት ታላቅ ዓመታዊ በዓል።" }, isMajorNigis: true },
+  // 8. Miyazya (ሚያዝያ)
+  {
+    month: 8,
+    day: 23,
+    title: { en: "Martyrdom of Saint George (Trophy-Bearer)", am: "ሚያዝያ ቅዱስ ጊዮርጊስ (ዕረፍቱ)" },
+    significance: { en: "The crown of martyrdom received by Saint George, Chief of Martyrs.", am: "የሰማዕታት አለቃ የቅዱስ ጊዮርጊስ የዕረፍትና የሰማዕትነት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 8,
+    day: 30,
+    title: { en: "Saint Mark the Evangelist", am: "ሚያዝያ ቅዱስ ማርቆስ" },
+    significance: { en: "Martyrdom of Saint Mark the Apostle and Evangelist.", am: "የወንጌላዊው የቅዱስ ማርቆስ ሰማዕትነት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Ginbot
-  { month: 9, day: 1, title: { en: "Lideta Mariam (Nativity of Saint Mary)", am: "ግንቦት ልደታ ለማርያም" }, significance: { en: "The miraculous birth of the Holy Virgin Mary.", am: "እመቤታችን ቅድስት ድንግል ማርያም የተወለደችበት ታላቅ ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 9, day: 12, title: { en: "Ginbot Saint Michael", am: "ግንቦት ሚካኤል" }, significance: { en: "Saint Michael assisting Habakkuk the prophet.", am: "የቅዱስ ሚካኤል ሊቀ መላእክት ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 9, day: 21, title: { en: "Debre Mitmaq Mariam", am: "ደብረ ምጥማቅ ማርያም" }, significance: { en: "Apparition of the Virgin Mary at Debre Mitmaq.", am: "እመቤታችን በደብረ ምጥማቅ ተገልጣ አምስት ቀን ሙሉ የተመሰገነችበት ታላቅ በዓል።" }, isMajorNigis: true },
+  // 9. Ginbot (ግንቦት)
+  {
+    month: 9,
+    day: 1,
+    title: { en: "Lideta Mariam (Nativity of Saint Mary)", am: "ግንቦት ልደታ ለማርያም" },
+    significance: { en: "The miraculous birth of the Holy Virgin Mary in Nazareth.", am: "እመቤታችን ቅድስት ድንግል ማርያም የተወለደችበት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 9,
+    day: 12,
+    title: { en: "Ginbot Saint Michael the Archangel", am: "ግንቦት ሚካኤል" },
+    significance: { en: "Saint Michael assisting Habakkuk the prophet and delivering Saint John.", am: "ቅዱስ ሚካኤል ዕንባቆም ነቢይን ያመጣበትና ቅዱስ ዮሐንስን ያዳነበት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 9,
+    day: 21,
+    title: { en: "Debre Mitmaq Mariam", am: "ደብረ ምጥማቅ ማርያም" },
+    significance: { en: "Apparition of the Blessed Virgin Mary at Debre Mitmaq for five consecutive days.", am: "እመቤታችን በደብረ ምጥማቅ ተገልጣ አምስት ቀን ሙሉ የታየችበት ታላቅ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Sene
-  { month: 10, day: 12, title: { en: "Sene Saint Michael", am: "ሰኔ ሚካኤል" }, significance: { en: "Saint Michael saving Bahran.", am: "ቅዱስ ሚካኤል ባሕራንን ያዳነበትና ምልጃው የተገለጠበት ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 10, day: 20, title: { en: "Sene Golgota / Dedication of Church", am: "ሰኔ ጎልጎታ / ሕንጸተ ቤተ ክርስቲያን" }, significance: { en: "The Virgin Mary's prayer at Golgotha and first church consecration.", am: "እመቤታችን በጎልጎታ የጸለየችበትና የመጀመሪያዋ ቤተ ክርስቲያን የተመረቀችበት በዓል።" }, isMajorNigis: true },
+  // 10. Sene (ሰኔ)
+  {
+    month: 10,
+    day: 12,
+    title: { en: "Sene Saint Michael the Archangel", am: "ሰኔ ሚካኤል" },
+    significance: { en: "Saint Michael delivering Saint Bahran and Saint Afomia from the adversary.", am: "ቅዱስ ሚካኤል ባሕራንንና አፎሚያን ያዳነበትና ምልጃው የተገለጠበት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 10,
+    day: 16,
+    title: { en: "Sene Kidane Mihret", am: "ሰኔ ኪዳነ ምሕረት" },
+    significance: { en: "Annual commemoration of the Covenant of Mercy granted to the Holy Theotokos.", am: "የእመቤታችን የቅድስት ድንግል ማርያም የሰኔ ኪዳነ ምሕረት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 10,
+    day: 19,
+    title: { en: "Sene Saint Gabriel (Deliverance of Saint Kirkos)", am: "ሰኔ ገብርኤል" },
+    significance: { en: "Archangel Gabriel delivering child martyr Saint Kirkos from the boiling cauldron.", am: "ቅዱስ ገብርኤል ሕፃኑን ቅዱስ ቂርቆስን ከፈላ የናስ ጋን ያዳነበት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 10,
+    day: 20,
+    title: { en: "Sene Golgota / Dedication of Church", am: "ሰኔ ጎልጎታ / ሕንጸተ ቤተ ክርስቲያን" },
+    significance: { en: "The Virgin Mary's prayer at Golgotha and consecration of the first church in Philippi.", am: "እመቤታችን በጎልጎታ የጸለየችበትና የመጀመሪያዋ ቤተ ክርስቲያን የተመረቀችበት በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 10,
+    day: 30,
+    title: { en: "Nativity of Saint John the Baptist", am: "ሰኔ ቅዱስ ዮሐንስ መጥምቅ" },
+    significance: { en: "The birth of Saint John the Baptist, forerunner of Christ.", am: "የመጥምቀ መለኮት የቅዱስ ዮሐንስ የልደት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Hamle
-  { month: 11, day: 5, title: { en: "Saints Peter and Paul the Apostles", am: "ቅዱሳን ጴጥሮስ እና ጳውሎስ" }, significance: { en: "Martyrdom of Apostles Peter and Paul.", am: "የቅዱሳን ሐዋርያት የጴጥሮስና የጳውሎስ የሰማዕትነት ዓመታዊ በዓል።" }, isMajorNigis: true },
-  { month: 11, day: 19, title: { en: "Hamle Saint Kirkos and Saint Iyalota", am: "ሐምሌ ቂርቆስ እና እየሉጣ" }, significance: { en: "Martyrdom of Saint Kirkos and his mother Iyalota.", am: "የሕፃኑ ቅዱስ ቂርቆስና የእናቱ ቅድስት እየሉጣ ታላቅ ዓመታዊ በዓል።" }, isMajorNigis: true },
+  // 11. Hamle (ሐምሌ)
+  {
+    month: 11,
+    day: 2,
+    title: { en: "Saint Thaddeus the Apostle", am: "ሐምሌ ቅዱስ ታዴዎስ" },
+    significance: { en: "Martyrdom of Saint Thaddeus the Apostle.", am: "የሐዋርያው የቅዱስ ታዴዎስ የሰማዕትነት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 11,
+    day: 5,
+    title: { en: "Saints Peter and Paul the Apostles", am: "ቅዱሳን ጴጥሮስ እና ጳውሎስ" },
+    significance: { en: "Martyrdom of Holy Apostles Peter and Paul in Rome.", am: "የቅዱሳን ሐዋርያት የጴጥሮስና የጳውሎስ የሰማዕትነት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 11,
+    day: 7,
+    title: { en: "Hamle Holy Trinity (Abraham's Hospitality)", am: "ሐምሌ ሥላሴ" },
+    significance: { en: "Abraham hosting the Holy Trinity under the Oak of Mamre.", am: "አብርሃም ቅድስት ሥላሴን በድንኳኑ ያስተናገደበት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 11,
+    day: 19,
+    title: { en: "Hamle Saint Kirkos and Saint Iyalota", am: "ሐምሌ ቂርቆስ እና እየሉጣ" },
+    significance: { en: "Martyrdom of the child Saint Kirkos and his mother Saint Iyalota.", am: "የሕፃኑ ቅዱስ ቂርቆስና የእናቱ ቅድስት እየሉጣ ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Nehase
-  { month: 12, day: 7, title: { en: "Debre Tabor / Buhe (Transfiguration)", am: "ደብረ ታቦር / ቡሄ" }, significance: { en: "The Transfiguration of Our Lord Jesus Christ on Mount Tabor.", am: "ጌታችን በደብረ ታቦር ክብሩንና መለኮታዊ ብርሃኑን የገለጠበት ታላቅ በዓል።" }, isMajorNigis: true },
-  { month: 12, day: 16, title: { en: "Filseta / Assumption of Saint Mary", am: "ፍልሰታ ለማርያም (ትንሣኤዋና ዕርገቷ)" }, significance: { en: "The assumption of the Blessed Virgin Mary into Heaven.", am: "የእመቤታችን የቅድስት ድንግል ማርያም የትንሣኤዋና የዕርገቷ ታላቅ የንግሥ በዓል።" }, isMajorNigis: true },
-  { month: 12, day: 24, title: { en: "Repose of Abune Tekle Haymanot", am: "አቡነ ተክለ ሃይማኖት (ዕረፍታቸው)" }, significance: { en: "The holy repose of Saint Tekle Haymanot.", am: "የደብረ ሊባኖሱ ጻድቅ የአቡነ ተክለ ሃይማኖት የዕረፍት ዓመታዊ በዓል።" }, isMajorNigis: true },
+  // 12. Nehase (ነሐሴ)
+  {
+    month: 12,
+    day: 13,
+    title: { en: "Debre Tabor / Buhe (Transfiguration of Our Lord)", am: "ደብረ ታቦር / ቡሄ" },
+    significance: { en: "The Transfiguration of Our Lord Jesus Christ on Mount Tabor in divine glory.", am: "ጌታችን በደብረ ታቦር መለኮታዊ ክብሩን ለደቀ መዛሙርቱ የገለጠበት ታላቅ የጌታ በዓል (ቡሄ)።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 12,
+    day: 16,
+    title: { en: "Filseta / Assumption of Saint Mary", am: "ፍልሰታ ለማርያም (ትንሣኤዋና ዕርገቷ)" },
+    significance: { en: "The Assumption and Resurrection of the Most Holy Theotokos into Heaven.", am: "የእመቤታችን የቅድስት ድንግል ማርያም የትንሣኤዋና የዕርገቷ ታላቅ የንግሥ በዓል።" },
+    isMajorNigis: true,
+  },
+  {
+    month: 12,
+    day: 24,
+    title: { en: "Repose of Abune Tekle Haymanot", am: "አቡነ ተክለ ሃይማኖት (ዕረፍታቸው)" },
+    significance: { en: "The holy repose of Saint Tekle Haymanot of Debre Libanos.", am: "የደብረ ሊባኖሱ ጻድቅ የአቡነ ተክለ ሃይማኖት የዕረፍት ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
 
-  // Pagume
-  { month: 13, day: 3, title: { en: "Pagume Saint Raphael the Archangel", am: "ጳጉሜን ቅዱስ ሩፋኤል" }, significance: { en: "Archangel Raphael blessing the water.", am: "የቅዱስ ሩፋኤል ሊቀ መላእክት ዓመታዊ በዓል እና የታቦት መታሰቢያ።" }, isMajorNigis: true },
+  // 13. Pagume (ጳጉሜን)
+  {
+    month: 13,
+    day: 3,
+    title: { en: "Pagume Saint Raphael the Archangel", am: "ጳጉሜን ቅዱስ ሩፋኤል" },
+    significance: { en: "Archangel Raphael blessing the water and healing the sick.", am: "የቅዱስ ሩፋኤል ሊቀ መላእክት ውኃ የሚባርክበት ታላቅ ዓመታዊ በዓል።" },
+    isMajorNigis: true,
+  },
 ];
 
 export function getMonthlyCommemoration(day: number) {
   return monthlyCommemorations.find((entry) => entry.day === day);
 }
 
-export function getAnnualFeast(month: number, day: number): AnnualFeast | undefined {
-  return majorAnnualFeasts.find((entry) => entry.month === month && entry.day === day);
+export function getAnnualFeast(month: number, day: number, year?: number): AnnualFeast | undefined {
+  return majorAnnualFeasts.find((entry) => {
+    // Handle Leap Year Genna (Tahsas 28 vs 29 in ዘመነ ዮሐንስ)
+    if (year !== undefined && entry.month === 4 && entry.title.am.includes("ገና")) {
+      const ameteAlem = year + 5500;
+      const isLeapGenna = ameteAlem % 4 === 0;
+      const gennaDay = isLeapGenna ? 28 : 29;
+      return month === 4 && day === gennaDay;
+    }
+    return entry.month === month && entry.day === day;
+  });
 }
 
 export function isMajorFeastDay(date: EthiopianDate): boolean {
-  return majorAnnualFeasts.some((entry) => entry.month === date.month && entry.day === date.day);
+  return getAnnualFeast(date.month, date.day, date.year) !== undefined;
 }
 
 export function getTodayOrthodoxCommemoration(date: EthiopianDate) {
   const monthly = getMonthlyCommemoration(date.day);
-  const annual = getAnnualFeast(date.month, date.day);
+  const annual = getAnnualFeast(date.month, date.day, date.year);
   return { monthly, annual };
 }
 

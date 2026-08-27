@@ -50,7 +50,7 @@ export default function CalendarScreen() {
   const selected = { ...view, day: selectedDay };
   const selectedGregorian = ethiopianToGregorian(selected);
   const commemoration = getMonthlyCommemoration(selected.day);
-  const annualFeast = getAnnualFeast(selected.month, selected.day);
+  const annualFeast = getAnnualFeast(selected.month, selected.day, selected.year);
   const movableFeast = getMovableFeastForDate(selected);
   const seasonalFast = getEthiopianFastForDate(selected);
   const fastingCheck = isFastingDay(selectedGregorian);
@@ -139,7 +139,7 @@ export default function CalendarScreen() {
             const dateForDay = ethiopianToGregorian({ ...view, day });
             const ethDateForDay = { ...view, day };
             const dayFast = isFastingDay(dateForDay).isFast;
-            const dayAnnualFeast = getAnnualFeast(view.month, day);
+            const dayAnnualFeast = getAnnualFeast(view.month, day, view.year);
             const dayMovableFeast = getMovableFeastForDate(ethDateForDay);
 
             let cellBg = colors.secondary;
@@ -147,16 +147,21 @@ export default function CalendarScreen() {
             let dayTextColor = colors.text;
             let cellBorderWidth = 0;
 
-            if (isSelected) {
+            if (isSelected && isToday) {
+              cellBg = colors.primary;
+              cellBorder = colors.gold;
+              dayTextColor = "#FFFFFF";
+              cellBorderWidth = 2.5;
+            } else if (isSelected) {
               cellBg = colors.primaryContainer;
               cellBorder = colors.primary;
               dayTextColor = colors.primary;
               cellBorderWidth = 2;
             } else if (isToday) {
               cellBorder = colors.primary;
-              cellBg = colors.secondary;
+              cellBg = colors.primaryContainer;
               dayTextColor = colors.primary;
-              cellBorderWidth = 1.5;
+              cellBorderWidth = 2;
             } else if (dayFast) {
               cellBorder = colors.border;
               cellBg = colors.secondary;
@@ -181,6 +186,18 @@ export default function CalendarScreen() {
                     },
                   ]}
                 >
+                  {isToday && !isSelected && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: 3,
+                        width: 4,
+                        height: 4,
+                        borderRadius: 2,
+                        backgroundColor: colors.primary,
+                      }}
+                    />
+                  )}
                   <Text
                     tone="label"
                     style={[
@@ -195,9 +212,9 @@ export default function CalendarScreen() {
                   </Text>
                   <View style={styles.dotRow}>
                     {(dayAnnualFeast || dayMovableFeast) && (
-                      <View style={[styles.dot, { backgroundColor: colors.primary }]} />
+                      <View style={[styles.dot, { backgroundColor: isSelected && isToday ? "#FFFFFF" : colors.primary }]} />
                     )}
-                    {dayFast && <View style={[styles.dot, { backgroundColor: colors.gold }]} />}
+                    {dayFast && <View style={[styles.dot, { backgroundColor: isSelected && isToday ? colors.gold : colors.gold }]} />}
                   </View>
                 </Pressable>
               </View>
@@ -213,7 +230,7 @@ export default function CalendarScreen() {
           <IconCircle
             icon={annualFeast || movableFeast ? "sparkles" : fastingCheck.isFast ? "church" : "calendar"}
             size={48}
-            color={annualFeast || movableFeast ? "gold" : fastingCheck.isFast ? "primary" : "muted"}
+            color={annualFeast || movableFeast ? "gold" : fastingCheck.isFast ? "primary" : "primary"}
           />
           <View style={styles.selectedDayInfo}>
             <Text tone="title" style={[styles.selectedTitle, { color: colors.text }]}>
@@ -277,9 +294,9 @@ export default function CalendarScreen() {
               <>
                 {(movableFeast || annualFeast) && <View style={[styles.divider, { backgroundColor: colors.border }]} />}
                 <View style={styles.sleekRow}>
-                  <IconCircle icon="church" color="muted" size={46} />
+                  <IconCircle icon="church" color="gold" size={46} />
                   <View style={styles.sleekCopy}>
-                    <Text tone="label" style={[styles.sleekLabel, { color: colors.muted }]}>
+                    <Text tone="label" style={[styles.sleekLabel, { color: colors.gold }]}>
                       {language === "am" ? "የወር መታሰቢያ (ታቦት)" : "MONTHLY TABOT"}
                     </Text>
                     <Text tone="title" style={[styles.sleekTitle, { color: colors.text }]}>

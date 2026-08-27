@@ -20,7 +20,7 @@ import type {
 import { formatDateKey } from "@/src/features/streaks/utils/streaks";
 import { syncAllAppReminders } from "@/src/features/settings/utils/reminders";
 
-const STORAGE_KEY = "@elet_state_v2";
+const STORAGE_KEY = "@elet_state_v3";
 
 const DEFAULT_PRAYERS: PrayerRoutine[] = [
   {
@@ -168,21 +168,7 @@ const DEFAULT_FASTING: FastingPreferences = {
   fastingReminderEnabled: true,
   customRules: [],
   personalVowNote: "",
-  customFastPlans: [
-    {
-      id: "fast-sample-1",
-      title: "5-Day Penance Fast (የ5 ቀን የንስሐ ጾም)",
-      startDateKey: formatDateKey(new Date()),
-      endDateKey: formatDateKey(new Date(Date.now() + 5 * 86400000)),
-      targetDays: 5,
-      breakFastHour: 15,
-      breakFastMinute: 0,
-      notes: "Assigned by spiritual father for spiritual preparation & prayer.",
-      completedDates: [],
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    },
-  ],
+  customFastPlans: [],
 };
 
 const DEFAULT_SPIRITUAL_FATHER: SpiritualFatherProfile = {
@@ -190,22 +176,7 @@ const DEFAULT_SPIRITUAL_FATHER: SpiritualFatherProfile = {
   church: "",
   phone: "",
   notes: "",
-  penanceItems: [
-    {
-      id: "pen-1",
-      title: "41 Sagdet (ስግደት)",
-      targetCount: 41,
-      currentCount: 0,
-      frequency: "daily",
-      completed: false,
-    },
-    {
-      id: "pen-2",
-      title: "Psalm 50 (መዝሙር 50)",
-      frequency: "daily",
-      completed: false,
-    },
-  ],
+  penanceItems: [],
 };
 
 interface AppStoreContextType {
@@ -259,33 +230,14 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [fastingPreferences, setFastingPreferences] = useState<FastingPreferences>(DEFAULT_FASTING);
   const [spiritualFather, setSpiritualFather] = useState<SpiritualFatherProfile>(DEFAULT_SPIRITUAL_FATHER);
   const [readingProgress, setReadingProgress] = useState<ReadingProgress>({
-    completedIds: ["read-1"],
+    completedIds: [],
     reflections: {},
     favoriteIds: [],
   });
-  const [dailyPracticeDates, setDailyPracticeDates] = useState<string[]>(() => {
-    const dates: string[] = [];
-    const today = new Date();
-    for (let i = 0; i < 14; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      dates.push(formatDateKey(d));
-    }
-    return dates;
-  });
+  const [dailyPracticeDates, setDailyPracticeDates] = useState<string[]>([]);
   const [notes, setNotes] = useState<JournalNote[]>([]);
   const [confessionSessions, setConfessionSessions] = useState<ConfessionSession[]>([]);
-  const [intercessions, setIntercessions] = useState<Intercession[]>([
-    {
-      id: "int-1",
-      name: "Our Parish Priest & Deacons",
-      intention: "For wisdom, strength, and blessings in church ministry.",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      prayedDates: [formatDateKey(new Date())],
-      archived: false,
-    },
-  ]);
+  const [intercessions, setIntercessions] = useState<Intercession[]>([]);
   const [confessionLocked, setConfessionLocked] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
