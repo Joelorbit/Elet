@@ -74,16 +74,19 @@ jobs:
       - name: 📥 Install Dependencies
         run: npm ci --prefer-offline
 
+      - name: 🔨 Generate Native Android Project
+        run: npx expo prebuild --platform android --no-install
+
       - name: ⚡ Setup Gradle & Build Cache
         uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: false
 
-      - name: 🔨 Compile Optimized Small Release APK
+      - name: 🤖 Compile Small Release APK (~30MB)
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --parallel --build-cache --max-workers=4
+          ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a --parallel --build-cache --max-workers=4
 
       - name: 📦 Prepare Release APK (~30 MB)
         id: prepare-artifacts
