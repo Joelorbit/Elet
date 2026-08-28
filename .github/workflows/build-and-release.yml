@@ -2,14 +2,16 @@ name: Fast Build & Release APK
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
   workflow_dispatch:
     inputs:
       version_tag:
-        description: "Release version tag (e.g. v1.0.0)"
+        description: "Release version tag (e.g. v1.0.1)"
         required: true
-        default: "v1.0.0"
+        default: "v1.0.1"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -101,8 +103,11 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "tag=${{ github.event.inputs.version_tag }}" >> $GITHUB_OUTPUT
-          else
+          elif [[ "${{ github.ref_name }}" == v* ]]; then
             echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            VERSION="v$(node -p "require('./package.json').version")"
+            echo "tag=$VERSION" >> $GITHUB_OUTPUT
           fi
 
       - name: 🚀 Create GitHub Release & Upload Single Small APK
