@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elet • ዕለት — Ethiopian Orthodox Spiritual Companion</title>
+  <meta name="description" content="The complete Ethiopian Orthodox Tewahedo companion. 81-Canon Scriptures, 24-Year Bahire Hasab (2018–2041), 3D Roller Exact Prayer Alarms, Fasting Tracker & Biometric Confession Journal. 100% Offline." />
+  <meta property="og:title" content="Elet • ዕለት — Ethiopian Orthodox Companion" />
+  <meta property="og:description" content="81-Canon Scriptures, 24-Year Bahire Hasab, Exact Prayer Alarms, Fasting Tracker. Download Latest Release APK." />
+  <meta property="og:image" content="assets/icon.png" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" href="assets/icon.png" />
+  
+  <!-- Google Fonts: Outfit (Display & Titles) + Lexend (Body & UI) + Noto Sans Ethiopic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&family=Noto+Sans+Ethiopic:wght@400;600;700;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <!-- Phosphor Icons (Official) -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  
+  <style>
+    :root {
+      --primary: #8E4424;          /* Deep Ethiopian Terracotta */
+      --primary-dark: #58240E;     /* Dark Sacred Ochre */
+      --primary-light: #C57A38;    /* Warm Amber */
+      --primary-container: rgba(142, 68, 36, 0.10);
+      --bg: #FAF7F2;               /* Sacred Cream */
+      --surface: #FFFFFF;          /* Pure White Card */
+      --surface-container: #F3ECE1;/* Parchment Accent */
+      --surface-elevated: #ECE3D4; /* Deep Cream */
+      --border: #E6DCCD;           /* Warm Sand Border */
+      --border-accent: #D7C9B6;
+      --text: #1E1510;             /* Espresso Ink */
+      --muted: #6B5B4E;            /* Warm Brown-Gray */
+      --gold: #C58936;             /* Caramel Gold */
+      --gold-light: #F0C76E;
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Lexend', 'Noto Sans Ethiopic', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      background-image: 
+        radial-gradient(var(--border) 1.2px, transparent 1.2px),
+        radial-gradient(var(--border) 1.2px, transparent 1.2px);
+      background-size: 36px 36px;
+      background-position: 0 0, 18px 18px;
+    }
+
+    /* Headings, Display text, Badges & Numbers use OUTFIT */
+    h1, h2, h3, h4, .brand-title, .btn-hero-download, .btn-nav-dl, .release-badge, .walkthrough-title, .phone-badge, .feature-name {
+      font-family: 'Outfit', 'Noto Sans Ethiopic', sans-serif;
+    }
+
+    /* Sacred Cross Lattice Pattern Overlay */
+    .cross-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 960px;
+      background-image: url("data:image/svg+xml,%3Csvg width='44' height='44' viewBox='0 0 44 44' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21 15h2v14h-2zM15 21h14v2H15z' fill='%238E4424' fill-opacity='0.045'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Terracotta Hero Canopy Arch with Symmetrical Elliptical Curve */
+    .crescent-arch {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 640px;
+      background: linear-gradient(180deg, #501F0A 0%, #743216 45%, #8E4424 78%, #A8532D 100%);
+      clip-path: ellipse(80% 100% at 50% 0%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Ambient Warm Gold Glow beneath the Arch */
+    .crescent-arch-glow {
+      position: absolute;
+      top: 440px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 780px;
+      height: 260px;
+      background: radial-gradient(ellipse at center, rgba(224, 169, 109, 0.25) 0%, rgba(142, 68, 36, 0.08) 50%, transparent 75%);
+      filter: blur(55px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Navigation */
+    header {
+      padding: 24px 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .nav-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
+
+    .brand-icon-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: #FFFFFF;
+      padding: 4px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-icon-wrap img {
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+    }
+
+    .brand-title {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #FFFFFF;
+      line-height: 1.1;
+    }
+
+    .brand-subtitle {
+      font-size: 13px;
+      font-weight: 500;
+      color: #F3ECE1;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lang-btn {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #FFFFFF;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lang-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-nav-dl {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      color: var(--primary-dark);
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav-dl:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 40px 0 20px;
+      text-align: center;
+    }
+
+    .release-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      padding: 6px 18px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      letter-spacing: 0.2px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34D399;
+      box-shadow: 0 0 10px #34D399;
+    }
+
+    .hero-heading {
+      font-size: 56px;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1.8px;
+      color: #FFFFFF;
+      margin-bottom: 20px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-heading span {
+      color: var(--gold-light);
+    }
+
+    .hero-desc {
+      font-size: 18px;
+      color: #F7EFE9;
+      max-width: 720px;
+      margin: 0 auto 36px;
+      line-height: 1.6;
+      font-weight: 400;
+      opacity: 0.95;
+    }
+
+    /* Hero Action Button */
+    .hero-btn-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 54px;
+    }
+
+    .btn-hero-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #E0A96D 0%, #C57A38 50%, #8E4424 100%);
+      color: #FFFFFF;
+      text-decoration: none;
+      padding: 18px 44px;
+      border-radius: 18px;
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 14px 38px rgba(142, 68, 36, 0.45);
+      transition: all 0.25s ease;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      letter-spacing: -0.2px;
+    }
+
+    .btn-hero-download:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 48px rgba(142, 68, 36, 0.6);
+    }
+
+    .btn-hero-download i {
+      font-size: 24px;
+    }
+
+    /* ==========================================================
+       HERO SHOWCASE: PRECISION 3-PHONE FOCAL TRIO
+       ========================================================== */
+    .hero-mockup-stage {
+      position: relative;
+      margin: 20px auto 90px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 28px;
+      padding: 0 10px;
+    }
+
+    /* Precision Mobile Chassis */
+    .phone-chassis {
+      width: 290px;
+      aspect-ratio: 9 / 19.5;
+      background: #151312;
+      border-radius: 46px;
+      border: 10px solid #24201D;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18), 0 0 0 2px rgba(230, 220, 205, 0.25);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-chassis.featured {
+      width: 320px;
+      transform: translateY(-24px) scale(1.04);
+      border-color: #382D26;
+      box-shadow: 0 36px 85px rgba(142, 68, 36, 0.35), 0 0 0 3px rgba(224, 169, 109, 0.6);
+      z-index: 5;
+    }
+
+    .phone-chassis.side {
+      opacity: 0.92;
+      transform: translateY(0);
+    }
+
+    .phone-chassis:hover {
+      transform: translateY(-30px) scale(1.06);
+      opacity: 1;
+      z-index: 10;
+      box-shadow: 0 40px 95px rgba(142, 68, 36, 0.45);
+    }
+
+    /* Dynamic Camera Pill */
+    .phone-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 18px;
+      background: #000000;
+      border-radius: 99px;
+      z-index: 20;
+    }
+
+    /* Uniform Screen Fit (Zero Padding Distortion) */
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      background: #1B1918;
+    }
+
+    .phone-badge {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 14px 14px;
+      background: linear-gradient(180deg, transparent 0%, rgba(18, 16, 15, 0.95) 90%);
+      color: #FFFFFF;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 0.3px;
+      z-index: 15;
+    }
+
+    /* ==========================================================
+       DEEP FEATURE WALKTHROUGHS (Uniform 2-Column Grid)
+       ========================================================== */
+    .walkthrough-section {
+      padding: 20px 0 60px;
+    }
+
+    .walkthrough-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 54px 60px;
+      margin-bottom: 50px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 56px;
+      align-items: center;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s ease;
+    }
+
+    .walkthrough-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 20px 50px rgba(142, 68, 36, 0.1);
+    }
+
+    .walkthrough-card.reverse {
+      grid-template-columns: 0.8fr 1.2fr;
+    }
+
+    .walkthrough-card.reverse .walkthrough-phone-col {
+      order: 1;
+    }
+
+    .walkthrough-card.reverse .walkthrough-content-col {
+      order: 2;
+    }
+
+    .walkthrough-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-container);
+      color: var(--primary);
+      padding: 6px 16px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      border: 1px solid var(--primary);
+      font-family: 'Outfit', sans-serif;
+      margin-bottom: 14px;
+    }
+
+    .walkthrough-title {
+      font-size: 34px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.6px;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .walkthrough-desc {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.68;
+      margin-bottom: 24px;
+    }
+
+    .walkthrough-checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .walkthrough-checklist li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .walkthrough-checklist li i {
+      color: var(--primary);
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .walkthrough-phone-col {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .walkthrough-phone-frame {
+      width: 280px;
+      aspect-ratio: 9 / 19.5;
+      background: #151312;
+      border-radius: 44px;
+      border: 9px solid #24201D;
+      box-shadow: 0 24px 60px rgba(142, 68, 36, 0.22);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ==========================================================
+       6 PILLARS FEATURES GRID
+       ========================================================== */
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -0.8px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 34px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary);
+      box-shadow: 0 14px 32px rgba(142, 68, 36, 0.1);
+    }
+
+    .feature-icon-box {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: var(--primary-container);
+      border: 1px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: var(--primary);
+    }
+
+    .feature-name {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .feature-text {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ==========================================================
+       DOWNLOAD & AUTO-SYNCED QR CARD
+       ========================================================== */
+    .download-card {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface-container) 100%);
+      border: 2px solid var(--border);
+      border-radius: 36px;
+      padding: 56px 64px;
+      margin-bottom: 90px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 48px;
+      align-items: center;
+      box-shadow: 0 18px 50px rgba(142, 68, 36, 0.09);
+      text-align: left;
+    }
+
+    .qr-box {
+      background: #FFFFFF;
+      border: 2px solid var(--border);
+      border-radius: 28px;
+      padding: 28px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+    }
+
+    .qr-box img {
+      width: 170px;
+      height: 170px;
+      border-radius: 14px;
+      display: block;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1.5px solid var(--border);
+      padding: 48px 0 64px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      background: var(--surface-container);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      margin-bottom: 18px;
+    }
+
+    .footer-links a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 1040px) {
+      .hero-heading { font-size: 42px; }
+      .hero-mockup-stage { flex-direction: column; align-items: center; gap: 40px; }
+      .phone-chassis.featured { transform: none; width: 290px; }
+      .phone-chassis.side { display: none; }
+      .walkthrough-card, .walkthrough-card.reverse { grid-template-columns: 1fr; padding: 36px 28px; gap: 36px; }
+      .walkthrough-card.reverse .walkthrough-phone-col { order: 2; }
+      .walkthrough-card.reverse .walkthrough-content-col { order: 1; }
+      .features-grid { grid-template-columns: 1fr; }
+      .download-card { grid-template-columns: 1fr; padding: 36px 28px; }
+      .crescent-arch { height: 560px; clip-path: ellipse(110% 100% at 50% 0%); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cross-pattern"></div>
+  <div class="crescent-arch"></div>
+  <div class="crescent-arch-glow"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav-wrap">
+      <a href="#" class="brand">
+        <div class="brand-icon-wrap">
+          <img src="assets/icon.png" alt="Elet Icon" />
+        </div>
+        <div>
+          <div class="brand-title">Elet • ዕለት</div>
+          <div class="brand-subtitle" id="brand-sub">Orthodox Companion</div>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <button class="lang-btn" id="lang-btn" onclick="toggleLanguage()">
+          <i class="ph-bold ph-translate"></i>
+          <span>አማርኛ</span>
+        </button>
+        <a id="nav-download-btn" href="https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk" class="btn-nav-dl">
+          <i class="ph-bold ph-download-simple"></i>
+          <span id="nav-btn-text">Download Latest APK</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Hero -->
+  <main class="container">
+    <section class="hero">
+      <div class="release-badge">
+        <div class="badge-dot"></div>
+        <span id="live-version-badge">Elet • Latest Official Release</span>
+      </div>
+
+      <h1 class="hero-heading" id="hero-heading">
+        The Complete <span>Orthodox Tewahedo</span> Spiritual Companion
+      </h1>
+
+      <p class="hero-desc" id="hero-desc">
+        81-Canon Biblical Scriptures, 24-Year Bahire Hasab Liturgical Calendar (2018–2041), 3D Roller Exact Prayer Alarms, Fasting & Penance Tracker — 100% Offline & Private.
+      </p>
+
+      <!-- CTA Button -->
+      <div class="hero-btn-row">
+        <a id="main-download-btn" href="https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk" class="btn-hero-download">
+          <i class="ph-bold ph-download-simple"></i>
+          <span id="hero-btn-text">Download Latest Release APK</span>
+        </a>
+      </div>
+
+      <!-- SHOWSTOPPER HERO 3-PHONE FOCAL TRIO -->
+      <div class="hero-mockup-stage">
+        <!-- Left Side Phone: Bahire Hasab Calendar -->
+        <div class="phone-chassis side">
+          <div class="phone-island"></div>
+          <img class="phone-screen" src="assets/screenshots/screen-calendar.jpg" alt="Bahire Hasab Calendar" />
+          <div class="phone-badge">የባሕረ ሐሳብ ቀን መቁጠሪያ</div>
+        </div>
+
+        <!-- Center Hero Phone: Today Liturgical Dashboard -->
+        <div class="phone-chassis featured">
+          <div class="phone-island"></div>
+          <img class="phone-screen" src="assets/screenshots/screen-today.jpg" alt="Today Screen Liturgy & Tabot" />
+          <div class="phone-badge">ዛሬ • የዕለቱ ምንባብና ጾም</div>
+        </div>
+
+        <!-- Right Side Phone: Spiritual Practice Heatmap -->
+        <div class="phone-chassis side">
+          <div class="phone-island"></div>
+          <img class="phone-screen" src="assets/screenshots/screen-practice.jpg" alt="Practice Rhythm & Heatmap" />
+          <div class="phone-badge">የመንፈሳዊ ተጋድሎ ሪትም</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DETAILED FEATURE WALKTHROUGHS -->
+    <section class="walkthrough-section">
+      <!-- Walkthrough 1: 24-Year Bahire Hasab Calendar -->
+      <div class="walkthrough-card">
+        <div class="walkthrough-content-col">
+          <div class="walkthrough-pill">Liturgical Math Integrity</div>
+          <h2 class="walkthrough-title">24-Year Bahire Hasab (2018–2041)</h2>
+          <p class="walkthrough-desc">
+            Exact Julian & Ethiopian calendar formulas calculated entirely on-device with zero internet dependency. Accurately determines all movable fasts (Nenewe, Abiy Tsom, Debre Zeit, Hosanna, Siklet, Tensae, Rikbe Kahnat, Erget, Paraklitos, Tsome Hawaryat, Tsome Dihnet) and 30 monthly tabot commemorations.
+          </p>
+          <ul class="walkthrough-checklist">
+            <li><i class="ph-bold ph-check-circle"></i> Verified against YEBEALAT_MAWECHA_2018_2041 canonical benchmarks</li>
+            <li><i class="ph-bold ph-check-circle"></i> 330+ automated unit tests guaranteeing calendar precision</li>
+            <li><i class="ph-bold ph-check-circle"></i> Automatic leap year and Pagume 5/6 day alignment</li>
+          </ul>
+        </div>
+        <div class="walkthrough-phone-col">
+          <div class="walkthrough-phone-frame">
+            <div class="phone-island"></div>
+            <img class="phone-screen" src="assets/screenshots/screen-calendar.jpg" alt="Bahire Hasab Calendar Screen" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Walkthrough 2: Practice Rhythm & 52-Week Heatmap -->
+      <div class="walkthrough-card reverse">
+        <div class="walkthrough-content-col">
+          <div class="walkthrough-pill">Devotional Discipline</div>
+          <h2 class="walkthrough-title">Spiritual Practice & 52-Week Heatmap</h2>
+          <p class="walkthrough-desc">
+            Track daily canonical prayer hours (Seven Prayer Hours ሰዓታት), custom fasting vows, penance dates given by your spiritual father (Yenesha Abat), and scripture reading plans with an interactive 7-Day, 30-Day, and 52-Week devotion heatmap matrix.
+          </p>
+          <ul class="walkthrough-checklist">
+            <li><i class="ph-bold ph-check-circle"></i> 7 Canonical prayer hour tracking and streak counters</li>
+            <li><i class="ph-bold ph-check-circle"></i> Fasting calendar, abstinence rules, and fasting break countdown</li>
+            <li><i class="ph-bold ph-check-circle"></i> 81-Canon daily scripture verse reading plans</li>
+          </ul>
+        </div>
+        <div class="walkthrough-phone-col">
+          <div class="walkthrough-phone-frame">
+            <div class="phone-island"></div>
+            <img class="phone-screen" src="assets/screenshots/screen-practice.jpg" alt="Practice Rhythm Screen" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Walkthrough 3: Daily Liturgy & Live Countdowns -->
+      <div class="walkthrough-card">
+        <div class="walkthrough-content-col">
+          <div class="walkthrough-pill">Daily Ecclesiastical Rhythm</div>
+          <h2 class="walkthrough-title">Daily Holy Scripture & Fast Countdown</h2>
+          <p class="walkthrough-desc">
+            An instant daily spiritual overview displaying today's Ethiopian liturgical date, the day's Tabot saint commemoration, live countdown until fasting break time (e.g. 3:00 PM), daily holy scripture readings, and canonical prayer progress.
+          </p>
+          <ul class="walkthrough-checklist">
+            <li><i class="ph-bold ph-check-circle"></i> Daily Tabot commemorations with saint explanations</li>
+            <li><i class="ph-bold ph-check-circle"></i> Dynamic fasting break countdown arithmetic</li>
+            <li><i class="ph-bold ph-check-circle"></i> Daily Holy Scripture verse from 81-Canon bible</li>
+          </ul>
+        </div>
+        <div class="walkthrough-phone-col">
+          <div class="walkthrough-phone-frame">
+            <div class="phone-island"></div>
+            <img class="phone-screen" src="assets/screenshots/screen-today.jpg" alt="Today Screen View" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Walkthrough 4: Biometrics & Confession Journal -->
+      <div class="walkthrough-card reverse">
+        <div class="walkthrough-content-col">
+          <div class="walkthrough-pill">Zero-Knowledge Privacy</div>
+          <h2 class="walkthrough-title">Biometric App Lock & Spiritual Journal</h2>
+          <p class="walkthrough-desc">
+            Hardware FaceID and Fingerprint biometric security protecting your confidential spiritual reflections and confession prep notes with local device encryption.
+          </p>
+          <ul class="walkthrough-checklist">
+            <li><i class="ph-bold ph-check-circle"></i> Lock entire app or protect private confession notes only</li>
+            <li><i class="ph-bold ph-check-circle"></i> 100% offline-first storage — zero tracking, zero cloud accounts</li>
+            <li><i class="ph-bold ph-check-circle"></i> In-app update downloader and diagnostic center</li>
+          </ul>
+        </div>
+        <div class="walkthrough-phone-col">
+          <div class="walkthrough-phone-frame">
+            <div class="phone-island"></div>
+            <img class="phone-screen" src="assets/screenshots/screen-privacy.jpg" alt="Biometric Privacy View" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 PILLARS FEATURES GRID -->
+    <section style="padding: 20px 0 60px;">
+      <div class="section-header">
+        <h2 class="section-title" id="feat-heading">Engineered for Spiritual Devotion</h2>
+        <p class="section-subtitle" id="feat-sub">Every calculation, scripture, and chime crafted to ecclesiastical precision.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <i class="ph-fill ph-book-open"></i>
+          </div>
+          <div class="feature-name">81-Canon Scriptures</div>
+          <div class="feature-text">Complete Ethiopian Orthodox canon including Henok, Jubilees, Meqabyan, and Sinodos with fast offline search.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <i class="ph-fill ph-calendar-dots"></i>
+          </div>
+          <div class="feature-name">24-Year Bahire Hasab</div>
+          <div class="feature-text">330+ unit-tested calendar algorithms verifying movable fasts and 30 monthly saint tabot observances from 2018 to 2041.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <i class="ph-fill ph-bell-ringing"></i>
+          </div>
+          <div class="feature-name">Exact Android Alarms</div>
+          <div class="feature-text">Android Exact Alarm Manager + Notification Channels ensuring prayer reminders wake you even in deep Doze mode.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <i class="ph-fill ph-plant"></i>
+          </div>
+          <div class="feature-name">Custom Fasting Engine</div>
+          <div class="feature-text">Track personal fasting vows, penance fasts assigned by your spiritual father, and daily devotional streaks.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <i class="ph-fill ph-fingerprint"></i>
+          </div>
+          <div class="feature-name">Biometric Privacy</div>
+          <div class="feature-text">Hardware FaceID / Fingerprint lock protecting your private spiritual journals and confession notes with local encryption.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <i class="ph-fill ph-shield-check"></i>
+          </div>
+          <div class="feature-name">100% Offline-First</div>
+          <div class="feature-text">Zero tracking, zero analytics, zero cloud account dependency. Your spiritual life stays strictly on your phone.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOWNLOAD & ALWAYS-SYNCED QR CARD -->
+    <section class="download-card">
+      <div>
+        <h2 style="font-size: 34px; font-weight: 900; color: var(--text); margin-bottom: 14px;" id="dl-box-title">Get Elet on your Android Phone</h2>
+        <p style="color: var(--muted); font-size: 16px; margin-bottom: 26px; line-height: 1.6;" id="dl-box-desc">
+          Download the latest release APK directly or scan the QR code with your mobile camera for instant installation.
+        </p>
+
+        <a id="box-download-btn" href="https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk" class="btn-hero-download">
+          <i class="ph-bold ph-download-simple"></i>
+          <span id="box-btn-text">Download Latest Release APK</span>
+        </a>
+
+        <div style="margin-top: 18px; font-size: 14px; color: var(--muted);">
+          Latest Release: <strong style="color: var(--primary);" id="release-ver-text">Fetching latest release...</strong> • Requires Android 8.0+
+        </div>
+      </div>
+
+      <div class="qr-box">
+        <img id="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk" alt="Scan to download Elet APK" />
+        <div style="font-size: 13px; font-weight: 800; color: var(--primary); font-family: 'Outfit', sans-serif;">
+          <i class="ph-bold ph-qr-code" style="vertical-align: middle; margin-right: 4px;"></i>Scan with Phone Camera
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="https://github.com/Joelorbit/Elet" target="_blank" rel="noopener">
+          <i class="ph-bold ph-github-logo"></i> GitHub Repository
+        </a>
+        <a href="https://github.com/Joelorbit/Elet/releases" target="_blank" rel="noopener">
+          <i class="ph-bold ph-tag"></i> All Releases
+        </a>
+        <a href="https://eyuel.me" target="_blank" rel="noopener">
+          <i class="ph-bold ph-globe"></i> Crafted by eyuel.me
+        </a>
+      </div>
+      <div>© 2026 Elet • ዕለት — Ethiopian Orthodox Tewahedo Spiritual Companion. Open Source.</div>
+    </div>
+  </footer>
+
+  <!-- Dynamic GitHub Release Fetcher & Language Switcher (100% Synced) -->
+  <script>
+    const GITHUB_REPO = "Joelorbit/Elet";
+    const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
+    const FALLBACK_APK_URL = `https://github.com/${GITHUB_REPO}/releases/latest/download/Elet-Release.apk`;
+
+    let currentLang = 'en';
+
+    const content = {
+      en: {
+        brandSub: "Orthodox Companion",
+        navBtn: "Download Latest APK",
+        heroHead: "The Complete <span>Orthodox Tewahedo</span> Spiritual Companion",
+        heroDesc: "81-Canon Biblical Scriptures, 24-Year Bahire Hasab Liturgical Calendar (2018–2041), 3D Roller Exact Prayer Alarms, Fasting & Penance Tracker — 100% Offline & Private.",
+        heroBtn: "Download Latest Release APK",
+        boxBtn: "Download Latest Release APK",
+        featHead: "Engineered for Spiritual Devotion",
+        featSub: "Every calculation, scripture, and chime crafted to ecclesiastical precision.",
+        dlBoxTitle: "Get Elet on your Android Phone",
+        dlBoxDesc: "Download the latest release APK directly or scan the QR code with your mobile camera for instant installation."
+      },
+      am: {
+        brandSub: "የኦርቶዶክስ መንፈሳዊ ጓደኛ",
+        navBtn: "የቅርብ ጊዜውን አውርድ",
+        heroHead: "የተሟላ <span>የኢትዮጵያ ኦርቶዶክስ ተዋሕዶ</span> መንፈሳዊ መተግበሪያ",
+        heroDesc: "የ81 አዕማደ መጻሕፍት ንባብ፣ የ24 ዓመታት የባሕረ ሐሳብ ቀመር (2018–2041)፣ የ3D ሮለር የጸሎት ደወል፣ የጾምና የንስሐ መከታተያ — 100% ከመስመር ውጭ የሚሠራ።",
+        heroBtn: "የቅርብ ጊዜውን ስሪት አውርድ",
+        boxBtn: "የቅርብ ጊዜውን ስሪት አውርድ",
+        featHead: "ለመንፈሳዊ ተጋድሎ የተዘጋጀ",
+        featSub: "እያንዳንዱ ቀመር፣ ምንባብና የደወል ስርዓት በሥርዓተ ቤተክርስቲያን ቀኖና የተረጋገጠ።",
+        dlBoxTitle: "ዕለት አፕን በስልክዎ ይጫኑ",
+        dlBoxDesc: "የቅርብ ጊዜውን ይፋዊ ስሪት በቀጥታ ያውርዱ ወይም በስልክዎ ካሜራ የQR ኮዱን በመቃኘት በቀላሉ ይጫኑ።"
+      }
+    };
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'am' : 'en';
+      const langBtnSpan = document.querySelector('#lang-btn span');
+      if (langBtnSpan) {
+        langBtnSpan.textContent = currentLang === 'en' ? 'አማርኛ' : 'English';
+      }
+      
+      const c = content[currentLang];
+      document.getElementById('brand-sub').textContent = c.brandSub;
+      document.getElementById('nav-btn-text').textContent = c.navBtn;
+      document.getElementById('hero-heading').innerHTML = c.heroHead;
+      document.getElementById('hero-desc').textContent = c.heroDesc;
+      document.getElementById('hero-btn-text').textContent = c.heroBtn;
+      document.getElementById('box-btn-text').textContent = c.boxBtn;
+      document.getElementById('feat-heading').textContent = c.featHead;
+      document.getElementById('feat-sub').textContent = c.featSub;
+      document.getElementById('dl-box-title').textContent = c.dlBoxTitle;
+      document.getElementById('dl-box-desc').textContent = c.dlBoxDesc;
+    }
+
+    // Dynamic Live Release Fetcher (Auto-syncs with any new tag or release APK)
+    async function fetchLatestRelease() {
+      try {
+        const res = await fetch(`${GITHUB_API_URL}?t=${Date.now()}`, {
+          headers: { 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (!res.ok) {
+          document.getElementById('release-ver-text').textContent = "Latest Official Release";
+          return;
+        }
+        const data = await res.json();
+        
+        const tagName = data.tag_name || 'Latest Release';
+        let apkUrl = FALLBACK_APK_URL;
+
+        if (Array.isArray(data.assets) && data.assets.length > 0) {
+          const apkAsset = data.assets.find(a => (a.name || '').toLowerCase().endsWith('.apk'));
+          if (apkAsset && apkAsset.browser_download_url) {
+            apkUrl = apkAsset.browser_download_url;
+          }
+        }
+
+        // Update all download buttons dynamically
+        const navBtn = document.getElementById('nav-download-btn');
+        const mainBtn = document.getElementById('main-download-btn');
+        const boxBtn = document.getElementById('box-download-btn');
+        const badge = document.getElementById('live-version-badge');
+        const verText = document.getElementById('release-ver-text');
+        const qrImg = document.getElementById('qr-img');
+
+        if (navBtn) navBtn.href = apkUrl;
+        if (mainBtn) mainBtn.href = apkUrl;
+        if (boxBtn) boxBtn.href = apkUrl;
+        if (badge) badge.textContent = `Elet ${tagName} • Live Official Release`;
+        if (verText) verText.textContent = tagName;
+
+        // Auto-sync QR Code with the exact latest APK direct URL
+        if (qrImg) {
+          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(apkUrl)}`;
+        }
+      } catch (err) {
+        console.log("Using dynamic fallback release URLs", err);
+        const verText = document.getElementById('release-ver-text');
+        if (verText) verText.textContent = "Latest Official Release";
+      }
+    }
+
+    fetchLatestRelease();
+  </script>
+</body>
+</html>
