@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Modal, View, StyleSheet, Pressable, Animated } from 'react-native';
 import { AppText as Text, LucideIcon, useAppColors } from '@/src/theme/app-ui';
 import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
 
 export function FullscreenAlarmModal({ visible, onClose, language }: { visible: boolean, onClose: () => void, language: 'am' | 'en' }) {
   const colors = useAppColors();
@@ -53,6 +54,7 @@ export function FullscreenAlarmModal({ visible, onClose, language }: { visible: 
             onPress={() => {
               void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
               onClose();
+              router.push('/practice/prayer' as never);
             }}
             style={({ pressed }) => [
               styles.primaryBtn,
