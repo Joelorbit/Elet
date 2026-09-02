@@ -198,7 +198,7 @@ interface AppStoreContextType {
   setLanguage: (language: AppLanguage) => void;
   updatePreferences: (patch: Partial<UserPreferences>) => void;
   togglePrayerCompletion: (prayerId: string) => void;
-  addCustomPrayer: (prayer: { titleAm: string; titleEn: string; timeLabel: string; hour: number; minute?: number }) => void;
+  addCustomPrayer: (prayer: { titleAm: string; titleEn: string; timeLabel: string; hour: number; minute?: number; repeatDays?: number[] }) => void;
   updatePrayer: (id: string, patch: Partial<PrayerRoutine>) => void;
   deletePrayer: (id: string) => void;
   toggleReadingCompletion: (readingId: string) => void;
@@ -381,12 +381,14 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       timeLabel,
       hour,
       minute = 0,
+      repeatDays = [0, 1, 2, 3, 4, 5, 6],
     }: {
       titleAm: string;
       titleEn: string;
       timeLabel: string;
       hour: number;
       minute?: number;
+      repeatDays?: number[];
     }) => {
       const newPrayer: PrayerRoutine = {
         id: `prayer-custom-${Date.now()}`,
@@ -397,6 +399,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
         reminderHour: hour,
         reminderMinute: minute,
         reminderEnabled: true,
+        repeatDays,
       };
       setPrayers((prev) => [...prev, newPrayer]);
     },
@@ -435,6 +438,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       reference,
       hour = 8,
       minute = 0,
+      repeatDays = [0, 1, 2, 3, 4, 5, 6],
     }: {
       titleAm: string;
       titleEn: string;
@@ -443,6 +447,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       reference: string;
       hour?: number;
       minute?: number;
+      repeatDays?: number[];
     }) => {
       const newReading: CustomReadingPlan = {
         id: `reading-custom-${Date.now()}`,
@@ -454,6 +459,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
         reminderHour: hour,
         reminderMinute: minute,
         reminderEnabled: true,
+        repeatDays,
       };
       setReadingPlans((prev) => [...prev, newReading]);
     },

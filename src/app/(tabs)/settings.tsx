@@ -719,9 +719,10 @@ export default function SettingsScreen() {
       <SectionHeader title={language === "am" ? "የድጋፍ አድራሻዎች (Support Elet)" : "Support & Donations"} />
       <Card style={{ gap: 8 }}>
         <SettingRow
-          icon="heart"
+          icon="landmark"
           title="CBE (Commercial Bank)"
           detail="1000575487638"
+          accessory={<LucideIcon name="copy" size={20} color={colors.primary} />}
           onPress={async () => {
             await Clipboard.setStringAsync("1000575487638");
             Alert.alert(
@@ -735,6 +736,7 @@ export default function SettingsScreen() {
           icon="smartphone"
           title="Telebirr"
           detail="0983757061"
+          accessory={<LucideIcon name="copy" size={20} color={colors.primary} />}
           onPress={async () => {
             await Clipboard.setStringAsync("0983757061");
             Alert.alert(
@@ -791,6 +793,7 @@ export default function SettingsScreen() {
             reminderHour: val.hour24,
             reminderMinute: val.minute,
             dailyReminderEnabled: true,
+            reminderRepeatDays: val.repeatDays,
           });
         }}
         onClose={() => setShowReminderPicker(false)}

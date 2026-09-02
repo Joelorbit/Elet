@@ -153,26 +153,49 @@ export async function setupNotificationChannels(): Promise<void> {
   }
 }
 
-function dailyTrigger(
+function buildTriggers(
   Notifications: typeof NotificationsModule,
   hour: number,
   minute: number,
-  channelId: string
-): NotificationsModule.NotificationTriggerInput {
-  if (Platform.OS === "android") {
-    return {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
+  channelId: string,
+  repeatDays?: number[]
+): NotificationsModule.NotificationTriggerInput[] {
+  if (!repeatDays || repeatDays.length === 7) {
+    if (Platform.OS === "android") {
+      return [{
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour,
+        minute,
+        channelId,
+      }];
+    }
+    return [{
+      type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
       hour,
       minute,
-      channelId,
-    };
+      repeats: true,
+    }];
   }
-  return {
-    type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
-    hour,
-    minute,
-    repeats: true,
-  };
+
+  // If specific days are selected, schedule for each day
+  return repeatDays.map((day) => {
+    if (Platform.OS === "android") {
+      return {
+        type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+        weekday: day + 1, // Expo uses 1=Sunday, 2=Monday, 7=Saturday
+        hour,
+        minute,
+        channelId,
+      };
+    }
+    return {
+      type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+      weekday: day + 1,
+      hour,
+      minute,
+      repeats: true,
+    };
+  });
 }
 
 export interface ReminderSyncPayload {
@@ -180,6 +203,18 @@ export interface ReminderSyncPayload {
   prayers: import("@/src/types/app").PrayerRoutine[];
   readingPlans?: import("@/src/types/app").CustomReadingPlan[];
   fastingPreferences?: import("@/src/types/app").FastingPreferences;
+}
+
+async function scheduleNotificationMulti(Notifications: any, req: { content: any; triggers?: any[]; trigger?: any }) {
+  if (req.trigger !== undefined) {
+    await Notifications.scheduleNotificationAsync({ content: req.content, trigger: req.trigger });
+    return;
+  }
+  if (req.triggers && req.triggers.length > 0) {
+    for (const t of req.triggers) {
+      await Notifications.scheduleNotificationAsync({ content: req.content, trigger: t });
+    }
+  }
 }
 
 export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<void> {
@@ -203,7 +238,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
 
     // 1. Daily Morning Reminder
     if (preferences.dailyReminderEnabled) {
-      await Notifications.scheduleNotificationAsync({
+      await scheduleNotificationMulti(Notifications, {
         content: {
           title: language === "am" ? "ዕለት • የጠዋት ጸሎትና ንባብ" : "Elet • Morning Devotion",
           body:
@@ -213,7 +248,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
           sound: true,
           color: "#8E4424",
         },
-        trigger: dailyTrigger(
+        triggers: buildTriggers(
           Notifications,
           preferences.reminderHour ?? 7,
           preferences.reminderMinute ?? 30,
@@ -232,7 +267,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
         ? "የዕለቱ ቅዱስ መታሰቢያ"
         : "Daily Saint Commemoration";
 
-      await Notifications.scheduleNotificationAsync({
+      await scheduleNotificationMulti(Notifications, {
         content: {
           title: language === "am" ? `የዕለቱ ቅዱስ ታቦት • ${feastTitle}` : `Daily Commemoration • ${feastTitle}`,
           body:
@@ -242,26 +277,26 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
           sound: true,
           color: "#2D6A4F",
         },
-        trigger: dailyTrigger(Notifications, preferences.feastReminderHour ?? 7, 30, FEAST_CHANNEL),
+        triggers: buildTriggers(Notifications, preferences.feastReminderHour ?? 7, 30, FEAST_CHANNEL),
       });
     }
 
     // 3. Daily Scripture Verse Alert (12:00 PM Noon)
     if (preferences.dailyVerseReminderEnabled !== false) {
-      await Notifications.scheduleNotificationAsync({
+      await scheduleNotificationMulti(Notifications, {
         content: {
           title: language === "am" ? `የዕለቱ ቅዱስ ቃል • ${dailyBible.reference[language]}` : `Daily Holy Scripture • ${dailyBible.reference.en}`,
           body: `«${dailyBible.verseText}»`,
           sound: true,
           color: "#8E4424",
         },
-        trigger: dailyTrigger(Notifications, 12, 0, SCRIPTURE_CHANNEL),
+        triggers: buildTriggers(Notifications, 12, 0, SCRIPTURE_CHANNEL),
       });
     }
 
     // 4. Streak Protection Reminder (8:30 PM)
     if (preferences.streakProtectionReminderEnabled !== false) {
-      await Notifications.scheduleNotificationAsync({
+      await scheduleNotificationMulti(Notifications, {
         content: {
           title: language === "am" ? "ዕለት • የጸሎት ጽናት ማሳሰቢያ" : "Elet • Daily Devotion Reminder",
           body:
@@ -271,7 +306,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
           sound: true,
           color: "#C89D42",
         },
-        trigger: dailyTrigger(Notifications, 20, 30, DAILY_CHANNEL),
+        triggers: buildTriggers(Notifications, 20, 30, DAILY_CHANNEL),
       });
     }
 
@@ -279,7 +314,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
     if (preferences.prayerRemindersEnabled !== false) {
       for (const prayer of prayers) {
         if (prayer.reminderEnabled !== false && prayer.reminderHour !== undefined) {
-          await Notifications.scheduleNotificationAsync({
+          await scheduleNotificationMulti(Notifications, {
             content: {
               title: language === "am" ? `የሰዓታት ጸሎት • ${prayer.title.am}` : `Canonical Prayer • ${prayer.title.en}`,
               body:
@@ -289,7 +324,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
               sound: true,
               color: "#C89D42",
             },
-            trigger: dailyTrigger(
+            triggers: buildTriggers(
               Notifications,
               prayer.reminderHour,
               prayer.reminderMinute ?? 0,
@@ -304,7 +339,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
     if (preferences.readingRemindersEnabled !== false && readingPlans) {
       for (const reading of readingPlans) {
         if (reading.reminderEnabled !== false && reading.reminderHour !== undefined) {
-          await Notifications.scheduleNotificationAsync({
+          await scheduleNotificationMulti(Notifications, {
             content: {
               title: language === "am" ? `የመጽሐፍ ቅዱስ ንባብ • ${reading.title.am}` : `Scripture Reading • ${reading.title.en}`,
               body:
@@ -314,7 +349,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
               sound: true,
               color: "#8E4424",
             },
-            trigger: dailyTrigger(
+            triggers: buildTriggers(
               Notifications,
               reading.reminderHour,
               reading.reminderMinute ?? 0,
@@ -330,7 +365,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
       const bHour = fastingPreferences.breakFastHour ?? 15;
       const bMinute = fastingPreferences.breakFastMinute ?? 0;
 
-      await Notifications.scheduleNotificationAsync({
+      await scheduleNotificationMulti(Notifications, {
         content: {
           title: language === "am" ? "የጾም ፍጻሜ • መፍቻ ሰዓት ደርሷል" : "Fasting Completed • Break Fast Hour",
           body:
@@ -340,7 +375,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
           sound: true,
           color: "#C89D42",
         },
-        trigger: dailyTrigger(Notifications, bHour, bMinute, FASTING_CHANNEL),
+        triggers: buildTriggers(Notifications, bHour, bMinute, FASTING_CHANNEL),
       });
     }
   } catch {
@@ -358,7 +393,7 @@ export async function sendTestNotificationNow(language: "am" | "en" = "am"): Pro
 
     await setupNotificationChannels();
 
-    await Notifications.scheduleNotificationAsync({
+    await scheduleNotificationMulti(Notifications, {
       content: {
         title: language === "am" ? "ዕለት • የጸሎት ደወልና ማሳወቂያ" : "Elet • Canonical Bell & Notification",
         body:

@@ -38,6 +38,7 @@ export interface CustomReadingPlan {
   reminderHour?: number;
   reminderMinute?: number;
   reminderEnabled?: boolean;
+  repeatDays?: number[];
   completedDates: string[];
   custom: boolean;
 }
@@ -50,6 +51,7 @@ export interface UserPreferences {
   dailyReminderEnabled: boolean;
   reminderHour: number;
   reminderMinute?: number;
+  reminderRepeatDays?: number[];
   feastReminderEnabled?: boolean;
   feastReminderHour?: number;
   prayerRemindersEnabled?: boolean;
@@ -71,6 +73,7 @@ export interface PrayerRoutine {
   reminderHour?: number;
   reminderMinute?: number;
   reminderEnabled?: boolean;
+  repeatDays?: number[];
 }
 
 export interface FastingPreferences {

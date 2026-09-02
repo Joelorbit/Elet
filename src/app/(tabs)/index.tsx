@@ -253,9 +253,7 @@ export default function TodayScreen() {
                 <Text tone="title" style={[styles.cardTitle, { color: colors.text }]}>{t("dailyReminder")}</Text>
                 <Text style={[styles.cardDetail, { color: colors.muted }]}>
                   {preferences.dailyReminderEnabled
-                    ? `${String(preferences.reminderHour).padStart(2, "0")}:${String(
-                        preferences.reminderMinute ?? 0
-                      ).padStart(2, "0")}`
+                    ? `${preferences.reminderHour % 12 || 12}:${String(preferences.reminderMinute ?? 0).padStart(2, "0")} ${preferences.reminderHour >= 12 ? "PM" : "AM"}`
                     : t("optional")}
                 </Text>
               </View>

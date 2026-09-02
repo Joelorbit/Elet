@@ -63,6 +63,7 @@ export function RollerTimePickerModal({
   // Additional Alarm Options
   const [alarmMode, setAlarmMode] = useState<"full_alarm" | "notification_only">("full_alarm");
   const [vibrateEnabled, setVibrateEnabled] = useState(true);
+  const [repeatType, setRepeatType] = useState<"everyday" | "weekdays" | "weekends" | "once_a_week">("everyday");
   const [soundType, setSoundType] = useState<"sacred_chime" | "church_bell" | "gentle_morning">("sacred_chime");
 
   useEffect(() => {
@@ -88,12 +89,19 @@ export function RollerTimePickerModal({
 
   const handleSave = () => {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    
+    let repeatDays: number[] = [0, 1, 2, 3, 4, 5, 6];
+    if (repeatType === "weekdays") repeatDays = [1, 2, 3, 4, 5];
+    if (repeatType === "weekends") repeatDays = [0, 6];
+    if (repeatType === "once_a_week") repeatDays = [new Date().getDay()];
+
     onSave({
       hour24: current24Hour,
       minute: selectedMinute,
       mode: alarmMode,
       vibrate: vibrateEnabled,
       soundType,
+      repeatDays,
     });
     onClose();
   };
@@ -458,6 +466,38 @@ export function RollerTimePickerModal({
               </View>
             </Card>
 
+            {/* Repeat Frequency Options */}
+            <Card style={{ backgroundColor: colors.surface, borderColor: colors.border, padding: 14 }}>
+              <Text tone="label" style={[styles.menuSectionHeader, { color: colors.primary }]}>
+                {language === "am" ? "የመደጋገም ድግግሞሽ" : "REPEAT FREQUENCY"}
+              </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
+                {[
+                  { id: "everyday", icon: "calendar", labelAm: "በየቀኑ", labelEn: "Everyday" },
+                  { id: "weekdays", icon: "calendar-days", labelAm: "ከሰኞ-አርብ", labelEn: "Weekdays" },
+                  { id: "weekends", icon: "star", labelAm: "ቅዳሜና እሑድ", labelEn: "Weekends" },
+                  { id: "once_a_week", icon: "refresh", labelAm: "በየሳምንቱ (አንድ ቀን)", labelEn: "Once a Week" },
+                ].map((opt) => (
+                  <Pressable
+                    key={opt.id}
+                    onPress={() => setRepeatType(opt.id as any)}
+                    style={[
+                      styles.modeChoice,
+                      { paddingHorizontal: 12, paddingVertical: 10, minHeight: 0,
+                        backgroundColor: repeatType === opt.id ? colors.primaryContainer : colors.secondary,
+                        borderColor: repeatType === opt.id ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <LucideIcon name={opt.icon} size={16} color={repeatType === opt.id ? colors.primary : colors.muted} strokeWidth={2.4} />
+                    <Text tone="title" style={{ fontSize: 12, fontWeight: "800", color: repeatType === opt.id ? colors.primary : colors.text }}>
+                      {language === "am" ? opt.labelAm : opt.labelEn}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </Card>
+
             {/* Drill-down Menus & Toggles Card */}
             <Card style={{ backgroundColor: colors.surface, borderColor: colors.border, padding: 14, gap: 14 }}>
               {/* Vibration Toggle */}
@@ -537,23 +577,6 @@ export function RollerTimePickerModal({
                 </View>
               </View>
 
-              <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-              {/* Repeating Days */}
-              <View style={styles.settingRow}>
-                <View style={styles.settingLabelWrap}>
-                  <LucideIcon name="calendar" size={18} color={colors.primary} />
-                  <View>
-                    <Text tone="title" style={[styles.settingTitle, { color: colors.text }]}>
-                      {language === "am" ? "ድግግሞሽ (Repeating)" : "Repeating"}
-                    </Text>
-                    <Text style={[styles.settingSub, { color: colors.muted }]}>
-                      {language === "am" ? "በየቀኑ (Every day)" : "Every day"}
-                    </Text>
-                  </View>
-                </View>
-                <Pill label={language === "am" ? "በየቀኑ" : "Daily"} tone="primary" />
-              </View>
             </Card>
           </ScrollView>
         </View>

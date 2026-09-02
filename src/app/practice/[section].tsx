@@ -60,6 +60,7 @@ export default function PracticeSectionScreen() {
   const [customPrayerTimeLabel, setCustomPrayerTimeLabel] = useState("6:00 AM");
   const [customPrayerHour, setCustomPrayerHour] = useState("6");
   const [customPrayerMinute, setCustomPrayerMinute] = useState("0");
+  const [customPrayerRepeatDays, setCustomPrayerRepeatDays] = useState<number[]>([0, 1, 2, 3, 4, 5, 6]);
 
   // Custom Reading Form State
   const [showAddReading, setShowAddReading] = useState(false);
@@ -72,6 +73,7 @@ export default function PracticeSectionScreen() {
   const [showScripturePicker, setShowScripturePicker] = useState(false);
   const [readingHour, setReadingHour] = useState("8");
   const [readingMinute, setReadingMinute] = useState("0");
+  const [readingRepeatDays, setReadingRepeatDays] = useState<number[]>([0, 1, 2, 3, 4, 5, 6]);
 
   // Custom Fast Form State
   const [showAddFast, setShowAddFast] = useState(false);
@@ -102,6 +104,8 @@ export default function PracticeSectionScreen() {
       titleEn: customPrayerTitleEn.trim() || customPrayerTitleAm.trim(),
       timeLabel: customPrayerTimeLabel.trim() || "Daily",
       hour: parseInt(customPrayerHour, 10) || 7,
+      minute: parseInt(customPrayerMinute, 10) || 0,
+      repeatDays: customPrayerRepeatDays,
     });
     setCustomPrayerTitleAm("");
     setCustomPrayerTitleEn("");
@@ -251,6 +255,7 @@ export default function PracticeSectionScreen() {
                 const label = `${hour12}:${String(val.minute).padStart(2, "0")} ${period}`;
                 setCustomPrayerHour(String(val.hour24));
                 setCustomPrayerMinute(String(val.minute));
+                if (val.repeatDays) setCustomPrayerRepeatDays(val.repeatDays);
                 setCustomPrayerTimeLabel(label);
               }}
               onClose={() => setShowPrayerTimePicker(false)}
@@ -407,6 +412,7 @@ export default function PracticeSectionScreen() {
               onSave={(val) => {
                 setReadingHour(String(val.hour24));
                 setReadingMinute(String(val.minute));
+                if (val.repeatDays) setReadingRepeatDays(val.repeatDays);
               }}
               onClose={() => setShowReadingTimePicker(false)}
             />

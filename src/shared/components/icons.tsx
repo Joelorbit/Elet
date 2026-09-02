@@ -38,6 +38,9 @@ import {
   RefreshCw as LucideRefreshCw,
   Star as LucideStar,
   Smartphone as LucideSmartphone,
+  Copy as LucideCopy,
+  Landmark as LucideLandmark,
+  CreditCard as LucideCreditCard,
   Flame as LucideFlame,
 } from "lucide-react-native";
 
@@ -119,6 +122,9 @@ export type IconName =
   | "star"
   | "flame"
   | "smartphone"
+  | "copy"
+  | "landmark"
+  | "credit-card"
   | "cross";
 
 const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
@@ -192,6 +198,9 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   star: LucideStar,
   flame: LucideFlame,
   smartphone: LucideSmartphone,
+  copy: LucideCopy,
+  landmark: LucideLandmark,
+  "credit-card": LucideCreditCard,
 };
 
 export function LucideIcon({

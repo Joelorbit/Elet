@@ -1,7 +1,7 @@
 {
   "name": "elet",
   "main": "expo-router/entry",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "dependencies": {
     "@expo-google-fonts/lexend": "^0.4.1",
     "@expo-google-fonts/noto-sans-ethiopic": "^0.4.2",
