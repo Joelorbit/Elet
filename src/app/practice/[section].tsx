@@ -69,6 +69,7 @@ export default function PracticeSectionScreen() {
   const [readingThemeAm, setReadingThemeAm] = useState("የግል ንባብ");
   const [readingThemeEn, setReadingThemeEn] = useState("Custom Reading");
   const [readingRef, setReadingRef] = useState("");
+  const [showScripturePicker, setShowScripturePicker] = useState(false);
   const [readingHour, setReadingHour] = useState("8");
   const [readingMinute, setReadingMinute] = useState("0");
 
@@ -371,7 +372,6 @@ export default function PracticeSectionScreen() {
               language={language}
               onSelect={(ref) => { setReadingRef(ref); setShowScripturePicker(false); }}
               onClose={() => setShowScripturePicker(false)}
-            />
             />
             <AppTextInput
               value={readingThemeAm}
