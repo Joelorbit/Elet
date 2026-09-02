@@ -1,6 +1,8 @@
 import { InAppUpdateModal } from "@/src/shared/components/in-app-update-modal";
 import { RollerTimePickerModal } from "@/src/shared/components/roller-time-picker";
 import { cacheDirectory, writeAsStringAsync, readAsStringAsync, EncodingType } from "expo-file-system/legacy";
+import { shareAsync } from "expo-sharing";
+import { getDocumentAsync } from "expo-document-picker";
 import { FullscreenAlarmModal } from "@/src/features/liturgy/components/fullscreen-alarm";
 import React, { useState } from "react";
 import { Alert, Platform, Pressable, Share, StyleSheet, Switch, View } from "react-native";
@@ -124,7 +126,6 @@ export default function SettingsScreen() {
   };
 
   const handleExportData = async () => {
-    const { shareAsync } = require("expo-sharing");
     try {
       const raw = await AsyncStorage.getItem("@elet_state_v3");
       if (!raw) return;
@@ -139,7 +140,6 @@ export default function SettingsScreen() {
   };
 
   const handleImportData = async () => {
-    const { getDocumentAsync } = require("expo-document-picker");
     try {
       const res = await getDocumentAsync({ type: ['application/json', '*/*'], copyToCacheDirectory: true });
       if (res.canceled || !res.assets || res.assets.length === 0) return;
