@@ -161,18 +161,18 @@ export default function PracticeScreen() {
 
 const styles = StyleSheet.create({
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginTop: 8 },
-  eyebrow: { fontSize: 11, fontWeight: "800", letterSpacing: 0.5 },
-  title: { fontSize: 24, fontWeight: "900", marginTop: 2, maxWidth: 280 },
+  eyebrow: { fontSize: 11, fontWeight: "700", letterSpacing: 0.5 },
+  title: { fontSize: 24, fontWeight: "700", marginTop: 2, maxWidth: 280 },
   detail: { fontSize: 13, lineHeight: 19, maxWidth: 290, marginTop: 4 },
   cards: { gap: 12, marginTop: 4 },
   practiceCard: { padding: 16, gap: 10 },
   row: { flexDirection: "row", alignItems: "center", gap: 12, width: "100%" },
   cardCopy: { flex: 1, minWidth: 0, gap: 2 },
-  cardTitle: { fontSize: 16, fontWeight: "800" },
+  cardTitle: { fontSize: 16, fontWeight: "700" },
   cardDetail: { fontSize: 13, lineHeight: 18 },
   cardFooter: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%", paddingTop: 2 },
   openRow: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
   chevronSlot: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center", borderWidth: 1, flexShrink: 0 },
-  open: { fontSize: 12, fontWeight: "800" },
+  open: { fontSize: 12, fontWeight: "700" },
   divider: { height: 1, width: "100%", marginVertical: 2 },
 });

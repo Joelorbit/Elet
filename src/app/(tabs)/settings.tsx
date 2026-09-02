@@ -1,6 +1,7 @@
 import { FullscreenAlarmModal } from "@/src/features/liturgy/components/fullscreen-alarm";
 import React, { useState } from "react";
-import { Alert, Platform, Pressable, StyleSheet, Switch, View } from "react-native";
+import { Alert, Platform, Pressable, Share, StyleSheet, Switch, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as Linking from "expo-linking";
 import * as Haptics from "expo-haptics";
@@ -116,6 +117,19 @@ export default function SettingsScreen() {
       if (can) {
         await Linking.openURL(url);
       }
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      const raw = await AsyncStorage.getItem("@elet_state_v3");
+      if (!raw) return;
+      await Share.share({
+        title: "Elet Backup",
+        message: raw,
+      });
     } catch {
       // ignore
     }
@@ -612,6 +626,17 @@ export default function SettingsScreen() {
         <SettingRow icon="trash" title={t("deleteAll")} onPress={resetAllData} />
       </Card>
 
+      {/* Data & Backup Section */}
+      <SectionHeader title={language === "am" ? "ውሂብ / ምትኬ" : "Data & Backup"} />
+      <Card style={{ gap: 8 }}>
+        <SettingRow
+          icon="download"
+          title={language === "am" ? "ውሂቤን ላክ" : "Export My Data"}
+          detail={language === "am" ? "JSON ፋይል ወደ ሌላ መሣሪያ" : "Share a JSON backup file"}
+          onPress={() => { void handleExportData(); }}
+        />
+      </Card>
+
       {/* Creator Credit */}
       <View style={[styles.credit, { borderTopColor: colors.border }]}>
         <Text tone="label" style={[styles.creditLabel, { color: colors.muted }]}>
@@ -692,12 +717,12 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   header: { marginTop: 8 },
-  eyebrow: { fontSize: 11, fontWeight: "800", letterSpacing: 0.5 },
-  title: { fontSize: 24, fontWeight: "900", marginTop: 2 },
+  eyebrow: { fontSize: 11, fontWeight: "700", letterSpacing: 0.5 },
+  title: { fontSize: 24, fontWeight: "800", marginTop: 2 },
   brandCard: { padding: 16 },
   brandRow: { flexDirection: "row", alignItems: "center", gap: 14 },
   brandTitleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  brandTitle: { fontSize: 18, fontWeight: "800" },
+  brandTitle: { fontSize: 18, fontWeight: "700" },
   brandSubtitle: { fontSize: 12, lineHeight: 17, marginTop: 1 },
   divider: { height: 1 },
   biometricSelectorWrap: {
@@ -741,5 +766,5 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   creditLabel: { fontSize: 12, fontWeight: "600" },
-  creditName: { fontSize: 15, fontWeight: "900" },
+  creditName: { fontSize: 15, fontWeight: "800" },
 });

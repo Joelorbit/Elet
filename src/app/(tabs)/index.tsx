@@ -1,6 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
 
 import {
   AppLogo,
@@ -49,6 +50,7 @@ export default function TodayScreen() {
     readingProgress,
     dailyPracticeDates,
     fastingPreferences,
+    setLanguage,
     spiritualFather,
     togglePrayerCompletion,
     togglePenanceItem,
@@ -76,7 +78,22 @@ export default function TodayScreen() {
             {language === "am" ? "ዛሬ (Today)" : "Today (ዛሬ)"}
           </Text>
         </View>
-        <AppLogo size={48} />
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+          <Pressable
+            onPress={() => {
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+              setLanguage(language === "am" ? "en" : "am");
+            }}
+            style={[styles.langToggle, { backgroundColor: colors.secondary, borderColor: colors.border }]}
+            accessibilityRole="button"
+            accessibilityLabel="Toggle Language"
+          >
+            <Text tone="label" style={{ fontSize: 12, fontWeight: "700", color: colors.primary }}>
+              {language === "am" ? "EN" : "አማ"}
+            </Text>
+          </Pressable>
+          <AppLogo size={48} />
+        </View>
       </View>
 
       {/* Hero Ethiopian Date Card */}
@@ -256,9 +273,10 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
+  langToggle: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, alignItems: "center", justifyContent: "center" },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 4 },
   appName: { fontSize: 11, fontWeight: "800", letterSpacing: 0.6 },
-  greeting: { fontSize: 24, fontWeight: "900", marginTop: 1 },
+  greeting: { fontSize: 24, fontWeight: "800", marginTop: 1 },
   heroDateCard: { padding: 20 },
   dateLabel: { fontSize: 11, fontWeight: "700", color: "rgba(255, 255, 255, 0.85)", letterSpacing: 0.4 },
   ethiopianDate: { fontSize: 24, fontWeight: "900", color: "#FFFFFF", marginTop: 3 },
@@ -275,7 +293,7 @@ const styles = StyleSheet.create({
   row: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12, minWidth: 0 },
   rowRight: { flexDirection: "row", alignItems: "center", gap: 8, flexShrink: 0 },
   eyebrow: { fontSize: 11, fontWeight: "800", letterSpacing: 0.5 },
-  cardTitle: { fontSize: 16, fontWeight: "800", lineHeight: 21 },
+  cardTitle: { fontSize: 16, fontWeight: "700", lineHeight: 21 },
   cardDetail: { fontSize: 13, lineHeight: 18, marginTop: 1 },
   remembranceTitle: { fontSize: 16, fontWeight: "800", marginTop: 1 },
   scriptureExcerpt: { fontSize: 14, lineHeight: 21, fontStyle: "italic" },
