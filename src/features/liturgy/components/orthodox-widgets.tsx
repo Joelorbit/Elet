@@ -359,6 +359,8 @@ export function SpiritualProgressWidget({
 }
 
 const styles = StyleSheet.create({
+  setTargetCta: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 12, borderWidth: 1.5, borderStyle: "dashed" },
+  setTargetCtaText: { fontSize: 13, fontWeight: "700" },
   commemorationCard: { padding: 16, gap: 10, borderWidth: 1.5 },
   topHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%" },
   badge: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, borderWidth: 1 },
