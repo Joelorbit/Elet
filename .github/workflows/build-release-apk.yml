@@ -1,0 +1,31 @@
+name: EAS Build and GitHub Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: 🏗 Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🚀 Build APK on EAS
+        run: eas build --platform android --profile preview --non-interactive --local
+        # Note: We can use EAS Cloud if we don't use --local, but we'd need a script to download it.
