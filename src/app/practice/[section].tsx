@@ -21,6 +21,7 @@ import { useAppStore, useTodayKey } from "@/src/features/settings/store/app-stor
 import { confessionPrompts } from "@/src/features/bible/utils/content";
 import { translate } from "@/src/shared/utils/i18n";
 import { FastingTimerWidget } from "@/src/features/liturgy/components/orthodox-widgets";
+import { ScriptureRefPicker } from "@/src/features/bible/components/scripture-ref-picker";
 import { authenticateBiometrics } from "@/src/features/auth/hooks/use-app-lock";
 import { formatDateKey } from "@/src/features/streaks/utils/streaks";
 
@@ -350,10 +351,27 @@ export default function PracticeSectionScreen() {
               onChangeText={setReadingTitleAm}
               placeholder={language === "am" ? "የንባቡ ርዕስ (ለምሳሌ፡ የዮሐንስ ወንጌል ጥናት)..." : "Reading Title (e.g. Gospel of John Study)..."}
             />
-            <AppTextInput
-              value={readingRef}
-              onChangeText={setReadingRef}
-              placeholder={language === "am" ? "የመጽሐፍ ቅዱስ ክፍል (ለምሳሌ፡ ዮሐንስ 1-3)..." : "Scripture Reference (e.g. John 1–3)..."}
+            <Pressable
+              onPress={() => setShowScripturePicker(true)}
+              style={[styles.timePickerButton, { backgroundColor: colors.secondary, borderColor: colors.border }]}
+            >
+              <LucideIcon name="book-open" size={18} color={colors.gold} />
+              <View style={{ flex: 1 }}>
+                <Text tone="label" style={{ fontSize: 11, color: colors.muted }}>
+                  {language === "am" ? "የመጽሐፍ ቅዱስ ክፍል" : "Scripture Reference"}
+                </Text>
+                <Text tone="title" style={{ fontSize: 15, fontWeight: "700", color: readingRef ? colors.text : colors.muted }}>
+                  {readingRef || (language === "am" ? "ምዕራፍ ይምረጡ..." : "Select chapter...")}
+                </Text>
+              </View>
+              <LucideIcon name="chevron-right" size={18} color={colors.primary} />
+            </Pressable>
+            <ScriptureRefPicker
+              visible={showScripturePicker}
+              language={language}
+              onSelect={(ref) => { setReadingRef(ref); setShowScripturePicker(false); }}
+              onClose={() => setShowScripturePicker(false)}
+            />
             />
             <AppTextInput
               value={readingThemeAm}
