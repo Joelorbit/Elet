@@ -1,3 +1,4 @@
+import { PostHogProvider } from "posthog-react-native";
 import React, { useEffect } from "react";
 import { Stack } from "expo-router";
 import { Platform, StyleSheet, View, ActivityIndicator } from "react-native";
@@ -120,6 +121,8 @@ function MainAppShell() {
   );
 }
 
+
+
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Outfit_400Regular,
@@ -155,14 +158,19 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <AppStoreProvider>
-        <ThemeProvider>
-          <WebFontInjector />
-          <MainAppShell />
-        </ThemeProvider>
-      </AppStoreProvider>
-    </SafeAreaProvider>
+    <PostHogProvider apiKey="phc_oZ64eCe7D9FhZLBpwosbk2hphbjtoqLKSJuYKnVdzzxZ" options={{
+      host: 'https://us.i.posthog.com',
+      enableSessionReplay: true,
+    }}>
+      <SafeAreaProvider>
+        <AppStoreProvider>
+          <ThemeProvider>
+            <WebFontInjector />
+            <MainAppShell />
+          </ThemeProvider>
+        </AppStoreProvider>
+      </SafeAreaProvider>
+    </PostHogProvider>
   );
 }
 
