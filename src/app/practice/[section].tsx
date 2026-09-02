@@ -1,3 +1,4 @@
+import { RollerTimePickerModal } from "@/src/shared/components/roller-time-picker";
 import React, { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -13,7 +14,6 @@ import {
   LucideIcon,
   Pill,
   PrimaryButton,
-  RollerTimePickerModal,
   SectionHeader,
   useAppColors,
 } from "@/src/theme/app-ui";
