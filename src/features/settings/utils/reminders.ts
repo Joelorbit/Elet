@@ -58,6 +58,17 @@ export async function requestNotificationPermissions(): Promise<boolean> {
   }
 }
 
+export async function openOverlaySettings() {
+  if (Platform.OS === "android") {
+    try {
+      const IntentLauncher = await import("expo-intent-launcher");
+      await IntentLauncher.startActivityAsync("android.settings.action.MANAGE_OVERLAY_PERMISSION", {
+        data: "package:me.eyuel.elet"
+      });
+    } catch {}
+  }
+}
+
 export async function openAlarmSettings() {
   if (Platform.OS === "android") {
     try {

@@ -1,3 +1,4 @@
+import { FullscreenAlarmModal } from "@/src/features/liturgy/components/fullscreen-alarm";
 import React, { useState } from "react";
 import { Alert, Platform, Pressable, StyleSheet, Switch, View } from "react-native";
 import { router } from "expo-router";
@@ -20,7 +21,7 @@ import {
   useAppColors,
 } from "@/src/theme/app-ui";
 import { useAppStore } from "@/src/features/settings/store/app-store";
-import { sendTestNotificationNow, openAlarmSettings } from "@/src/features/settings/utils/reminders";
+import { sendTestNotificationNow, openAlarmSettings, openOverlaySettings } from "@/src/features/settings/utils/reminders";
 import { translate } from "@/src/shared/utils/i18n";
 import { promptUpdateCheck, type ReleaseInfo } from "@/src/shared/utils/update-checker";
 import type { AppLockMode, AutoLockTimeout, ThemeMode } from "@/src/types/app";
@@ -35,6 +36,7 @@ export default function SettingsScreen() {
   const [showReminderPicker, setShowReminderPicker] = useState(false);
   const [showFastingPicker, setShowFastingPicker] = useState(false);
   const [showAlarmDiagnostic, setShowAlarmDiagnostic] = useState(false);
+  const [showFullscreenAlarm, setShowFullscreenAlarm] = useState(false);
   const [updateReleaseInfo, setUpdateReleaseInfo] = useState<ReleaseInfo | null>(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
@@ -379,25 +381,17 @@ export default function SettingsScreen() {
               </View>
             </View>
 
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
               <Pressable
                 onPress={async () => {
                   void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-                  const sent = await sendTestNotificationNow(language);
-                  if (sent) {
-                    Alert.alert(
-                      language === "am" ? "✅ የደወል ማሳወቂያ ተልኳል" : "✅ Test Alarm Triggered",
-                      language === "am"
-                        ? "የጸሎት ደወሉ ወዲያውኑ ተልኳል! ከላይ ያለውን ባነር ይመልከቱ።"
-                        : "Test alarm triggered successfully! Check your device notification shade."
-                    );
-                  }
+                  setShowFullscreenAlarm(true);
                 }}
                 style={{ flex: 1, backgroundColor: colors.primary, paddingVertical: 10, borderRadius: 10, alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 6 }}
               >
                 <LucideIcon name="bell" size={16} color="#FFFFFF" strokeWidth={2.4} />
                 <Text tone="title" style={{ fontSize: 12, fontWeight: "800", color: "#FFFFFF" }}>
-                  {language === "am" ? "ደወል አሰማ" : "Test Chime"}
+                  {language === "am" ? "ሙሉ ገጽ ደወል ሙከራ" : "Test Fullscreen"}
                 </Text>
               </Pressable>
               {Platform.OS === "android" && (
@@ -412,6 +406,19 @@ export default function SettingsScreen() {
                   </Text>
                 </Pressable>
               )}
+              {Platform.OS === "android" && (
+                <Pressable
+                  onPress={() => {
+                    void openOverlaySettings();
+                  }}
+                  style={{ flex: 1, backgroundColor: colors.primary, paddingVertical: 10, borderRadius: 10, alignItems: "center", justifyContent: "center" }}
+                >
+                  <Text tone="title" style={{ fontSize: 12, color: "#FFFFFF", fontWeight: "800" }}>
+                    {language === "am" ? "በሌሎች ላይ አሳይ" : "Overlay Settings"}
+                  </Text>
+                </Pressable>
+              )}
+
 
               <Pressable
                 onPress={() => {
@@ -639,6 +646,7 @@ export default function SettingsScreen() {
       )}
 
       {/* Daily Reminder Time Roller Modal */}
+
       <RollerTimePickerModal
         visible={showReminderPicker}
         initialHour24={preferences.reminderHour ?? 7}
@@ -656,6 +664,7 @@ export default function SettingsScreen() {
       />
 
       {/* Fasting Break Time Roller Modal */}
+
       <RollerTimePickerModal
         visible={showFastingPicker}
         initialHour24={fastingPreferences?.breakFastHour ?? 15}
@@ -671,6 +680,12 @@ export default function SettingsScreen() {
         }}
         onClose={() => setShowFastingPicker(false)}
       />
+      <FullscreenAlarmModal
+        visible={showFullscreenAlarm}
+        onClose={() => setShowFullscreenAlarm(false)}
+        language={language}
+      />
+
     </AppScreen>
   );
 }
