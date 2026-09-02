@@ -37,6 +37,7 @@ import {
   Upload as LucideUpload,
   RefreshCw as LucideRefreshCw,
   Star as LucideStar,
+  Smartphone as LucideSmartphone,
   Flame as LucideFlame,
 } from "lucide-react-native";
 
@@ -117,6 +118,7 @@ export type IconName =
   | "system-update"
   | "star"
   | "flame"
+  | "smartphone"
   | "cross";
 
 const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
@@ -189,6 +191,7 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   "system-update": LucideRefreshCw,
   star: LucideStar,
   flame: LucideFlame,
+  smartphone: LucideSmartphone,
 };
 
 export function LucideIcon({

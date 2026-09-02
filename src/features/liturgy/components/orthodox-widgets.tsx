@@ -140,8 +140,8 @@ export function FastingTimerWidget({
 
   return (
     <Pressable
-      onPress={() => router.push("/practice/fasting" as never)}
-      style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}
+      onPress={fastingStatus.isFast ? () => router.push("/practice/fasting" as never) : undefined}
+      style={({ pressed }) => [{ opacity: pressed && fastingStatus.isFast ? 0.85 : 1 }]}
     >
       <Card style={[styles.fastingWidgetCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={styles.topHeader}>

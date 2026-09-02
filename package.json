@@ -12,6 +12,7 @@
     "expo": "~57.0.16",
     "expo-application": "~57.0.2",
     "expo-build-properties": "~57.0.14",
+    "expo-clipboard": "~57.0.1",
     "expo-constants": "~57.0.14",
     "expo-dev-client": "~57.0.15",
     "expo-device": "~57.0.1",

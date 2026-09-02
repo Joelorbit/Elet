@@ -26,6 +26,7 @@ import { useAppStore, useTodayKey } from "@/src/features/settings/store/app-stor
 import {
   formatEthiopianDate,
   formatGregorianDate,
+  isFastingDay,
   gregorianToEthiopian,
 } from "@/src/features/liturgy/utils/calendar";
 import { getDailyReading } from "@/src/features/bible/utils/content";
@@ -112,13 +113,15 @@ export default function TodayScreen() {
       <DailyCommemorationWidget language={language} date={now} />
 
       {/* Widget 2: Live Fasting Status & Countdown Clock */}
-      <FastingTimerWidget
-        language={language}
-        breakFastHour={fastingPreferences?.breakFastHour ?? 15}
-        breakFastMinute={fastingPreferences?.breakFastMinute ?? 0}
-        hasFastingTargetSet={fastingPreferences?.hasFastingTargetSet ?? false}
-        date={now}
-      />
+      {isFastingDay(now).isFast && (
+        <FastingTimerWidget
+          language={language}
+          breakFastHour={fastingPreferences?.breakFastHour ?? 15}
+          breakFastMinute={fastingPreferences?.breakFastMinute ?? 0}
+          hasFastingTargetSet={fastingPreferences?.hasFastingTargetSet ?? false}
+          date={now}
+        />
+      )}
 
       {/* Daily Scripture Card */}
       <Pressable

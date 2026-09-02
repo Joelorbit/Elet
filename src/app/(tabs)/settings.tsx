@@ -3,6 +3,7 @@ import { RollerTimePickerModal } from "@/src/shared/components/roller-time-picke
 import { cacheDirectory, writeAsStringAsync, readAsStringAsync, EncodingType } from "expo-file-system/legacy";
 import { shareAsync } from "expo-sharing";
 import { getDocumentAsync } from "expo-document-picker";
+import * as Clipboard from "expo-clipboard";
 import { FullscreenAlarmModal } from "@/src/features/liturgy/components/fullscreen-alarm";
 import React, { useState } from "react";
 import { Alert, Platform, Pressable, Share, StyleSheet, Switch, View } from "react-native";
@@ -443,6 +444,26 @@ export default function SettingsScreen() {
                 </View>
                 <LucideIcon name="chevron-right" size={18} color="#FFFFFF" />
               </Pressable>
+              <Pressable
+                onPress={async () => {
+                  void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+                  const success = await sendTestNotificationNow(language);
+                  if (success) {
+                    Alert.alert(language === "am" ? "ተልኳል" : "Sent", language === "am" ? "የሙከራ ማሳወቂያው ከላይ ይገባል (Heads-up notification)" : "Test notification sent successfully");
+                  } else {
+                    Alert.alert("Error", "Could not send notification. Check permissions.");
+                  }
+                }}
+                style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.primary, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, alignItems: "center", flexDirection: "row", justifyContent: "space-between" }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                  <LucideIcon name="bell" size={20} color={colors.primary} strokeWidth={2.5} />
+                  <Text tone="title" style={{ fontSize: 13, fontWeight: "800", color: colors.primary }}>
+                    {language === "am" ? "የማሳወቂያ ሙከራ (Test Notification)" : "Test Notification"}
+                  </Text>
+                </View>
+                <LucideIcon name="chevron-right" size={18} color={colors.primary} />
+              </Pressable>
 
               {Platform.OS === "android" && (
                 <Pressable
@@ -477,6 +498,23 @@ export default function SettingsScreen() {
                   <LucideIcon name="external-link" size={18} color={colors.primary} />
                 </Pressable>
               )}
+              {/* Overlay Helper Guide */}
+              {Platform.OS === "android" && (
+                <View style={{ backgroundColor: colors.primaryContainer, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.primary, marginTop: 12, marginBottom: 4 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <LucideIcon name="alert-triangle" size={18} color={colors.primary} />
+                    <Text tone="title" style={{ fontSize: 13, fontWeight: "900", color: colors.primary }}>
+                      {language === "am" ? "አስፈላጊ ማሳሰቢያ (CRITICAL)" : "Full-Screen Alarm Requirement"}
+                    </Text>
+                  </View>
+                  <Text style={{ fontSize: 12, color: colors.text, lineHeight: 18 }}>
+                    {language === "am"
+                      ? "ሙሉ ገጽ ደወል (Full-Screen Alarm) በሌሎች መተግበሪያዎች ላይ ሆኖ እንዲሠራ፣ ከላይ ያለውን \"በሌሎች ላይ አሳይ (Overlay)\" ተጭነው መተግበሪያውን ይምረጡና \"Allow display over other apps\" የሚለውን ያብሩ።"
+                      : "For the Full-Screen Alarm to wake your device and show over other apps, you MUST tap the Overlay Settings above and enable \"Allow display over other apps\" for Elet."}
+                  </Text>
+                </View>
+              )}
+
 
               {Platform.OS === "android" && (
                 <Pressable
@@ -675,6 +713,36 @@ export default function SettingsScreen() {
           onPress={() => { void handleImportData(); }}
         />
 
+      </Card>
+
+      {/* Support / Donations Section */}
+      <SectionHeader title={language === "am" ? "የድጋፍ አድራሻዎች (Support Elet)" : "Support & Donations"} />
+      <Card style={{ gap: 8 }}>
+        <SettingRow
+          icon="heart"
+          title="CBE (Commercial Bank)"
+          detail="1000575487638"
+          onPress={async () => {
+            await Clipboard.setStringAsync("1000575487638");
+            Alert.alert(
+              language === "am" ? "ተቀድቷል" : "Copied",
+              language === "am" ? "የሒሳብ ቁጥሩ ኮፒ ተደርጓል። (1000575487638)" : "Account number copied to clipboard."
+            );
+          }}
+        />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+        <SettingRow
+          icon="smartphone"
+          title="Telebirr"
+          detail="0983757061"
+          onPress={async () => {
+            await Clipboard.setStringAsync("0983757061");
+            Alert.alert(
+              language === "am" ? "ተቀድቷል" : "Copied",
+              language === "am" ? "የስልክ ቁጥሩ ኮፒ ተደርጓል። (0983757061)" : "Phone number copied to clipboard."
+            );
+          }}
+        />
       </Card>
 
       {/* Creator Credit */}
