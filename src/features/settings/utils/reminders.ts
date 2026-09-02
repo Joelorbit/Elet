@@ -58,6 +58,22 @@ export async function requestNotificationPermissions(): Promise<boolean> {
   }
 }
 
+export async function openBatterySettings() {
+  if (Platform.OS === "android") {
+    try {
+      const IntentLauncher = await import("expo-intent-launcher");
+      await IntentLauncher.startActivityAsync("android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS");
+    } catch {
+      try {
+        const IntentLauncher = await import("expo-intent-launcher");
+        await IntentLauncher.startActivityAsync(IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS, {
+          data: "package:me.eyuel.elet"
+        });
+      } catch {}
+    }
+  }
+}
+
 export async function openOverlaySettings() {
   if (Platform.OS === "android") {
     try {
@@ -93,7 +109,7 @@ export async function setupNotificationChannels(): Promise<void> {
   try {
     await Notifications.setNotificationChannelAsync(DAILY_CHANNEL, {
       name: "Daily Practice & Reminders",
-      importance: Notifications.AndroidImportance.HIGH,
+      importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: "#8E4424",
       enableVibrate: true,
@@ -102,7 +118,7 @@ export async function setupNotificationChannels(): Promise<void> {
 
     await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL, {
       name: "Seven Prayer Hours (ሰዓታት)",
-      importance: Notifications.AndroidImportance.HIGH,
+      importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 300, 200, 300],
       lightColor: "#C89D42",
       enableVibrate: true,
@@ -119,7 +135,7 @@ export async function setupNotificationChannels(): Promise<void> {
 
     await Notifications.setNotificationChannelAsync(FASTING_CHANNEL, {
       name: "Fasting Alarms & Break Times",
-      importance: Notifications.AndroidImportance.HIGH,
+      importance: Notifications.AndroidImportance.MAX,
       lightColor: "#C89D42",
       enableVibrate: true,
       enableLights: true,

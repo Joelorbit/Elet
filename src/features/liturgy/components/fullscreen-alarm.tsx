@@ -11,8 +11,8 @@ export function FullscreenAlarmModal({ visible, onClose, language }: { visible: 
     if (visible) {
       Animated.loop(
         Animated.sequence([
-          Animated.timing(pulseAnim, { toValue: 1.2, duration: 500, useNativeDriver: true }),
-          Animated.timing(pulseAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1.15, duration: 800, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
         ])
       ).start();
       
@@ -28,40 +28,75 @@ export function FullscreenAlarmModal({ visible, onClose, language }: { visible: 
   return (
     <Modal visible={visible} animationType="slide" transparent={false}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Animated.View style={{ transform: [{ scale: pulseAnim }], marginBottom: 40 }}>
-          <View style={[styles.bellCircle, { backgroundColor: colors.primaryContainer, borderColor: colors.primary }]}>
-            <LucideIcon name="bell-ring" size={64} color={colors.primary} />
-          </View>
-        </Animated.View>
-        
-        <Text tone="display" style={[styles.time, { color: colors.text }]}>
-          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </Text>
-        <Text tone="title" style={[styles.title, { color: colors.text }]}>
-          {language === 'am' ? 'የጸሎት ሰዓት ደርሷል' : 'Time for Prayer'}
-        </Text>
-        
-        <Pressable 
-          onPress={onClose}
-          style={({ pressed }) => [
-            styles.dismissBtn,
-            { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 }
-          ]}
-        >
-          <Text tone="title" style={styles.dismissText}>
-            {language === 'am' ? 'ጸሎት ጀምር' : 'Dismiss / Pray'}
+        <View style={styles.topSection}>
+          <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+            <View style={[styles.bellCircle, { backgroundColor: colors.primaryContainer, borderColor: colors.primary }]}>
+              <LucideIcon name="bell-ring" size={56} color={colors.primary} />
+            </View>
+          </Animated.View>
+        </View>
+
+        <View style={styles.midSection}>
+          <Text tone="display" style={[styles.time, { color: colors.text }]}>
+            {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </Text>
-        </Pressable>
+          <Text tone="title" style={[styles.title, { color: colors.primary }]}>
+            {language === 'am' ? 'የጸሎት ሰዓት ደርሷል' : 'Canonical Prayer Time'}
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.muted }]}>
+            {language === 'am' ? 'ጸሎትዎን ለመጀመር ዝግጁ ነዎት?' : 'It is time for your scheduled devotion.'}
+          </Text>
+        </View>
+        
+        <View style={styles.bottomSection}>
+          <Pressable 
+            onPress={() => {
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+              onClose();
+            }}
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 }
+            ]}
+          >
+            <LucideIcon name="check-circle-2" size={20} color="#FFFFFF" />
+            <Text tone="title" style={styles.primaryBtnText}>
+              {language === 'am' ? 'ጸሎት ጀምር (Start)' : 'Begin Prayer'}
+            </Text>
+          </Pressable>
+
+          <Pressable 
+            onPress={() => {
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+              onClose();
+            }}
+            style={({ pressed }) => [
+              styles.secondaryBtn,
+              { backgroundColor: colors.secondary, borderColor: colors.border, opacity: pressed ? 0.6 : 1 }
+            ]}
+          >
+            <LucideIcon name="moon" size={18} color={colors.text} />
+            <Text tone="title" style={[styles.secondaryBtnText, { color: colors.text }]}>
+              {language === 'am' ? 'አቋርጥ / ዝጋ' : 'Dismiss'}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  bellCircle: { width: 140, height: 140, borderRadius: 70, borderWidth: 4, justifyContent: 'center', alignItems: 'center' },
-  time: { fontSize: 48, fontWeight: '900', marginBottom: 8 },
-  title: { fontSize: 24, fontWeight: '700', marginBottom: 60 },
-  dismissBtn: { paddingVertical: 18, paddingHorizontal: 40, borderRadius: 30, elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 4 },
-  dismissText: { color: '#fff', fontSize: 18, fontWeight: '800' }
+  container: { flex: 1, padding: 32, justifyContent: 'space-between' },
+  topSection: { flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 40 },
+  bellCircle: { width: 120, height: 120, borderRadius: 60, borderWidth: 3, justifyContent: 'center', alignItems: 'center' },
+  midSection: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  time: { fontSize: 56, fontWeight: '800', marginBottom: 12, letterSpacing: -1 },
+  title: { fontSize: 22, fontWeight: '800', marginBottom: 8, textAlign: 'center' },
+  subtitle: { fontSize: 15, fontWeight: '500', textAlign: 'center', lineHeight: 22 },
+  bottomSection: { flex: 1, justifyContent: 'flex-end', gap: 16, paddingBottom: 20 },
+  primaryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, paddingVertical: 18, borderRadius: 20, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4 },
+  primaryBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  secondaryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16, borderRadius: 20, borderWidth: 1 },
+  secondaryBtnText: { fontSize: 15, fontWeight: '700' }
 });

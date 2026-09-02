@@ -21,7 +21,7 @@ import {
   useAppColors,
 } from "@/src/theme/app-ui";
 import { useAppStore } from "@/src/features/settings/store/app-store";
-import { sendTestNotificationNow, openAlarmSettings, openOverlaySettings } from "@/src/features/settings/utils/reminders";
+import { sendTestNotificationNow, openAlarmSettings, openOverlaySettings, openBatterySettings } from "@/src/features/settings/utils/reminders";
 import { translate } from "@/src/shared/utils/i18n";
 import { promptUpdateCheck, type ReleaseInfo } from "@/src/shared/utils/update-checker";
 import type { AppLockMode, AutoLockTimeout, ThemeMode } from "@/src/types/app";
@@ -381,73 +381,73 @@ export default function SettingsScreen() {
               </View>
             </View>
 
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
+            <View style={{ gap: 8, marginTop: 8 }}>
               <Pressable
-                onPress={async () => {
+                onPress={() => {
                   void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
                   setShowFullscreenAlarm(true);
                 }}
-                style={{ flex: 1, backgroundColor: colors.primary, paddingVertical: 10, borderRadius: 10, alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 6 }}
+                style={{ backgroundColor: colors.primary, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, alignItems: "center", flexDirection: "row", justifyContent: "space-between" }}
               >
-                <LucideIcon name="bell" size={16} color="#FFFFFF" strokeWidth={2.4} />
-                <Text tone="title" style={{ fontSize: 12, fontWeight: "800", color: "#FFFFFF" }}>
-                  {language === "am" ? "ሙሉ ገጽ ደወል ሙከራ" : "Test Fullscreen"}
-                </Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                  <LucideIcon name="bell-ring" size={20} color="#FFFFFF" strokeWidth={2.5} />
+                  <Text tone="title" style={{ fontSize: 13, fontWeight: "800", color: "#FFFFFF" }}>
+                    {language === "am" ? "ሙሉ ገጽ ደወል ሙከራ (Test Alarm)" : "Test Fullscreen Alarm"}
+                  </Text>
+                </View>
+                <LucideIcon name="chevron-right" size={18} color="#FFFFFF" />
               </Pressable>
+
               {Platform.OS === "android" && (
                 <Pressable
                   onPress={() => {
                     void openAlarmSettings();
                   }}
-                  style={{ flex: 1, backgroundColor: colors.gold, paddingVertical: 10, borderRadius: 10, alignItems: "center", justifyContent: "center" }}
+                  style={{ backgroundColor: colors.gold, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, alignItems: "center", flexDirection: "row", justifyContent: "space-between" }}
                 >
-                  <Text tone="title" style={{ fontSize: 12, color: "#FFFFFF", fontWeight: "800" }}>
-                    {language === "am" ? "የስልክ ፈቃድ" : "Alarm Settings"}
-                  </Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                    <LucideIcon name="clock" size={20} color="#FFFFFF" strokeWidth={2.5} />
+                    <Text tone="title" style={{ fontSize: 13, fontWeight: "800", color: "#FFFFFF" }}>
+                      {language === "am" ? "የደወል ፈቃድ (Exact Alarms)" : "Exact Alarm Settings"}
+                    </Text>
+                  </View>
+                  <LucideIcon name="external-link" size={18} color="#FFFFFF" />
                 </Pressable>
               )}
+
               {Platform.OS === "android" && (
                 <Pressable
                   onPress={() => {
                     void openOverlaySettings();
                   }}
-                  style={{ flex: 1, backgroundColor: colors.primary, paddingVertical: 10, borderRadius: 10, alignItems: "center", justifyContent: "center" }}
+                  style={{ backgroundColor: colors.primaryContainer, borderWidth: 1, borderColor: colors.primary, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, alignItems: "center", flexDirection: "row", justifyContent: "space-between" }}
                 >
-                  <Text tone="title" style={{ fontSize: 12, color: "#FFFFFF", fontWeight: "800" }}>
-                    {language === "am" ? "በሌሎች ላይ አሳይ" : "Overlay Settings"}
-                  </Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                    <LucideIcon name="layers" size={20} color={colors.primary} strokeWidth={2.5} />
+                    <Text tone="title" style={{ fontSize: 13, fontWeight: "800", color: colors.primary }}>
+                      {language === "am" ? "በሌሎች ላይ አሳይ (Overlay)" : "Draw Over Other Apps"}
+                    </Text>
+                  </View>
+                  <LucideIcon name="external-link" size={18} color={colors.primary} />
                 </Pressable>
               )}
 
-
-              <Pressable
-                onPress={() => {
-                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-                  Alert.alert(
-                    language === "am" ? "የባትሪ ቁጠባ መመሪያ" : "Battery Optimization Guide",
-                    language === "am"
-                      ? "የጸሎት ደወሎች ስልክዎ ተዘግቶ በተኛበት ሰዓት እንዳይቋረጡ፣ በስልክዎ የባትሪ ቅንብር ውስጥ ለዕለት (Elet) 'Unrestricted / ያለገደብ' የሚለውን ፈቃድ ይስጡ።"
-                      : "To ensure prayer alarms ring reliably when the screen is locked, set Elet battery usage to 'Unrestricted / Don't Optimize' in Android device settings."
-                  );
-                }}
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                  borderWidth: 1,
-                  paddingVertical: 10,
-                  borderRadius: 10,
-                }}
-              >
-                <LucideIcon name="sparkle" size={16} color={colors.primary} />
-                <Text tone="title" style={{ fontSize: 12, fontWeight: "800", color: colors.text }}>
-                  {language === "am" ? "የባትሪ መመሪያ" : "Battery Tip"}
-                </Text>
-              </Pressable>
+              {Platform.OS === "android" && (
+                <Pressable
+                  onPress={() => {
+                    void openBatterySettings();
+                  }}
+                  style={{ backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, alignItems: "center", flexDirection: "row", justifyContent: "space-between" }}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                    <LucideIcon name="battery-charging" size={20} color={colors.text} strokeWidth={2.5} />
+                    <Text tone="title" style={{ fontSize: 13, fontWeight: "700", color: colors.text }}>
+                      {language === "am" ? "ባትሪ ያለገደብ (Unrestricted)" : "Battery Optimization"}
+                    </Text>
+                  </View>
+                  <LucideIcon name="external-link" size={18} color={colors.muted} />
+                </Pressable>
+              )}
             </View>
           </View>
         )}
