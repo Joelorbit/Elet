@@ -52,15 +52,6 @@ export async function requestNotificationPermissions(): Promise<boolean> {
       isGranted = request.granted || request.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL || false;
     }
 
-    if (isGranted && Platform.OS === "android") {
-      try {
-        await Notifications.requestPermissionsAsync({
-          android: { alarm: true } as never,
-        });
-      } catch {
-        // ignore
-      }
-    }
     return isGranted;
   } catch {
     return false;
