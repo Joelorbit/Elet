@@ -39,23 +39,48 @@ export async function requestNotificationPermissions(): Promise<boolean> {
 
   try {
     const settings = await Notifications.getPermissionsAsync();
-    if (settings.granted || settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL) {
-      return true;
+    let isGranted = settings.granted || settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
+    
+    if (!isGranted) {
+      const request = await Notifications.requestPermissionsAsync({
+        ios: {
+          allowAlert: true,
+          allowBadge: true,
+          allowSound: true,
+        },
+      });
+      isGranted = request.granted || request.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL || false;
     }
-    const request = await Notifications.requestPermissionsAsync({
-      ios: {
-        allowAlert: true,
-        allowBadge: true,
-        allowSound: true,
-      },
-    });
-    return (
-      request.granted ||
-      request.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL ||
-      false
-    );
+
+    if (isGranted && Platform.OS === "android") {
+      try {
+        await Notifications.requestPermissionsAsync({
+          android: { alarm: true } as never,
+        });
+      } catch {
+        // ignore
+      }
+    }
+    return isGranted;
   } catch {
     return false;
+  }
+}
+
+export async function openAlarmSettings() {
+  if (Platform.OS === "android") {
+    try {
+      // expo-intent-launcher doesn't have REQUEST_SCHEDULE_EXACT_ALARM typed directly, so we use string
+      const IntentLauncher = await import("expo-intent-launcher");
+      await IntentLauncher.startActivityAsync("android.settings.REQUEST_SCHEDULE_EXACT_ALARM");
+    } catch {
+      try {
+        const IntentLauncher = await import("expo-intent-launcher");
+        await IntentLauncher.startActivityAsync(IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS, {
+          data: "package:me.eyuel.elet"
+        });
+      } catch {}
+    }
   }
 }
 

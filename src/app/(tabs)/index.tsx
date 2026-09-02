@@ -99,6 +99,7 @@ export default function TodayScreen() {
         language={language}
         breakFastHour={fastingPreferences?.breakFastHour ?? 15}
         breakFastMinute={fastingPreferences?.breakFastMinute ?? 0}
+        hasFastingTargetSet={fastingPreferences?.hasFastingTargetSet ?? false}
         date={now}
       />
 

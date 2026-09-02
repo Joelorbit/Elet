@@ -23,6 +23,7 @@ export interface CustomFastPlan {
   targetDays: number;
   breakFastHour: number; // e.g. 15 for 3:00 PM
   breakFastMinute: number;
+  hasFastingTargetSet?: boolean;
   notes?: string;
   completedDates: string[];
   isActive: boolean;
@@ -75,6 +76,7 @@ export interface PrayerRoutine {
 export interface FastingPreferences {
   breakFastHour: number; // e.g. 15 for 3:00 PM (9:00 local Ethiopian time)
   breakFastMinute: number;
+  hasFastingTargetSet?: boolean;
   fastingReminderEnabled: boolean;
   customRules: string[];
   personalVowNote: string;

@@ -19,6 +19,7 @@ import type {
 } from "@/src/types/app";
 import { formatDateKey } from "@/src/features/streaks/utils/streaks";
 import { syncAllAppReminders } from "@/src/features/settings/utils/reminders";
+import { AppState } from "react-native";
 
 const STORAGE_KEY = "@elet_state_v3";
 
@@ -165,6 +166,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 const DEFAULT_FASTING: FastingPreferences = {
   breakFastHour: 15,
   breakFastMinute: 0,
+  hasFastingTargetSet: false,
   fastingReminderEnabled: true,
   customRules: [],
   personalVowNote: "",
@@ -307,15 +309,28 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   // Automatically keep device notifications in sync with settings, routines & fasts
   useEffect(() => {
     if (!isReady || !preferences.onboardingComplete) return;
-    const timer = setTimeout(() => {
+
+    const doSync = () => {
       void syncAllAppReminders({
         preferences,
         prayers,
         readingPlans,
         fastingPreferences,
       });
-    }, 1000);
-    return () => clearTimeout(timer);
+    };
+
+    const timer = setTimeout(doSync, 1000);
+
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (nextAppState === "active") {
+        doSync();
+      }
+    });
+
+    return () => {
+      clearTimeout(timer);
+      subscription.remove();
+    };
   }, [
     isReady,
     preferences.onboardingComplete,

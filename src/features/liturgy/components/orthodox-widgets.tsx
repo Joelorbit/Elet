@@ -105,6 +105,7 @@ interface FastingTimerWidgetProps {
   language: AppLanguage;
   breakFastHour?: number;
   breakFastMinute?: number;
+  hasFastingTargetSet?: boolean;
   date?: Date;
 }
 
@@ -115,6 +116,7 @@ export function FastingTimerWidget({
   language,
   breakFastHour = 15,
   breakFastMinute = 0,
+  hasFastingTargetSet = false,
   date = new Date(),
 }: FastingTimerWidgetProps) {
   const colors = useAppColors();
@@ -160,20 +162,29 @@ export function FastingTimerWidget({
           </View>
           <Pill
             label={
-              fastingStatus.isFast
+              fastingStatus.isFast && hasFastingTargetSet
                 ? `${breakFastHour > 12 ? breakFastHour - 12 : breakFastHour}:${String(breakFastMinute).padStart(2, "0")} ${breakFastHour >= 12 ? "PM" : "AM"}`
+                : fastingStatus.isFast
+                ? (language === "am" ? "መፍቻ አልተወሰነም" : "Not set")
                 : language === "am"
                 ? "ፍስክ"
                 : "Free"
             }
-            tone={fastingStatus.isFast ? "gold" : "muted"}
+            tone={fastingStatus.isFast && hasFastingTargetSet ? "gold" : "muted"}
           />
         </View>
 
         {fastingStatus.isFast ? (
           <View style={styles.timerRow}>
             <View style={styles.countdownBox}>
-              {isCompleted ? (
+              {!hasFastingTargetSet ? (
+                <View style={styles.setTargetCta}>
+                  <LucideIcon name="clock" size={18} color={colors.primary} />
+                  <Text style={[styles.setTargetCtaText, { color: colors.primary }]}>
+                    {language === "am" ? "የጾም መፍቻ ሰዓት አልተቀመጠም — ይምረጡ" : "No fasting target set — tap to set"}
+                  </Text>
+                </View>
+              ) : isCompleted ? (
                 <View style={styles.completedBox}>
                   <LucideIcon name="check-circle" size={22} color={colors.primary} strokeWidth={2.4} />
                   <Text style={[styles.completedText, { color: colors.primary }]}>

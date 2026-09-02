@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import {
   Modal,
   Platform,
@@ -199,7 +199,29 @@ export function RollerTimePickerModal({
           {/* 3D Cylinder Roller Dial Container */}
           <View style={[styles.rollerContainer, { backgroundColor: colors.background, borderColor: colors.border }]}>
             {/* Column 1: Hours Roller */}
-            <View style={styles.rollerColumn}>
+            <View
+              style={styles.rollerColumn}
+              onStartShouldSetResponder={() => true}
+              onMoveShouldSetResponder={() => true}
+              onResponderGrant={(e) => {
+                hourDragStart.current = e.nativeEvent.pageY;
+              }}
+              onResponderMove={(e) => {
+                if (hourDragStart.current === null) return;
+                const dy = hourDragStart.current - e.nativeEvent.pageY;
+                // ITEM_HEIGHT is 46, we use 30 as threshold for easier swipe
+                if (Math.abs(dy) >= 30) {
+                  const steps = Math.floor(Math.abs(dy) / 30);
+                  for (let i = 0; i < steps; i++) {
+                    dy > 0 ? cycleHour("down") : cycleHour("up");
+                  }
+                  hourDragStart.current = e.nativeEvent.pageY;
+                }
+              }}
+              onResponderRelease={() => {
+                hourDragStart.current = null;
+              }}
+            >
               <Pressable
                 onPress={() => cycleHour("up")}
                 style={({ pressed }) => [styles.rollerArrow, { opacity: pressed ? 0.5 : 0.9 }]}
@@ -249,7 +271,28 @@ export function RollerTimePickerModal({
             </View>
 
             {/* Column 2: Minutes Roller */}
-            <View style={styles.rollerColumn}>
+            <View
+              style={styles.rollerColumn}
+              onStartShouldSetResponder={() => true}
+              onMoveShouldSetResponder={() => true}
+              onResponderGrant={(e) => {
+                minuteDragStart.current = e.nativeEvent.pageY;
+              }}
+              onResponderMove={(e) => {
+                if (minuteDragStart.current === null) return;
+                const dy = minuteDragStart.current - e.nativeEvent.pageY;
+                if (Math.abs(dy) >= 30) {
+                  const steps = Math.floor(Math.abs(dy) / 30);
+                  for (let i = 0; i < steps; i++) {
+                    dy > 0 ? cycleMinute("down") : cycleMinute("up");
+                  }
+                  minuteDragStart.current = e.nativeEvent.pageY;
+                }
+              }}
+              onResponderRelease={() => {
+                minuteDragStart.current = null;
+              }}
+            >
               <Pressable
                 onPress={() => cycleMinute("up")}
                 style={({ pressed }) => [styles.rollerArrow, { opacity: pressed ? 0.5 : 0.9 }]}

@@ -20,7 +20,7 @@ import {
   useAppColors,
 } from "@/src/theme/app-ui";
 import { useAppStore } from "@/src/features/settings/store/app-store";
-import { sendTestNotificationNow } from "@/src/features/settings/utils/reminders";
+import { sendTestNotificationNow, openAlarmSettings } from "@/src/features/settings/utils/reminders";
 import { translate } from "@/src/shared/utils/i18n";
 import { promptUpdateCheck, type ReleaseInfo } from "@/src/shared/utils/update-checker";
 import type { AppLockMode, AutoLockTimeout, ThemeMode } from "@/src/types/app";
@@ -393,22 +393,25 @@ export default function SettingsScreen() {
                     );
                   }
                 }}
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
-                  backgroundColor: colors.primary,
-                  paddingVertical: 10,
-                  borderRadius: 10,
-                }}
+                style={{ flex: 1, backgroundColor: colors.primary, paddingVertical: 10, borderRadius: 10, alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 6 }}
               >
                 <LucideIcon name="bell" size={16} color="#FFFFFF" strokeWidth={2.4} />
                 <Text tone="title" style={{ fontSize: 12, fontWeight: "800", color: "#FFFFFF" }}>
                   {language === "am" ? "ደወል አሰማ" : "Test Chime"}
                 </Text>
               </Pressable>
+              {Platform.OS === "android" && (
+                <Pressable
+                  onPress={() => {
+                    void openAlarmSettings();
+                  }}
+                  style={{ flex: 1, backgroundColor: colors.gold, paddingVertical: 10, borderRadius: 10, alignItems: "center", justifyContent: "center" }}
+                >
+                  <Text tone="title" style={{ fontSize: 12, color: "#FFFFFF", fontWeight: "800" }}>
+                    {language === "am" ? "የስልክ ፈቃድ" : "Alarm Settings"}
+                  </Text>
+                </Pressable>
+              )}
 
               <Pressable
                 onPress={() => {
@@ -663,6 +666,7 @@ export default function SettingsScreen() {
           updateFastingPreferences({
             breakFastHour: val.hour24,
             breakFastMinute: val.minute,
+            hasFastingTargetSet: true,
           });
         }}
         onClose={() => setShowFastingPicker(false)}
