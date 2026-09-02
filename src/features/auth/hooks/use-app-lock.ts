@@ -65,7 +65,7 @@ export async function authenticateBiometrics({
 }
 
 export function useAppLock() {
-  const { preferences } = useAppStore();
+  const { preferences, isReady } = useAppStore();
   const [isLocked, setIsLocked] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
@@ -73,6 +73,7 @@ export function useAppLock() {
   const authInProgress = useRef(false);
   const backgroundTimestamp = useRef<number>(0);
   const cooldownTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasHandledInitialBoot = useRef(false);
 
   // STRICT RULE: Only lock entire app when appLockMode is explicitly "app"
   const shouldLockEntireApp = preferences.appLockMode === "app";
@@ -138,6 +139,17 @@ export function useAppLock() {
       return false;
     }
   }, [preferences.language]);
+
+  // Trigger lock on initial boot when store becomes ready
+  useEffect(() => {
+    if (isReady && !hasHandledInitialBoot.current) {
+      hasHandledInitialBoot.current = true;
+      if (shouldLockEntireApp) {
+        setIsLocked(true);
+        void authenticate();
+      }
+    }
+  }, [isReady, shouldLockEntireApp, authenticate]);
 
   useEffect(() => {
     if (!shouldLockEntireApp) {
