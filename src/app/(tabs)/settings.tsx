@@ -1,3 +1,6 @@
+import { cacheDirectory, writeAsStringAsync, readAsStringAsync, EncodingType } from "expo-file-system/legacy";
+import { shareAsync } from "expo-sharing";
+import { getDocumentAsync } from "expo-document-picker";
 import { FullscreenAlarmModal } from "@/src/features/liturgy/components/fullscreen-alarm";
 import React, { useState } from "react";
 import { Alert, Platform, Pressable, Share, StyleSheet, Switch, View } from "react-native";
@@ -28,7 +31,7 @@ import { promptUpdateCheck, type ReleaseInfo } from "@/src/shared/utils/update-c
 import type { AppLockMode, AutoLockTimeout, ThemeMode } from "@/src/types/app";
 
 export default function SettingsScreen() {
-  const { preferences, fastingPreferences, setLanguage, updatePreferences, updateFastingPreferences, clearAllData } = useAppStore();
+  const { preferences, fastingPreferences, setLanguage, updatePreferences, updateFastingPreferences, clearAllData, importBackupData } = useAppStore();
   const colors = useAppColors();
   const language = preferences.language;
   const t = (key: Parameters<typeof translate>[1]) => translate(language, key);
@@ -126,12 +129,41 @@ export default function SettingsScreen() {
     try {
       const raw = await AsyncStorage.getItem("@elet_state_v3");
       if (!raw) return;
-      await Share.share({
-        title: "Elet Backup",
-        message: raw,
-      });
+      const parsed = JSON.parse(raw);
+      const prettyJson = JSON.stringify(parsed, null, 2);
+      const fileUri = (cacheDirectory as string) + 'elet_backup.json';
+      await writeAsStringAsync(fileUri, prettyJson, { encoding: EncodingType.UTF8 });
+      await shareAsync(fileUri, { UTI: 'public.json', mimeType: 'application/json', dialogTitle: 'Export Elet Backup' });
     } catch {
-      // ignore
+      Alert.alert("Error", language === "am" ? "ውሂብዎን መላክ አልተቻለም።" : "Failed to export data.");
+    }
+  };
+
+  const handleImportData = async () => {
+    try {
+      const res = await getDocumentAsync({ type: ['application/json', '*/*'], copyToCacheDirectory: true });
+      if (res.canceled || !res.assets || res.assets.length === 0) return;
+      
+      const fileContent = await readAsStringAsync(res.assets[0].uri, { encoding: EncodingType.UTF8 });
+      const parsedData = JSON.parse(fileContent);
+      
+      Alert.alert(
+        language === "am" ? "ውሂብ አስገባ" : "Import Data",
+        language === "am" ? "በእርግጥ ውሂብዎን ማደስ ይፈልጋሉ? ይህ አሁን ያለውን ውሂብ ይቀይረዋል።" : "Are you sure you want to restore from this backup? This will overwrite your current data.",
+        [
+          { text: language === "am" ? "ሰርዝ" : "Cancel", style: "cancel" },
+          { 
+            text: language === "am" ? "አስገባ (Import)" : "Import", 
+            style: "destructive",
+            onPress: async () => {
+              await importBackupData(parsedData);
+              Alert.alert(language === "am" ? "✅ ተሳክቷል" : "✅ Success", language === "am" ? "ውሂብዎ ተሳክቶ ገብቷል!" : "Data restored successfully!");
+            }
+          }
+        ]
+      );
+    } catch {
+      Alert.alert("Error", language === "am" ? "ትክክለኛ የ JSON ፋይል አይደለም።" : "Invalid backup file.");
     }
   };
 
@@ -635,6 +667,14 @@ export default function SettingsScreen() {
           detail={language === "am" ? "JSON ፋይል ወደ ሌላ መሣሪያ" : "Share a JSON backup file"}
           onPress={() => { void handleExportData(); }}
         />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+        <SettingRow
+          icon="upload"
+          title={language === "am" ? "ውሂብ አስገባ" : "Import Data"}
+          detail={language === "am" ? "ከ JSON ፋይል ወደነበረበት መልስ" : "Restore from a JSON backup file"}
+          onPress={() => { void handleImportData(); }}
+        />
+
       </Card>
 
       {/* Creator Credit */}

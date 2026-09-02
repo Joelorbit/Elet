@@ -221,6 +221,7 @@ interface AppStoreContextType {
   togglePrayForIntercession: (id: string) => void;
   deleteIntercession: (id: string) => void;
   clearAllData: () => Promise<void>;
+  importBackupData: (data: Partial<AppStateData>) => Promise<void>;
 }
 
 const AppStoreContext = createContext<AppStoreContextType | null>(null);
@@ -630,6 +631,35 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     setIntercessions((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
+  const importBackupData = useCallback(async (data: Partial<AppStateData>) => {
+    if (data.preferences) setPreferences(data.preferences);
+    if (data.prayers) setPrayers(data.prayers);
+    if (data.readingPlans) setReadingPlans(data.readingPlans);
+    if (data.fastingPreferences) setFastingPreferences(data.fastingPreferences);
+    if (data.spiritualFather) setSpiritualFather(data.spiritualFather);
+    if (data.readingProgress) setReadingProgress(data.readingProgress);
+    if (data.dailyPracticeDates) setDailyPracticeDates(data.dailyPracticeDates);
+    if (data.notes) setNotes(data.notes);
+    if (data.confessionSessions) setConfessionSessions(data.confessionSessions);
+    if (data.intercessions) setIntercessions(data.intercessions);
+    
+    const dataToStore: AppStateData = {
+      preferences: data.preferences ?? preferences,
+      prayers: data.prayers ?? prayers,
+      readingPlans: data.readingPlans ?? readingPlans,
+      fastingPreferences: data.fastingPreferences ?? fastingPreferences,
+      spiritualFather: data.spiritualFather ?? spiritualFather,
+      readingProgress: data.readingProgress ?? readingProgress,
+      dailyPracticeDates: data.dailyPracticeDates ?? dailyPracticeDates,
+      notes: data.notes ?? notes,
+      confessionSessions: data.confessionSessions ?? confessionSessions,
+      intercessions: data.intercessions ?? intercessions,
+    };
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
+    } catch {}
+  }, [preferences, prayers, readingPlans, fastingPreferences, spiritualFather, readingProgress, dailyPracticeDates, notes, confessionSessions, intercessions]);
+
   const clearAllData = useCallback(async () => {
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
@@ -687,6 +717,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       togglePrayForIntercession,
       deleteIntercession,
       clearAllData,
+      importBackupData,
     }),
     [
       preferences,
@@ -728,6 +759,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       togglePrayForIntercession,
       deleteIntercession,
       clearAllData,
+      importBackupData,
     ]
   );
 

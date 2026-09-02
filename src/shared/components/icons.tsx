@@ -34,6 +34,7 @@ import {
   Globe as LucideGlobe,
   Bell as LucideBell,
   Download as LucideDownload,
+  Upload as LucideUpload,
   RefreshCw as LucideRefreshCw,
   Star as LucideStar,
   Flame as LucideFlame,
@@ -110,6 +111,7 @@ export type IconName =
   | "notifications"
   | "notifications-none"
   | "download"
+  | "upload"
   | "cloud-download"
   | "refresh"
   | "system-update"
@@ -181,6 +183,7 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   notifications: LucideBell,
   "notifications-none": LucideBell,
   download: LucideDownload,
+  upload: LucideUpload,
   "cloud-download": LucideDownload,
   refresh: LucideRefreshCw,
   "system-update": LucideRefreshCw,
