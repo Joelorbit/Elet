@@ -56,6 +56,8 @@ export function RollerTimePickerModal({
 
   const [selectedHour, setSelectedHour] = useState<number>(initial12Hour);
   const [selectedMinute, setSelectedMinute] = useState<number>(initialMinute);
+  const hourDragStart = useRef<number | null>(null);
+  const minuteDragStart = useRef<number | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">(initialPeriod);
 
   // Additional Alarm Options
