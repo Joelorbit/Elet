@@ -1,14 +1,48 @@
 import React, { useEffect } from 'react';
 import { Modal, View, StyleSheet, Pressable, Animated } from 'react-native';
+import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
 import { AppText as Text, LucideIcon, useAppColors } from '@/src/theme/app-ui';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 
-export function FullscreenAlarmModal({ visible, onClose, language }: { visible: boolean, onClose: () => void, language: 'am' | 'en' }) {
+export function FullscreenAlarmModal({
+  visible,
+  onClose,
+  language,
+  titleAm,
+  titleEn,
+  subtitleAm,
+  subtitleEn,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  language: 'am' | 'en';
+  titleAm?: string;
+  titleEn?: string;
+  subtitleAm?: string;
+  subtitleEn?: string;
+}) {
   const colors = useAppColors();
   const pulseAnim = React.useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
+    let player: AudioPlayer | null = null;
+
+    async function startAlarmSound() {
+      try {
+        await setAudioModeAsync({
+          playsInSilentMode: true,
+          shouldRouteThroughEarpiece: false,
+        });
+        player = createAudioPlayer(require('@/assets/sounds/alarm_bell.wav'));
+        player.loop = true;
+        player.volume = 1.0;
+        player.play();
+      } catch {
+        // Fallback gracefully to haptics if audio is unavailable
+      }
+    }
+
     if (visible) {
       Animated.loop(
         Animated.sequence([
@@ -16,15 +50,29 @@ export function FullscreenAlarmModal({ visible, onClose, language }: { visible: 
           Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
         ])
       ).start();
-      
+
       const interval = setInterval(() => {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
       }, 1000);
-      return () => clearInterval(interval);
+
+      void startAlarmSound();
+
+      return () => {
+        clearInterval(interval);
+        try {
+          if (player) {
+            player.pause();
+            player.remove();
+          }
+        } catch {}
+      };
     }
   }, [visible, pulseAnim]);
 
   if (!visible) return null;
+
+  const displayTitle = language === 'am' ? (titleAm || 'የጸሎት ሰዓት ደርሷል') : (titleEn || 'Canonical Prayer Time');
+  const displaySubtitle = language === 'am' ? (subtitleAm || 'ጸሎትዎን ለመጀመር ዝግጁ ነዎት?') : (subtitleEn || 'It is time for your scheduled devotion.');
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false}>
@@ -42,10 +90,10 @@ export function FullscreenAlarmModal({ visible, onClose, language }: { visible: 
             {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </Text>
           <Text tone="title" style={[styles.title, { color: colors.primary }]}>
-            {language === 'am' ? 'የጸሎት ሰዓት ደርሷል' : 'Canonical Prayer Time'}
+            {displayTitle}
           </Text>
           <Text style={[styles.subtitle, { color: colors.muted }]}>
-            {language === 'am' ? 'ጸሎትዎን ለመጀመር ዝግጁ ነዎት?' : 'It is time for your scheduled devotion.'}
+            {displaySubtitle}
           </Text>
         </View>
         

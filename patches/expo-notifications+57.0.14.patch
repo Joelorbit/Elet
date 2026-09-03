@@ -1,0 +1,118 @@
+diff --git a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/ExpoNotificationBuilder.kt b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/ExpoNotificationBuilder.kt
+index 610d303..eee6edd 100644
+--- a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/ExpoNotificationBuilder.kt
++++ b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/ExpoNotificationBuilder.kt
+@@ -23,6 +23,7 @@ import expo.modules.notifications.notifications.model.TextInputNotificationActio
+ import expo.modules.notifications.service.NotificationsService
+ import expo.modules.notifications.service.NotificationsService.Companion.createNotificationResponseIntent
+ import expo.modules.notifications.service.delegates.SharedPreferencesNotificationCategoriesStore
++import expo.modules.notifications.notifications.triggers.ChannelAwareTrigger
+ import java.io.IOException
+ import kotlin.math.max
+ import kotlin.math.min
+@@ -139,13 +140,45 @@ open class ExpoNotificationBuilder(
+ 
+     val defaultAction =
+       NotificationAction(NotificationResponse.DEFAULT_ACTION_IDENTIFIER, null, true)
+-    builder.setContentIntent(
+-      createNotificationResponseIntent(
+-        context,
+-        notification,
+-        defaultAction
+-      )
++    val responseIntent = createNotificationResponseIntent(
++      context,
++      notification,
++      defaultAction
+     )
++    builder.setContentIntent(responseIntent)
++
++    val bodyJson = content.body
++    val alarmMode = bodyJson?.optString("alarmMode")
++    val channelId = (notification.notificationRequest.trigger as? ChannelAwareTrigger)?.channelId
++    val isFullAlarm = alarmMode == "full_alarm" || (alarmMode != "notification_only" && (
++      channelId?.contains("alarm") == true ||
++      channelId?.contains("prayer") == true ||
++      channelId?.contains("fasting") == true ||
++      channelId?.contains("daily") == true
++    ))
++
++    if (isFullAlarm) {
++      val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
++        addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)
++        putExtra("full_screen_alarm", true)
++        putExtra("alarmMode", "full_alarm")
++        putExtra("title", content.title)
++        putExtra("body", content.text)
++      }
++      if (launchIntent != null) {
++        val fullScreenPendingIntent = android.app.PendingIntent.getActivity(
++          context,
++          notification.notificationRequest.identifier.hashCode(),
++          launchIntent,
++          android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
++        )
++        builder.setFullScreenIntent(fullScreenPendingIntent, true)
++      }
++      builder.setCategory(NotificationCompat.CATEGORY_ALARM)
++      builder.priority = NotificationCompat.PRIORITY_MAX
++      builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
++      builder.setSound(android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI)
++    }
+ 
+     if (notificationContent.containsImage()) {
+       val bitmap = notificationContent.getImage(context)
+diff --git a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt
+index 38f6fba..37791fc 100644
+--- a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt
++++ b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt
+@@ -20,6 +20,7 @@ import expo.modules.notifications.notifications.model.Notification
+ import expo.modules.notifications.notifications.model.NotificationContent
+ import expo.modules.notifications.notifications.model.NotificationRequest
+ import expo.modules.notifications.notifications.presentation.builders.ExpoNotificationBuilder
++import expo.modules.notifications.notifications.triggers.ChannelAwareTrigger
+ import expo.modules.notifications.service.interfaces.PresentationDelegate
+ import kotlinx.coroutines.CoroutineScope
+ import kotlinx.coroutines.Dispatchers
+@@ -110,6 +111,41 @@ open class ExpoPresentationDelegate(
+         getNotifyId(notification.notificationRequest),
+         androidNotification
+       )
++
++      try {
++        val bodyJson = notification.notificationRequest.content.body
++        val alarmMode = bodyJson?.optString("alarmMode")
++        val channelId = (notification.notificationRequest.trigger as? ChannelAwareTrigger)?.channelId
++        val isFullAlarm = alarmMode == "full_alarm" || (alarmMode != "notification_only" && (
++          channelId?.contains("alarm") == true ||
++          channelId?.contains("prayer") == true ||
++          channelId?.contains("fasting") == true ||
++          channelId?.contains("daily") == true
++        ))
++
++        if (isFullAlarm) {
++          val canDraw = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
++            Settings.canDrawOverlays(context)
++          } else {
++            true
++          }
++
++          if (canDraw) {
++            val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
++              addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)
++              putExtra("full_screen_alarm", true)
++              putExtra("alarmMode", "full_alarm")
++              putExtra("title", notification.notificationRequest.content.title)
++              putExtra("body", notification.notificationRequest.content.text)
++            }
++            if (launchIntent != null) {
++              context.startActivity(launchIntent)
++            }
++          }
++        }
++      } catch (e: Exception) {
++        Log.e("expo-notifications", "Failed to launch full screen alarm activity over other apps", e)
++      }
+     }
+   }
+ 

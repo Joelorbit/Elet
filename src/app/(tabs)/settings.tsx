@@ -26,7 +26,7 @@ import {
   useAppColors,
 } from "@/src/theme/app-ui";
 import { useAppStore } from "@/src/features/settings/store/app-store";
-import { sendTestNotificationNow, openAlarmSettings, openOverlaySettings, openBatterySettings } from "@/src/features/settings/utils/reminders";
+import { sendTestNotificationNow, scheduleTestAlarmInSeconds, openAlarmSettings, openOverlaySettings, openBatterySettings } from "@/src/features/settings/utils/reminders";
 import { translate } from "@/src/shared/utils/i18n";
 import { promptUpdateCheck, type ReleaseInfo } from "@/src/shared/utils/update-checker";
 import type { AppLockMode, AutoLockTimeout, ThemeMode } from "@/src/types/app";
@@ -444,6 +444,33 @@ export default function SettingsScreen() {
                 </View>
                 <LucideIcon name="chevron-right" size={18} color="#FFFFFF" />
               </Pressable>
+
+              <Pressable
+                onPress={async () => {
+                  void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+                  const ok = await scheduleTestAlarmInSeconds(5, language);
+                  if (ok) {
+                    Alert.alert(
+                      language === "am" ? "የ5 ሰከንድ ደወል ተይዟል!" : "5-Second Alarm Scheduled!",
+                      language === "am"
+                        ? "አሁን መተግበሪያውን ዘግተው ወደ ሌላ መተግበሪያ (ወይም Home Screen) ይሂዱ። በ5 ሰከንድ ውስጥ ደውሎ በላዩ ላይ ይከፈታል።"
+                        : "Now minimize Elet and switch to another app or home screen. It will ring and pop up over other apps in 5 seconds."
+                    );
+                  } else {
+                    Alert.alert("Error", "Could not schedule alarm.");
+                  }
+                }}
+                style={{ backgroundColor: colors.gold, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, alignItems: "center", flexDirection: "row", justifyContent: "space-between" }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                  <LucideIcon name="timer" size={20} color="#FFFFFF" strokeWidth={2.5} />
+                  <Text tone="title" style={{ fontSize: 13, fontWeight: "800", color: "#FFFFFF" }}>
+                    {language === "am" ? "የ5 ሰከንድ ደወል ሙከራ (በሌሎች ላይ)" : "Test Alarm Over Other Apps (5s)"}
+                  </Text>
+                </View>
+                <LucideIcon name="chevron-right" size={18} color="#FFFFFF" />
+              </Pressable>
+
               <Pressable
                 onPress={async () => {
                   void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -786,6 +813,7 @@ export default function SettingsScreen() {
         visible={showReminderPicker}
         initialHour24={preferences.reminderHour ?? 7}
         initialMinute={preferences.reminderMinute ?? 30}
+        initialMode={preferences.reminderAlarmMode ?? "full_alarm"}
         language={language}
         title={language === "am" ? "የዕለታዊ ማሳሰቢያ ሰዓት" : "Set Daily Reminder Time"}
         onSave={(val) => {
@@ -794,6 +822,7 @@ export default function SettingsScreen() {
             reminderMinute: val.minute,
             dailyReminderEnabled: true,
             reminderRepeatDays: val.repeatDays,
+            reminderAlarmMode: val.mode ?? "full_alarm",
           });
         }}
         onClose={() => setShowReminderPicker(false)}
@@ -805,6 +834,7 @@ export default function SettingsScreen() {
         visible={showFastingPicker}
         initialHour24={fastingPreferences?.breakFastHour ?? 15}
         initialMinute={fastingPreferences?.breakFastMinute ?? 0}
+        initialMode={fastingPreferences?.alarmMode ?? "full_alarm"}
         language={language}
         title={language === "am" ? "የጾም መፍቻ ሰዓት" : "Set Fasting Break Time"}
         onSave={(val) => {
@@ -812,6 +842,7 @@ export default function SettingsScreen() {
             breakFastHour: val.hour24,
             breakFastMinute: val.minute,
             hasFastingTargetSet: true,
+            alarmMode: val.mode ?? "full_alarm",
           });
         }}
         onClose={() => setShowFastingPicker(false)}
@@ -820,6 +851,8 @@ export default function SettingsScreen() {
         visible={showFullscreenAlarm}
         onClose={() => setShowFullscreenAlarm(false)}
         language={language}
+        titleAm={language === "am" ? "የጸሎት ሰዓት ደርሷል" : "Canonical Prayer Time"}
+        titleEn="Canonical Prayer Time"
       />
 
     </AppScreen>

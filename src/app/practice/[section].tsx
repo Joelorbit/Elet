@@ -61,6 +61,7 @@ export default function PracticeSectionScreen() {
   const [customPrayerHour, setCustomPrayerHour] = useState("6");
   const [customPrayerMinute, setCustomPrayerMinute] = useState("0");
   const [customPrayerRepeatDays, setCustomPrayerRepeatDays] = useState<number[]>([0, 1, 2, 3, 4, 5, 6]);
+  const [customPrayerAlarmMode, setCustomPrayerAlarmMode] = useState<"full_alarm" | "notification_only">("full_alarm");
 
   // Custom Reading Form State
   const [showAddReading, setShowAddReading] = useState(false);
@@ -74,6 +75,7 @@ export default function PracticeSectionScreen() {
   const [readingHour, setReadingHour] = useState("8");
   const [readingMinute, setReadingMinute] = useState("0");
   const [readingRepeatDays, setReadingRepeatDays] = useState<number[]>([0, 1, 2, 3, 4, 5, 6]);
+  const [readingAlarmMode, setReadingAlarmMode] = useState<"full_alarm" | "notification_only">("notification_only");
 
   // Custom Fast Form State
   const [showAddFast, setShowAddFast] = useState(false);
@@ -82,6 +84,7 @@ export default function PracticeSectionScreen() {
   const [fastDays, setFastDays] = useState("5");
   const [fastHour, setFastHour] = useState("15");
   const [fastMinute, setFastMinute] = useState("0");
+  const [fastAlarmMode, setFastAlarmMode] = useState<"full_alarm" | "notification_only">("full_alarm");
   const [fastNotes, setFastNotes] = useState("");
 
   // Confession form state
@@ -106,6 +109,7 @@ export default function PracticeSectionScreen() {
       hour: parseInt(customPrayerHour, 10) || 7,
       minute: parseInt(customPrayerMinute, 10) || 0,
       repeatDays: customPrayerRepeatDays,
+      alarmMode: customPrayerAlarmMode,
     });
     setCustomPrayerTitleAm("");
     setCustomPrayerTitleEn("");
@@ -121,6 +125,9 @@ export default function PracticeSectionScreen() {
       themeEn: readingThemeEn.trim() || "Custom Reading",
       reference: readingRef.trim() || "Holy Scripture",
       hour: parseInt(readingHour, 10) || 8,
+      minute: parseInt(readingMinute, 10) || 0,
+      repeatDays: readingRepeatDays,
+      alarmMode: readingAlarmMode,
     });
     setReadingTitleAm("");
     setReadingTitleEn("");
@@ -139,7 +146,9 @@ export default function PracticeSectionScreen() {
       endDateKey: formatDateKey(endDate),
       targetDays,
       breakFastHour: parseInt(fastHour, 10) || 15,
-      breakFastMinute: 0,
+      breakFastMinute: parseInt(fastMinute, 10) || 0,
+      hasFastingTargetSet: true,
+      alarmMode: fastAlarmMode,
       notes: fastNotes.trim() || undefined,
     });
     setFastTitle("");
@@ -247,6 +256,7 @@ export default function PracticeSectionScreen() {
               visible={showPrayerTimePicker}
               initialHour24={parseInt(customPrayerHour, 10) || 6}
               initialMinute={parseInt(customPrayerMinute, 10) || 0}
+              initialMode={customPrayerAlarmMode}
               language={language}
               title={language === "am" ? "የጸሎት ሰዓት ማስተካከያ" : "Set Prayer Time"}
               onSave={(val) => {
@@ -256,6 +266,7 @@ export default function PracticeSectionScreen() {
                 setCustomPrayerHour(String(val.hour24));
                 setCustomPrayerMinute(String(val.minute));
                 if (val.repeatDays) setCustomPrayerRepeatDays(val.repeatDays);
+                if (val.mode) setCustomPrayerAlarmMode(val.mode);
                 setCustomPrayerTimeLabel(label);
               }}
               onClose={() => setShowPrayerTimePicker(false)}
@@ -407,12 +418,14 @@ export default function PracticeSectionScreen() {
               visible={showReadingTimePicker}
               initialHour24={parseInt(readingHour, 10) || 8}
               initialMinute={parseInt(readingMinute, 10) || 0}
+              initialMode={readingAlarmMode}
               language={language}
               title={language === "am" ? "የንባብ ሰዓት ማስተካከያ" : "Set Reading Reminder Time"}
               onSave={(val) => {
                 setReadingHour(String(val.hour24));
                 setReadingMinute(String(val.minute));
                 if (val.repeatDays) setReadingRepeatDays(val.repeatDays);
+                if (val.mode) setReadingAlarmMode(val.mode);
               }}
               onClose={() => setShowReadingTimePicker(false)}
             />
@@ -551,11 +564,13 @@ export default function PracticeSectionScreen() {
               visible={showFastTimePicker}
               initialHour24={parseInt(fastHour, 10) || 15}
               initialMinute={parseInt(fastMinute, 10) || 0}
+              initialMode={fastAlarmMode}
               language={language}
               title={language === "am" ? "የጾም መፍቻ ሰዓት ማስተካከያ" : "Set Fast Break Time"}
               onSave={(val) => {
                 setFastHour(String(val.hour24));
                 setFastMinute(String(val.minute));
+                if (val.mode) setFastAlarmMode(val.mode);
               }}
               onClose={() => setShowFastTimePicker(false)}
             />

@@ -198,11 +198,11 @@ interface AppStoreContextType {
   setLanguage: (language: AppLanguage) => void;
   updatePreferences: (patch: Partial<UserPreferences>) => void;
   togglePrayerCompletion: (prayerId: string) => void;
-  addCustomPrayer: (prayer: { titleAm: string; titleEn: string; timeLabel: string; hour: number; minute?: number; repeatDays?: number[] }) => void;
+  addCustomPrayer: (prayer: { titleAm: string; titleEn: string; timeLabel: string; hour: number; minute?: number; repeatDays?: number[]; alarmMode?: "full_alarm" | "notification_only" }) => void;
   updatePrayer: (id: string, patch: Partial<PrayerRoutine>) => void;
   deletePrayer: (id: string) => void;
   toggleReadingCompletion: (readingId: string) => void;
-  addCustomReading: (reading: { titleAm: string; titleEn: string; themeAm?: string; themeEn?: string; reference: string; hour?: number; minute?: number }) => void;
+  addCustomReading: (reading: { titleAm: string; titleEn: string; themeAm?: string; themeEn?: string; reference: string; hour?: number; minute?: number; repeatDays?: number[]; alarmMode?: "full_alarm" | "notification_only" }) => void;
   deleteReading: (id: string) => void;
   updateReading: (id: string, patch: Partial<CustomReadingPlan>) => void;
   createCustomFastPlan: (plan: Omit<CustomFastPlan, "id" | "createdAt" | "completedDates" | "isActive">) => void;
@@ -382,6 +382,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       hour,
       minute = 0,
       repeatDays = [0, 1, 2, 3, 4, 5, 6],
+      alarmMode = "full_alarm",
     }: {
       titleAm: string;
       titleEn: string;
@@ -389,6 +390,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       hour: number;
       minute?: number;
       repeatDays?: number[];
+      alarmMode?: "full_alarm" | "notification_only";
     }) => {
       const newPrayer: PrayerRoutine = {
         id: `prayer-custom-${Date.now()}`,
@@ -400,6 +402,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
         reminderMinute: minute,
         reminderEnabled: true,
         repeatDays,
+        alarmMode,
       };
       setPrayers((prev) => [...prev, newPrayer]);
     },
@@ -439,6 +442,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       hour = 8,
       minute = 0,
       repeatDays = [0, 1, 2, 3, 4, 5, 6],
+      alarmMode = "notification_only",
     }: {
       titleAm: string;
       titleEn: string;
@@ -448,6 +452,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       hour?: number;
       minute?: number;
       repeatDays?: number[];
+      alarmMode?: "full_alarm" | "notification_only";
     }) => {
       const newReading: CustomReadingPlan = {
         id: `reading-custom-${Date.now()}`,
@@ -460,6 +465,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
         reminderMinute: minute,
         reminderEnabled: true,
         repeatDays,
+        alarmMode,
       };
       setReadingPlans((prev) => [...prev, newReading]);
     },

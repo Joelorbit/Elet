@@ -13,6 +13,7 @@ import { LucideIcon, type IconName } from "@/src/shared/components/icons";
 import { useAppColors } from "@/src/theme/theme-provider";
 import { AppText as Text, Card, Pill } from "@/src/theme/app-ui";
 import { sendTestNotificationNow } from "@/src/features/settings/utils/reminders";
+import { FullscreenAlarmModal } from "@/src/features/liturgy/components/fullscreen-alarm";
 import type { AppLanguage } from "@/src/types/app";
 
 export interface RollerTimeValue {
@@ -28,6 +29,7 @@ interface RollerTimePickerModalProps {
   visible: boolean;
   initialHour24?: number;
   initialMinute?: number;
+  initialMode?: "full_alarm" | "notification_only";
   language?: AppLanguage;
   title?: string;
   onSave: (value: RollerTimeValue) => void;
@@ -43,6 +45,7 @@ export function RollerTimePickerModal({
   visible,
   initialHour24 = 7,
   initialMinute = 0,
+  initialMode,
   language = "am",
   title,
   onSave,
@@ -61,7 +64,8 @@ export function RollerTimePickerModal({
   const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">(initialPeriod);
 
   // Additional Alarm Options
-  const [alarmMode, setAlarmMode] = useState<"full_alarm" | "notification_only">("full_alarm");
+  const [alarmMode, setAlarmMode] = useState<"full_alarm" | "notification_only">(initialMode ?? "full_alarm");
+  const [showFullscreenAlarmTest, setShowFullscreenAlarmTest] = useState(false);
   const [vibrateEnabled, setVibrateEnabled] = useState(true);
   const [repeatType, setRepeatType] = useState<"everyday" | "weekdays" | "weekends" | "once_a_week">("everyday");
   const [soundType, setSoundType] = useState<"sacred_chime" | "church_bell" | "gentle_morning">("sacred_chime");
@@ -73,8 +77,11 @@ export function RollerTimePickerModal({
       setSelectedHour(h);
       setSelectedMinute(initialMinute);
       setSelectedPeriod(p);
+      if (initialMode) {
+        setAlarmMode(initialMode);
+      }
     }
-  }, [visible, initialHour24, initialMinute]);
+  }, [visible, initialHour24, initialMinute, initialMode]);
 
   // Compute 24-hour value
   const current24Hour = useMemo(() => {
@@ -550,11 +557,15 @@ export function RollerTimePickerModal({
                   <Pressable
                     onPress={async () => {
                       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-                      await sendTestNotificationNow(language);
+                      if (alarmMode === "full_alarm") {
+                        setShowFullscreenAlarmTest(true);
+                      } else {
+                        await sendTestNotificationNow(language);
+                      }
                     }}
                     style={[styles.previewButton, { backgroundColor: colors.secondary, borderColor: colors.border }]}
                   >
-                    <LucideIcon name="bell" size={14} color={colors.primary} />
+                    <LucideIcon name={alarmMode === "full_alarm" ? "bell-ring" : "bell"} size={14} color={colors.primary} />
                     <Text tone="label" style={{ fontSize: 11, fontWeight: "800", color: colors.primary }}>
                       {language === "am" ? "ሙከራ" : "Test"}
                     </Text>
@@ -581,6 +592,15 @@ export function RollerTimePickerModal({
           </ScrollView>
         </View>
       </View>
+      <FullscreenAlarmModal
+        visible={showFullscreenAlarmTest}
+        onClose={() => setShowFullscreenAlarmTest(false)}
+        language={language}
+        titleAm={title || (language === "am" ? "የጸሎት ሰዓት ደርሷል" : "Canonical Prayer Time")}
+        titleEn={title || "Canonical Prayer Time"}
+        subtitleAm={language === "am" ? "የሙከራ ደወል በተሳካ ሁኔታ እየሠራ ነው" : "Test alarm is working properly"}
+        subtitleEn="Test alarm is working properly"
+      />
     </Modal>
   );
 }

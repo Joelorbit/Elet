@@ -24,6 +24,7 @@ export interface CustomFastPlan {
   breakFastHour: number; // e.g. 15 for 3:00 PM
   breakFastMinute: number;
   hasFastingTargetSet?: boolean;
+  alarmMode?: "full_alarm" | "notification_only";
   notes?: string;
   completedDates: string[];
   isActive: boolean;
@@ -39,6 +40,7 @@ export interface CustomReadingPlan {
   reminderMinute?: number;
   reminderEnabled?: boolean;
   repeatDays?: number[];
+  alarmMode?: "full_alarm" | "notification_only";
   completedDates: string[];
   custom: boolean;
 }
@@ -52,6 +54,7 @@ export interface UserPreferences {
   reminderHour: number;
   reminderMinute?: number;
   reminderRepeatDays?: number[];
+  reminderAlarmMode?: "full_alarm" | "notification_only";
   feastReminderEnabled?: boolean;
   feastReminderHour?: number;
   prayerRemindersEnabled?: boolean;
@@ -74,12 +77,14 @@ export interface PrayerRoutine {
   reminderMinute?: number;
   reminderEnabled?: boolean;
   repeatDays?: number[];
+  alarmMode?: "full_alarm" | "notification_only";
 }
 
 export interface FastingPreferences {
   breakFastHour: number; // e.g. 15 for 3:00 PM (9:00 local Ethiopian time)
   breakFastMinute: number;
   hasFastingTargetSet?: boolean;
+  alarmMode?: "full_alarm" | "notification_only";
   fastingReminderEnabled: boolean;
   customRules: string[];
   personalVowNote: string;

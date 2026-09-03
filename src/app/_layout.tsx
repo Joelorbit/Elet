@@ -28,10 +28,25 @@ import {
   NotoSansEthiopic_900Black,
 } from "@expo-google-fonts/noto-sans-ethiopic";
 
-import { AppStoreProvider } from "@/src/features/settings/store/app-store";
+import { AppStoreProvider, useAppStore } from "@/src/features/settings/store/app-store";
 import { ThemeProvider, useAppColors } from "@/src/theme/theme-provider";
 import { useAppLock } from "@/src/features/auth/hooks/use-app-lock";
 import { AppLockScreen } from "@/src/features/auth/components/app-lock-screen";
+import * as Notifications from "expo-notifications";
+import { FullscreenAlarmModal } from "@/src/features/liturgy/components/fullscreen-alarm";
+
+if (Platform.OS !== "web") {
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+  } catch {}
+}
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -95,6 +110,46 @@ function WebContainer({ children }: { children: React.ReactNode }) {
 
 function MainAppShell() {
   const { isLocked, isAuthenticating, authenticate } = useAppLock();
+  const { preferences } = useAppStore();
+  const [activeAlarm, setActiveAlarm] = React.useState<{
+    titleAm: string;
+    titleEn: string;
+    subtitleAm?: string;
+    subtitleEn?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+
+    const subReceived = Notifications.addNotificationReceivedListener((notification) => {
+      const { data, title, body } = notification.request.content;
+      if (data?.alarmMode === "full_alarm") {
+        setActiveAlarm({
+          titleAm: (data?.titleAm as string) || title || "የጸሎት ሰዓት ደርሷል",
+          titleEn: (data?.titleEn as string) || title || "Canonical Prayer Time",
+          subtitleAm: (data?.subtitleAm as string) || body || "",
+          subtitleEn: (data?.subtitleEn as string) || body || "",
+        });
+      }
+    });
+
+    const subResponse = Notifications.addNotificationResponseReceivedListener((response) => {
+      const { data, title, body } = response.notification.request.content;
+      if (data?.alarmMode === "full_alarm") {
+        setActiveAlarm({
+          titleAm: (data?.titleAm as string) || title || "የጸሎት ሰዓት ደርሷል",
+          titleEn: (data?.titleEn as string) || title || "Canonical Prayer Time",
+          subtitleAm: (data?.subtitleAm as string) || body || "",
+          subtitleEn: (data?.subtitleEn as string) || body || "",
+        });
+      }
+    });
+
+    return () => {
+      subReceived.remove();
+      subResponse.remove();
+    };
+  }, []);
 
   return (
     <WebContainer>
@@ -117,6 +172,15 @@ function MainAppShell() {
         <Stack.Screen name="note-editor" options={{ presentation: "modal" }} />
         <Stack.Screen name="about" options={{ presentation: "modal" }} />
       </Stack>
+      <FullscreenAlarmModal
+        visible={!!activeAlarm}
+        onClose={() => setActiveAlarm(null)}
+        language={preferences.language}
+        titleAm={activeAlarm?.titleAm}
+        titleEn={activeAlarm?.titleEn}
+        subtitleAm={activeAlarm?.subtitleAm}
+        subtitleEn={activeAlarm?.subtitleEn}
+      />
     </WebContainer>
   );
 }

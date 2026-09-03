@@ -1,7 +1,7 @@
 {
   "name": "elet",
   "main": "expo-router/entry",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "dependencies": {
     "@expo-google-fonts/lexend": "^0.4.1",
     "@expo-google-fonts/noto-sans-ethiopic": "^0.4.2",
@@ -11,6 +11,7 @@
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~57.0.16",
     "expo-application": "~57.0.2",
+    "expo-audio": "~57.0.4",
     "expo-build-properties": "~57.0.14",
     "expo-clipboard": "~57.0.1",
     "expo-constants": "~57.0.14",
@@ -49,6 +50,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "patch-package": "^8.0.0",
     "tsx": "^4.23.12",
     "typescript": "~6.0.3"
   },
@@ -59,7 +61,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "tsx tests/liturgical-engine.test.ts"
+    "test": "tsx tests/liturgical-engine.test.ts",
+    "postinstall": "patch-package"
   },
   "private": true
 }
