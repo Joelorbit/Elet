@@ -3,7 +3,7 @@
     "name": "Elet",
     "displayName": "Elet • ዕለት",
     "slug": "elet",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "elet",
@@ -17,7 +17,7 @@
     },
     "android": {
       "package": "me.eyuel.elet",
-      "versionCode": 4,
+      "versionCode": 5,
       "adaptiveIcon": {
         "backgroundColor": "#8E4424",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

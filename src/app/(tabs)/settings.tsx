@@ -5,7 +5,7 @@ import { shareAsync } from "expo-sharing";
 import { getDocumentAsync } from "expo-document-picker";
 import * as Clipboard from "expo-clipboard";
 import { FullscreenAlarmModal } from "@/src/features/liturgy/components/fullscreen-alarm";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Alert, Platform, Pressable, Share, StyleSheet, Switch, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
@@ -41,6 +41,25 @@ export default function SettingsScreen() {
   const [showReminderPicker, setShowReminderPicker] = useState(false);
   const [showFastingPicker, setShowFastingPicker] = useState(false);
   const [showAlarmDiagnostic, setShowAlarmDiagnostic] = useState(false);
+  const [alarmPermStatus, setAlarmPermStatus] = useState<{ notifications: boolean; overlay: boolean } | null>(null);
+
+  const checkAlarmPermissions = useCallback(async () => {
+    if (Platform.OS !== 'android') {
+      setAlarmPermStatus({ notifications: true, overlay: true });
+      return;
+    }
+    try {
+      const Notifications = await import('expo-notifications');
+      const settings = await Notifications.getPermissionsAsync();
+      const notifGranted = settings.granted;
+      // For overlay, we can't check programmatically without native module,
+      // so we just show the button to check in system settings
+      setAlarmPermStatus({ notifications: notifGranted, overlay: true });
+    } catch {
+      setAlarmPermStatus({ notifications: false, overlay: false });
+    }
+  }, []);
+
   const [showFullscreenAlarm, setShowFullscreenAlarm] = useState(false);
   const [updateReleaseInfo, setUpdateReleaseInfo] = useState<ReleaseInfo | null>(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -396,7 +415,11 @@ export default function SettingsScreen() {
               ? "የስልክ ፈቃድ፣ የቻናልና የደወል ድምፅ ትክክለኛነት ፍተሻ"
               : "Verify exact alarm permissions, sound channels & battery status"
           }
-          onPress={() => setShowAlarmDiagnostic((prev) => !prev)}
+          onPress={() => {
+            const next = !showAlarmDiagnostic;
+            setShowAlarmDiagnostic(next);
+            if (next) void checkAlarmPermissions();
+          }}
         />
 
         {showAlarmDiagnostic && (
@@ -410,7 +433,7 @@ export default function SettingsScreen() {
                 <Text style={{ fontSize: 12, color: colors.text }}>
                   {language === "am" ? "• የስርዓት ማሳወቂያ ፈቃድ" : "• System Notification Permission"}
                 </Text>
-                <Pill label={language === "am" ? "ተፈቅዷል ✓" : "Granted ✓"} tone="primary" />
+                <Pill label={alarmPermStatus?.notifications ? (language === "am" ? "ተፈቅዷል ✓" : "Granted ✓") : (language === "am" ? "አልተፈቀደም ✗" : "Not Granted ✗")} tone={alarmPermStatus?.notifications ? "primary" : "danger"} />
               </View>
 
               <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>

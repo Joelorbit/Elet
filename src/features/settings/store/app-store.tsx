@@ -211,6 +211,7 @@ interface AppStoreContextType {
   updateFastingPreferences: (patch: Partial<FastingPreferences>) => void;
   togglePenanceItem: (penanceId: string) => void;
   addPenanceItem: (title: string, targetCount?: number) => void;
+  updatePenanceItem: (id: string, patch: Partial<PenanceItem>) => void;
   deletePenanceItem: (id: string) => void;
   setDailyReminder: (enabled: boolean, hour?: number, minute?: number) => Promise<boolean>;
   saveNote: (note: Omit<JournalNote, "id" | "createdAt" | "updatedAt"> & { id?: string }) => void;
@@ -546,6 +547,15 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const updatePenanceItem = useCallback((id: string, patch: Partial<PenanceItem>) => {
+    setSpiritualFather((prev) => ({
+      ...prev,
+      penanceItems: prev.penanceItems.map((item) =>
+        item.id === id ? { ...item, ...patch } : item
+      ),
+    }));
+  }, []);
+
   const deletePenanceItem = useCallback((id: string) => {
     setSpiritualFather((prev) => ({
       ...prev,
@@ -719,6 +729,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       updateFastingPreferences,
       togglePenanceItem,
       addPenanceItem,
+      updatePenanceItem,
       deletePenanceItem,
       setDailyReminder,
       saveNote,
@@ -761,6 +772,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       updateFastingPreferences,
       togglePenanceItem,
       addPenanceItem,
+      updatePenanceItem,
       deletePenanceItem,
       setDailyReminder,
       saveNote,

@@ -75,7 +75,7 @@ export function FullscreenAlarmModal({
   const displaySubtitle = language === 'am' ? (subtitleAm || 'ጸሎትዎን ለመጀመር ዝግጁ ነዎት?') : (subtitleEn || 'It is time for your scheduled devotion.');
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false}>
+    <Modal visible={visible} animationType="slide" transparent={false} statusBarTranslucent={true}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.topSection}>
           <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>

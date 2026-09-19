@@ -44,8 +44,11 @@ export default function PracticeSectionScreen() {
     deleteCustomFastPlan,
     togglePenanceItem,
     addPenanceItem,
+    updatePenanceItem,
     deletePenanceItem,
     saveConfessionSession,
+    confessionSessions,
+    deleteConfessionSession,
   } = useAppStore();
   const colors = useAppColors();
   const language = preferences.language;
@@ -99,6 +102,10 @@ export default function PracticeSectionScreen() {
   const [showAddPenance, setShowAddPenance] = useState(false);
   const [newPenanceTitle, setNewPenanceTitle] = useState("");
   const [newPenanceCount, setNewPenanceCount] = useState("41");
+  const [editingPenanceId, setEditingPenanceId] = useState<string | null>(null);
+  const [editPenanceTitle, setEditPenanceTitle] = useState("");
+
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
 
   const handleAddCustomPrayer = () => {
     if (!customPrayerTitleAm.trim() && !customPrayerTitleEn.trim()) return;
@@ -178,6 +185,7 @@ export default function PracticeSectionScreen() {
 
   const handleSaveConfession = () => {
     saveConfessionSession({
+      id: editingSessionId || undefined,
       preparationDate: todayKey,
       selectedPromptIds: selectedPrompts,
       notes: confessionNotes,
@@ -185,6 +193,22 @@ export default function PracticeSectionScreen() {
       completed: false,
     });
     setConfessionSaved(true);
+    setEditingSessionId(null);
+  };
+
+  const handleLoadSession = (session: ConfessionSession) => {
+    setEditingSessionId(session.id || null);
+    setSelectedPrompts(session.selectedPromptIds || []);
+    setConfessionNotes(session.notes || "");
+    setPriestQuestions(session.questionsForPriest || "");
+    setConfessionSaved(false);
+  };
+
+  const handleSavePenanceEdit = (id: string) => {
+    if (!editPenanceTitle.trim()) return;
+    updatePenanceItem(id, { title: editPenanceTitle.trim() });
+    setEditingPenanceId(null);
+    setEditPenanceTitle("");
   };
 
   const handleAddPenance = () => {
@@ -838,90 +862,161 @@ export default function PracticeSectionScreen() {
           />
 
           <PrimaryButton
-            label={confessionSaved ? (language === "am" ? "ተቀምጧል ✓" : "Saved ✓") : (language === "am" ? "ዝግጅቱን አስቀምጥ" : "Save Preparation")}
+            label={editingSessionId ? (language === "am" ? "አስተካክል ✓" : "Update ✓") : confessionSaved ? (language === "am" ? "ተቀምጧል ✓" : "Saved ✓") : (language === "am" ? "ዝግጅቱን አስቀምጥ" : "Save Preparation")}
             icon="check"
             onPress={handleSaveConfession}
           />
+
+          {/* Saved Sessions List */}
+          {confessionSessions.length > 0 && (
+            <View style={{ gap: 8, marginTop: 16 }}>
+              <SectionHeader title={language === "am" ? "የተቀመጡ የንስሐ ማስታወሻዎች" : "Saved Confession Sessions"} />
+              {confessionSessions.map(session => (
+                <Card key={session.id} style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
+                  <View style={styles.rowBetween}>
+                    <Pressable
+                      onPress={() => handleLoadSession(session)}
+                      style={{ flex: 1, gap: 4 }}
+                    >
+                      <Text tone="title" style={{ fontSize: 14, fontWeight: "800", color: colors.text }}>
+                        {session.preparationDate} • {session.selectedPromptIds?.length || 0} {language === "am" ? "ነጥቦች" : "Items"}
+                      </Text>
+                      {session.notes ? (
+                        <Text style={{ fontSize: 13, color: colors.muted }} numberOfLines={1}>
+                          {session.notes.substring(0, 60)}
+                        </Text>
+                      ) : null}
+                    </Pressable>
+                    <IconButton
+                      icon="trash"
+                      size={34}
+                      color={colors.danger}
+                      backgroundColor={colors.dangerContainer}
+                      accessibilityLabel="Delete Session"
+                      onPress={() => deleteConfessionSession(session.id!)}
+                    />
+                  </View>
+                </Card>
+              ))}
+            </View>
+          )}
+
+          {/* Penance Items Section */}
+          <SectionHeader
+            title={language === "am" ? "የግል የሕሊና ምርመራና ቀኖና" : "Custom Examination Items & Penance"}
+            action={
+              <Pressable onPress={() => setShowAddPenance((prev) => !prev)}>
+                <Text tone="title" style={{ fontSize: 13, color: colors.primary }}>
+                  {showAddPenance ? (language === "am" ? "ዝጋ" : "Close") : (language === "am" ? "+ አዲስ ጨምር" : "+ Add Item")}
+                </Text>
+              </Pressable>
+            }
+          />
+
+          {showAddPenance && (
+            <Card style={{ backgroundColor: colors.surface, borderColor: colors.primary, gap: 10, borderWidth: 1.5 }}>
+              <AppTextInput
+                value={newPenanceTitle}
+                onChangeText={setNewPenanceTitle}
+                placeholder={language === "am" ? "የነጥቡ ስም (ለምሳሌ፡ 41 ስግደት፣ የጾም ሕግጋት)..." : "Item text (e.g. 41 Prostrations)..."}
+              />
+              <AppTextInput
+                value={newPenanceCount}
+                onChangeText={setNewPenanceCount}
+                placeholder={language === "am" ? "ቁጥር (ካለ)..." : "Target Count (optional)..."}
+              />
+              <PrimaryButton
+                label={language === "am" ? "መዝግብ" : "Save Item"}
+                icon="check"
+                onPress={handleAddPenance}
+              />
+            </Card>
+          )}
+
+          <View style={{ gap: 8 }}>
+            {spiritualFather.penanceItems.map((item) => (
+              <Card key={item.id} style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
+                {editingPenanceId === item.id ? (
+                  <View style={styles.rowBetween}>
+                    <AppTextInput
+                      value={editPenanceTitle}
+                      onChangeText={setEditPenanceTitle}
+                      style={{ flex: 1 }}
+                    />
+                    <IconButton
+                      icon="check"
+                      size={34}
+                      color={colors.primary}
+                      backgroundColor={colors.primaryContainer}
+                      accessibilityLabel="Save Edit"
+                      onPress={() => handleSavePenanceEdit(item.id)}
+                    />
+                    <IconButton
+                      icon="x"
+                      size={34}
+                      color={colors.muted}
+                      backgroundColor={colors.surface}
+                      accessibilityLabel="Cancel Edit"
+                      onPress={() => setEditingPenanceId(null)}
+                    />
+                  </View>
+                ) : (
+                  <View style={styles.rowBetween}>
+                    <Pressable
+                      onPress={() => togglePenanceItem(item.id)}
+                      style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 10 }}
+                    >
+                      <View
+                        style={[
+                          styles.promptCheck,
+                          {
+                            borderColor: item.completed ? colors.primary : colors.muted,
+                            backgroundColor: item.completed ? colors.primary : "transparent",
+                          },
+                        ]}
+                      >
+                        {item.completed && <LucideIcon name="check" size={12} color="#FFFFFF" strokeWidth={3} />}
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          tone="title"
+                          style={{
+                            fontSize: 14,
+                            fontWeight: "700",
+                            color: item.completed ? colors.muted : colors.text,
+                            textDecorationLine: item.completed ? "line-through" : "none",
+                          }}
+                        >
+                          {item.title} {item.targetCount ? `(${item.targetCount}x)` : ""}
+                        </Text>
+                      </View>
+                    </Pressable>
+                    <IconButton
+                      icon="edit-2"
+                      size={34}
+                      color={colors.primary}
+                      backgroundColor={colors.primaryContainer}
+                      accessibilityLabel="Edit"
+                      onPress={() => {
+                        setEditingPenanceId(item.id);
+                        setEditPenanceTitle(item.title);
+                      }}
+                    />
+                    <IconButton
+                      icon="trash"
+                      size={34}
+                      color={colors.danger}
+                      backgroundColor={colors.dangerContainer}
+                      accessibilityLabel="Delete"
+                      onPress={() => deletePenanceItem(item.id)}
+                    />
+                  </View>
+                )}
+              </Card>
+            ))}
+          </View>
         </>
       )}
-
-      {/* Penance Items Section */}
-      <SectionHeader
-        title={language === "am" ? "ቀኖናና ስግደት" : "Penance & Prostrations"}
-        action={
-          <Pressable onPress={() => setShowAddPenance((prev) => !prev)}>
-            <Text tone="title" style={{ fontSize: 13, color: colors.primary }}>
-              {showAddPenance ? (language === "am" ? "ዝጋ" : "Close") : (language === "am" ? "+ አዲስ ቀኖና" : "+ Add Penance")}
-            </Text>
-          </Pressable>
-        }
-      />
-
-      {showAddPenance && (
-        <Card style={{ backgroundColor: colors.surface, borderColor: colors.primary, gap: 10, borderWidth: 1.5 }}>
-          <AppTextInput
-            value={newPenanceTitle}
-            onChangeText={setNewPenanceTitle}
-            placeholder={language === "am" ? "የቀኖናው ስም (ለምሳሌ፡ 41 ስግደት)..." : "Penance item (e.g. 41 Prostrations)..."}
-          />
-          <AppTextInput
-            value={newPenanceCount}
-            onChangeText={setNewPenanceCount}
-            placeholder={language === "am" ? "የስግደት ቁጥር (41)..." : "Target Count (41)..."}
-          />
-          <PrimaryButton
-            label={language === "am" ? "ቀኖናውን መዝግብ" : "Save Penance Item"}
-            icon="check"
-            onPress={handleAddPenance}
-          />
-        </Card>
-      )}
-
-      <View style={{ gap: 8 }}>
-        {spiritualFather.penanceItems.map((item) => (
-          <Card key={item.id} style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
-            <View style={styles.rowBetween}>
-              <Pressable
-                onPress={() => togglePenanceItem(item.id)}
-                style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 10 }}
-              >
-                <View
-                  style={[
-                    styles.promptCheck,
-                    {
-                      borderColor: item.completed ? colors.primary : colors.muted,
-                      backgroundColor: item.completed ? colors.primary : "transparent",
-                    },
-                  ]}
-                >
-                  {item.completed && <LucideIcon name="check" size={12} color="#FFFFFF" strokeWidth={3} />}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text
-                    tone="title"
-                    style={{
-                      fontSize: 14,
-                      fontWeight: "700",
-                      color: item.completed ? colors.muted : colors.text,
-                      textDecorationLine: item.completed ? "line-through" : "none",
-                    }}
-                  >
-                    {item.title} {item.targetCount ? `(${item.targetCount}x)` : ""}
-                  </Text>
-                </View>
-              </Pressable>
-              <IconButton
-                icon="trash"
-                size={34}
-                color={colors.danger}
-                backgroundColor={colors.dangerContainer}
-                accessibilityLabel="Delete"
-                onPress={() => deletePenanceItem(item.id)}
-              />
-            </View>
-          </Card>
-        ))}
-      </View>
     </AppScreen>
   );
 }

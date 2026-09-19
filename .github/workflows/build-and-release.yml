@@ -119,16 +119,34 @@ jobs:
           tag_name: ${{ steps.release-tag.outputs.tag }}
           name: "Elet ${{ steps.release-tag.outputs.tag }} (Single Small APK ~30MB)"
           body: |
-            ## 🕊️ Elet • ዕለት — Ethiopian Orthodox Spiritual Companion
-            *Version: `${{ steps.release-tag.outputs.tag }}`*
+            ## 🕊️ Elet • ዕለት v1.3.0 — Ethiopian Orthodox Spiritual Companion
 
-            ### ⚡ Performance & Size Improvements:
-            - **Single Lightweight APK**: Reduced from 109 MB down to **~30 MB** (arm64-v8a target).
-            - **R8 ProGuard Shrinking**: Tree-shaken unused native bytecode and resources.
-            - **100% Offline-First**: Zero cloud tracking, instant local database.
+            ### ✝️ What's New in v1.3.0:
 
-            ### 📱 Download & Install:
-            Download **`Elet-Release.apk`** (~30 MB) to install directly on your Android phone.
+            **Confession & Spiritual Preparation (ንስሐ)**
+            - Full CRUD for confession session notes — create, view, edit, and delete private confession preparations
+            - Saved confession sessions list with tap-to-edit and delete
+            - Custom examination of conscience items — add your own spiritual reflection points
+            - Editable penance items (ቀኖና) with inline title editing
+            - All confession data protected behind biometric authentication (fingerprint / Face ID)
+
+            **Alarm & Notification Fixes**
+            - Fixed Android fullscreen alarm overlay — alarms now properly show over other apps
+            - Live permission status checks in Alarm Diagnostics (notification, exact alarm)
+            - Improved overlay permission guidance with step-by-step instructions
+
+            **Code Quality**
+            - Clean architecture with updatePenanceItem store action
+            - Precise biometric lock for confession-only mode
+            - 100% offline, zero cloud tracking
+
+            ### ⚡ Performance:
+            - **Single Lightweight APK**: ~30 MB (arm64-v8a)
+            - **R8 ProGuard Shrinking**: Tree-shaken unused native code
+            - **100% Offline-First**: All data stays on your device
+
+            ### 📱 Download:
+            Download **`Elet-Release.apk`** (~30 MB) below.
           files: |
             ./release-artifacts/Elet-Release.apk
           draft: false
