@@ -5,6 +5,7 @@ import type {
   AppLanguage,
   AppStateData,
   ConfessionSession,
+  ConfessionTick,
   CustomFastPlan,
   CustomReadingPlan,
   FastingPreferences,
@@ -191,6 +192,7 @@ interface AppStoreContextType {
   dailyPracticeDates: string[];
   notes: JournalNote[];
   confessionSessions: ConfessionSession[];
+  confessionTicks: ConfessionTick[];
   intercessions: Intercession[];
   isReady: boolean;
   confessionLocked: boolean;
@@ -213,10 +215,14 @@ interface AppStoreContextType {
   addPenanceItem: (title: string, targetCount?: number) => void;
   updatePenanceItem: (id: string, patch: Partial<PenanceItem>) => void;
   deletePenanceItem: (id: string) => void;
+  addConfessionTick: (text: string) => void;
+  updateConfessionTick: (id: string, text: string) => void;
+  toggleConfessionTick: (id: string) => void;
+  deleteConfessionTick: (id: string) => void;
   setDailyReminder: (enabled: boolean, hour?: number, minute?: number) => Promise<boolean>;
   saveNote: (note: Omit<JournalNote, "id" | "createdAt" | "updatedAt"> & { id?: string }) => void;
   deleteNote: (id: string) => void;
-  saveConfessionSession: (session: Omit<ConfessionSession, "id" | "createdAt" | "updatedAt"> & { id?: string }) => void;
+  saveConfessionSession: (session: Omit<ConfessionSession, "id" | "createdAt" | "updatedAt"> & { id?: string; title?: string }) => void;
   deleteConfessionSession: (id: string) => void;
   addIntercession: (name: string, intention: string) => void;
   togglePrayForIntercession: (id: string) => void;
@@ -241,6 +247,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [dailyPracticeDates, setDailyPracticeDates] = useState<string[]>([]);
   const [notes, setNotes] = useState<JournalNote[]>([]);
   const [confessionSessions, setConfessionSessions] = useState<ConfessionSession[]>([]);
+  const [confessionTicks, setConfessionTicks] = useState<ConfessionTick[]>([]);
   const [intercessions, setIntercessions] = useState<Intercession[]>([]);
   const [confessionLocked, setConfessionLocked] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -267,6 +274,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
           if (parsed.dailyPracticeDates) setDailyPracticeDates(parsed.dailyPracticeDates);
           if (parsed.notes) setNotes(parsed.notes);
           if (parsed.confessionSessions) setConfessionSessions(parsed.confessionSessions);
+          if (parsed.confessionTicks) setConfessionTicks(parsed.confessionTicks);
           if (parsed.intercessions) setIntercessions(parsed.intercessions);
         }
       } catch {
@@ -291,6 +299,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       dailyPracticeDates,
       notes,
       confessionSessions,
+      confessionTicks,
       intercessions,
     };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore)).catch(() => {});
@@ -305,6 +314,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     dailyPracticeDates,
     notes,
     confessionSessions,
+    confessionTicks,
     intercessions,
   ]);
 
@@ -598,7 +608,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const saveConfessionSession = useCallback(
-    (sessionInput: Omit<ConfessionSession, "id" | "createdAt" | "updatedAt"> & { id?: string }) => {
+    (sessionInput: Omit<ConfessionSession, "id" | "createdAt" | "updatedAt"> & { id?: string; title?: string }) => {
       const now = new Date().toISOString();
       if (sessionInput.id) {
         setConfessionSessions((prev) =>
@@ -619,6 +629,34 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
 
   const deleteConfessionSession = useCallback((id: string) => {
     setConfessionSessions((prev) => prev.filter((s) => s.id !== id));
+  }, []);
+
+  const addConfessionTick = useCallback((text: string) => {
+    if (!text.trim()) return;
+    const newTick: ConfessionTick = {
+      id: `tick-${Date.now()}`,
+      text: text.trim(),
+      completed: false,
+      createdAt: new Date().toISOString(),
+    };
+    setConfessionTicks((prev) => [newTick, ...prev]);
+  }, []);
+
+  const updateConfessionTick = useCallback((id: string, text: string) => {
+    if (!text.trim()) return;
+    setConfessionTicks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, text: text.trim() } : t))
+    );
+  }, []);
+
+  const toggleConfessionTick = useCallback((id: string) => {
+    setConfessionTicks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+    );
+  }, []);
+
+  const deleteConfessionTick = useCallback((id: string) => {
+    setConfessionTicks((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const addIntercession = useCallback((name: string, intention: string) => {
@@ -663,6 +701,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     if (data.dailyPracticeDates) setDailyPracticeDates(data.dailyPracticeDates);
     if (data.notes) setNotes(data.notes);
     if (data.confessionSessions) setConfessionSessions(data.confessionSessions);
+    if (data.confessionTicks) setConfessionTicks(data.confessionTicks);
     if (data.intercessions) setIntercessions(data.intercessions);
     
     const dataToStore: AppStateData = {
@@ -675,12 +714,13 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       dailyPracticeDates: data.dailyPracticeDates ?? dailyPracticeDates,
       notes: data.notes ?? notes,
       confessionSessions: data.confessionSessions ?? confessionSessions,
+      confessionTicks: data.confessionTicks ?? confessionTicks,
       intercessions: data.intercessions ?? intercessions,
     };
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
     } catch {}
-  }, [preferences, prayers, readingPlans, fastingPreferences, spiritualFather, readingProgress, dailyPracticeDates, notes, confessionSessions, intercessions]);
+  }, [preferences, prayers, readingPlans, fastingPreferences, spiritualFather, readingProgress, dailyPracticeDates, notes, confessionSessions, confessionTicks, intercessions]);
 
   const clearAllData = useCallback(async () => {
     try {
@@ -695,6 +735,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     setDailyPracticeDates([]);
     setNotes([]);
     setConfessionSessions([]);
+    setConfessionTicks([]);
     setIntercessions([]);
   }, []);
 
@@ -709,6 +750,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       dailyPracticeDates,
       notes,
       confessionSessions,
+      confessionTicks,
       intercessions,
       isReady,
       confessionLocked,
@@ -731,6 +773,10 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       addPenanceItem,
       updatePenanceItem,
       deletePenanceItem,
+      addConfessionTick,
+      updateConfessionTick,
+      toggleConfessionTick,
+      deleteConfessionTick,
       setDailyReminder,
       saveNote,
       deleteNote,
@@ -752,6 +798,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       dailyPracticeDates,
       notes,
       confessionSessions,
+      confessionTicks,
       intercessions,
       isReady,
       confessionLocked,
@@ -774,6 +821,10 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       addPenanceItem,
       updatePenanceItem,
       deletePenanceItem,
+      addConfessionTick,
+      updateConfessionTick,
+      toggleConfessionTick,
+      deleteConfessionTick,
       setDailyReminder,
       saveNote,
       deleteNote,

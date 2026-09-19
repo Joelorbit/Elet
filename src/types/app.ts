@@ -126,8 +126,16 @@ export interface JournalNote {
   sensitive: boolean;
 }
 
+export interface ConfessionTick {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: string;
+}
+
 export interface ConfessionSession {
   id: string;
+  title?: string;
   preparationDate: string;
   selectedPromptIds: string[];
   notes: string;
@@ -157,6 +165,7 @@ export interface AppStateData {
   dailyPracticeDates: string[];
   notes: JournalNote[];
   confessionSessions: ConfessionSession[];
+  confessionTicks?: ConfessionTick[];
   intercessions: Intercession[];
 }
 

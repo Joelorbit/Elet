@@ -42,6 +42,8 @@ import {
   Landmark as LucideLandmark,
   CreditCard as LucideCreditCard,
   Flame as LucideFlame,
+  Edit2 as LucideEdit2,
+  Pencil as LucidePencil,
 } from "lucide-react-native";
 
 export interface IconProps extends LucideProps {
@@ -125,6 +127,9 @@ export type IconName =
   | "copy"
   | "landmark"
   | "credit-card"
+  | "edit"
+  | "edit-2"
+  | "pencil"
   | "cross";
 
 const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
@@ -201,6 +206,9 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   copy: LucideCopy,
   landmark: LucideLandmark,
   "credit-card": LucideCreditCard,
+  edit: LucideEdit2,
+  "edit-2": LucideEdit2,
+  pencil: LucidePencil,
 };
 
 export function LucideIcon({

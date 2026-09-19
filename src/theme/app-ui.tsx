@@ -600,13 +600,13 @@ export function RadioOption({
 export function AppTextInput({
   value,
   onChangeText,
-  placeholder,
+  placeholder = "",
   multiline = false,
   style,
 }: {
   value: string;
   onChangeText: (value: string) => void;
-  placeholder: string;
+  placeholder?: string;
   multiline?: boolean;
   style?: object;
 }) {

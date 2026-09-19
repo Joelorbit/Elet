@@ -121,6 +121,20 @@ function MainAppShell() {
   useEffect(() => {
     if (Platform.OS === "web") return;
 
+    Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (response) {
+        const { data, title, body } = response.notification.request.content;
+        if (data?.alarmMode === "full_alarm") {
+          setActiveAlarm({
+            titleAm: (data?.titleAm as string) || title || "የጸሎት ሰዓት ደርሷል",
+            titleEn: (data?.titleEn as string) || title || "Canonical Prayer Time",
+            subtitleAm: (data?.subtitleAm as string) || body || "",
+            subtitleEn: (data?.subtitleEn as string) || body || "",
+          });
+        }
+      }
+    }).catch(() => {});
+
     const subReceived = Notifications.addNotificationReceivedListener((notification) => {
       const { data, title, body } = notification.request.content;
       if (data?.alarmMode === "full_alarm") {

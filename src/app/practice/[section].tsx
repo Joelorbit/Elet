@@ -24,6 +24,7 @@ import { FastingTimerWidget } from "@/src/features/liturgy/components/orthodox-w
 import { ScriptureRefPicker } from "@/src/features/bible/components/scripture-ref-picker";
 import { authenticateBiometrics } from "@/src/features/auth/hooks/use-app-lock";
 import { formatDateKey } from "@/src/features/streaks/utils/streaks";
+import type { ConfessionSession, ConfessionTick } from "@/src/types/app";
 
 export default function PracticeSectionScreen() {
   const { section } = useLocalSearchParams<{ section: string }>();
@@ -49,6 +50,11 @@ export default function PracticeSectionScreen() {
     saveConfessionSession,
     confessionSessions,
     deleteConfessionSession,
+    confessionTicks = [],
+    addConfessionTick,
+    updateConfessionTick,
+    toggleConfessionTick,
+    deleteConfessionTick,
   } = useAppStore();
   const colors = useAppColors();
   const language = preferences.language;
@@ -92,11 +98,23 @@ export default function PracticeSectionScreen() {
 
   // Confession form state
   const isLockRequired = preferences.appLockMode === "confession" || preferences.appLockMode === "app";
-  const [confessionLocked, setConfessionLocked] = useState(isLockRequired);
-  const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
-  const [confessionNotes, setConfessionNotes] = useState("");
-  const [priestQuestions, setPriestQuestions] = useState("");
-  const [confessionSaved, setConfessionSaved] = useState(false);
+  const [confessionLocked, setConfessionLocked] = useState(true);
+  const [confessionTab, setConfessionTab] = useState<"notes" | "ticks" | "penance">("notes");
+
+  // Confession Notes CRUD state
+  const [showAddNoteForm, setShowAddNoteForm] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [noteTitle, setNoteTitle] = useState("");
+  const [noteBody, setNoteBody] = useState("");
+  const [notePriestQuestions, setNotePriestQuestions] = useState("");
+  const [noteSavedFeedback, setNoteSavedFeedback] = useState(false);
+
+  // Custom Ticks CRUD state
+  const [showAddTickForm, setShowAddTickForm] = useState(false);
+  const [newTickText, setNewTickText] = useState("");
+  const [editingTickId, setEditingTickId] = useState<string | null>(null);
+  const [editTickText, setEditTickText] = useState("");
+  const [showChurchPrompts, setShowChurchPrompts] = useState(false);
 
   // Penance item state
   const [showAddPenance, setShowAddPenance] = useState(false);
@@ -104,8 +122,6 @@ export default function PracticeSectionScreen() {
   const [newPenanceCount, setNewPenanceCount] = useState("41");
   const [editingPenanceId, setEditingPenanceId] = useState<string | null>(null);
   const [editPenanceTitle, setEditPenanceTitle] = useState("");
-
-  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
 
   const handleAddCustomPrayer = () => {
     if (!customPrayerTitleAm.trim() && !customPrayerTitleEn.trim()) return;
@@ -177,35 +193,71 @@ export default function PracticeSectionScreen() {
     }
   };
 
-  const togglePrompt = (id: string) => {
-    setSelectedPrompts((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    );
-  };
-
-  const handleSaveConfession = () => {
+  const handleSaveConfessionNote = () => {
+    if (!noteBody.trim() && !noteTitle.trim()) return;
     saveConfessionSession({
-      id: editingSessionId || undefined,
+      id: editingNoteId || undefined,
+      title: noteTitle.trim() || (language === "am" ? "የንስሐ ማስታወሻ" : "Confession Note"),
       preparationDate: todayKey,
-      selectedPromptIds: selectedPrompts,
-      notes: confessionNotes,
-      questionsForPriest: priestQuestions,
+      selectedPromptIds: [],
+      notes: noteBody.trim(),
+      questionsForPriest: notePriestQuestions.trim(),
       completed: false,
     });
-    setConfessionSaved(true);
-    setEditingSessionId(null);
+    setNoteTitle("");
+    setNoteBody("");
+    setNotePriestQuestions("");
+    setEditingNoteId(null);
+    setShowAddNoteForm(false);
+    setNoteSavedFeedback(true);
+    setTimeout(() => setNoteSavedFeedback(false), 3000);
   };
 
-  const handleLoadSession = (session: ConfessionSession) => {
-    setEditingSessionId(session.id || null);
-    setSelectedPrompts(session.selectedPromptIds || []);
-    setConfessionNotes(session.notes || "");
-    setPriestQuestions(session.questionsForPriest || "");
-    setConfessionSaved(false);
+  const handleEditConfessionNote = (session: ConfessionSession) => {
+    setEditingNoteId(session.id);
+    setNoteTitle(session.title || "");
+    setNoteBody(session.notes || "");
+    setNotePriestQuestions(session.questionsForPriest || "");
+    setShowAddNoteForm(true);
+  };
+
+  const handleToggleConfessionCompleted = (session: ConfessionSession) => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    saveConfessionSession({
+      id: session.id,
+      title: session.title,
+      preparationDate: session.preparationDate,
+      selectedPromptIds: session.selectedPromptIds || [],
+      notes: session.notes,
+      questionsForPriest: session.questionsForPriest,
+      completed: !session.completed,
+    });
+  };
+
+  const handleAddCustomTick = () => {
+    if (!newTickText.trim()) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    addConfessionTick(newTickText.trim());
+    setNewTickText("");
+    setShowAddTickForm(false);
+  };
+
+  const handleSaveTickEdit = (id: string) => {
+    if (!editTickText.trim()) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    updateConfessionTick(id, editTickText.trim());
+    setEditingTickId(null);
+    setEditTickText("");
+  };
+
+  const handleImportPrompt = (promptText: string) => {
+    addConfessionTick(promptText);
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
   };
 
   const handleSavePenanceEdit = (id: string) => {
     if (!editPenanceTitle.trim()) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     updatePenanceItem(id, { title: editPenanceTitle.trim() });
     setEditingPenanceId(null);
     setEditPenanceTitle("");
@@ -760,261 +812,650 @@ export default function PracticeSectionScreen() {
             {t("confession")}
           </Text>
         </View>
+        {!confessionLocked && (
+          <IconButton
+            icon="lock"
+            accessibilityLabel="Lock Confession"
+            onPress={() => setConfessionLocked(true)}
+          />
+        )}
       </View>
 
       {/* Confession Lock Card */}
       {confessionLocked ? (
-        <Card style={{ backgroundColor: colors.surface, borderColor: colors.gold, padding: 24, gap: 16, alignItems: "center" }}>
+        <Card style={{ backgroundColor: colors.surface, borderColor: colors.gold, padding: 24, gap: 16, alignItems: "center", marginTop: 8 }}>
           <IconCircle icon="lock" color="gold" size={64} />
           <View style={{ alignItems: "center", gap: 4 }}>
             <Text tone="title" style={{ fontSize: 18, fontWeight: "900", color: colors.text, textAlign: "center" }}>
-              {language === "am" ? "የንስሐ ማስታወሻ ተቆልፏል" : "Confession Notes Locked"}
+              {language === "am" ? "የንስሐ ማስታወሻ ተቆልፏል" : "Confession Sanctuary Locked"}
             </Text>
             <Text style={{ fontSize: 13, color: colors.muted, textAlign: "center", lineHeight: 18 }}>
               {language === "am"
-                ? "የንስሐ ዝግጅትዎና የግል ጥያቄዎችዎ በምስጢር ተቆልፈዋል። ለመክፈት አረጋግጡ።"
-                : "Your confession reflection notes and questions for your confessor are encrypted."}
+                ? "የግል የንስሐ ማስታወሻዎችዎና ነጥቦችዎ በምስጢር ተቆልፈዋል። ለመክፈት በጣት አሻራ ወይም በይለፍ ቃል ያረጋግጡ።"
+                : "Your confession reflection notes, sins, and personal checklist are safely encrypted. Authenticate to view."}
             </Text>
           </View>
           <PrimaryButton
-            label={language === "am" ? "በጣት አሻራ / በይለፍ ቃል ክፈት" : "Unlock Confession Prep"}
+            label={language === "am" ? "በጣት አሻራ / በይለፍ ቃል ክፈት" : "Unlock with Biometrics"}
             icon="lock-open"
             onPress={handleUnlockConfession}
           />
         </Card>
       ) : (
         <>
-          {/* Unlocked Confession View */}
-          <Card style={{ backgroundColor: colors.surface, borderColor: colors.border, gap: 10 }}>
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                <IconCircle icon="shield-check" color="primary" size={40} />
-                <View>
+          {/* Unlocked Confession Status Banner */}
+          <Card style={{ backgroundColor: colors.surface, borderColor: colors.border, padding: 12 }}>
+            <View style={styles.rowBetween}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 10, flex: 1 }}>
+                <IconCircle icon="shield-check" color="primary" size={38} />
+                <View style={{ flex: 1 }}>
                   <Text tone="title" style={{ fontSize: 14, fontWeight: "800", color: colors.text }}>
-                    {language === "am" ? "የተከፈተ የንስሐ ዝግጅት" : "Confession Preparation Active"}
+                    {language === "am" ? "የተከፈተ የንስሐ ዝግጅት" : "Confession Vault Active"}
                   </Text>
-                  <Text style={{ fontSize: 12, color: colors.muted }}>
+                  <Text style={{ fontSize: 11, color: colors.muted }}>
                     {language === "am" ? "100% በመሣሪያዎ ብቻ ይቀመጣል" : "100% Local & Encrypted"}
                   </Text>
                 </View>
               </View>
-              <IconButton
-                icon="lock"
-                size={38}
-                accessibilityLabel="Lock"
+              <Pressable
                 onPress={() => setConfessionLocked(true)}
-              />
+                style={{ flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, backgroundColor: colors.secondary }}
+              >
+                <LucideIcon name="lock" size={14} color={colors.primary} />
+                <Text tone="label" style={{ fontSize: 11, fontWeight: "700", color: colors.primary }}>
+                  {language === "am" ? "አሁን ቆልፍ" : "Lock Now"}
+                </Text>
+              </Pressable>
             </View>
           </Card>
 
-          {/* Examination of Conscience Prompts */}
-          <SectionHeader title={language === "am" ? "የሕሊና ምርመራ ነጥቦች" : "Examination of Conscience"} />
-          <View style={{ gap: 8 }}>
-            {confessionPrompts.map((prompt) => {
-              const isSelected = selectedPrompts.includes(prompt.id);
-              return (
-                <Pressable
-                  key={prompt.id}
-                  onPress={() => togglePrompt(prompt.id)}
-                  style={[
-                    styles.promptItem,
-                    {
-                      backgroundColor: isSelected ? colors.primaryContainer : colors.surface,
-                      borderColor: isSelected ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.promptCheck,
-                      {
-                        borderColor: isSelected ? colors.primary : colors.muted,
-                        backgroundColor: isSelected ? colors.primary : "transparent",
-                      },
-                    ]}
-                  >
-                    {isSelected && <LucideIcon name="check" size={12} color="#FFFFFF" strokeWidth={3} />}
-                  </View>
-                  <Text style={[styles.promptText, { color: colors.text }]}>
-                    {prompt.text[language] || prompt.text.en}
-                  </Text>
-                </Pressable>
-              );
-            })}
+          {/* Section Navigation Tabs */}
+          <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
+            <Pressable
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                setConfessionTab("notes");
+              }}
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                alignItems: "center",
+                borderRadius: 12,
+                backgroundColor: confessionTab === "notes" ? colors.primary : colors.secondary,
+                borderWidth: 1,
+                borderColor: confessionTab === "notes" ? colors.primary : colors.border,
+              }}
+            >
+              <Text
+                tone="label"
+                style={{
+                  fontSize: 12,
+                  fontWeight: "800",
+                  color: confessionTab === "notes" ? "#FFFFFF" : colors.text,
+                }}
+              >
+                {language === "am" ? "ማስታወሻ" : "Notes"} ({confessionSessions.length})
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                setConfessionTab("ticks");
+              }}
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                alignItems: "center",
+                borderRadius: 12,
+                backgroundColor: confessionTab === "ticks" ? colors.primary : colors.secondary,
+                borderWidth: 1,
+                borderColor: confessionTab === "ticks" ? colors.primary : colors.border,
+              }}
+            >
+              <Text
+                tone="label"
+                style={{
+                  fontSize: 12,
+                  fontWeight: "800",
+                  color: confessionTab === "ticks" ? "#FFFFFF" : colors.text,
+                }}
+              >
+                {language === "am" ? "ነጥቦች" : "Ticks"} ({confessionTicks.length})
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                setConfessionTab("penance");
+              }}
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                alignItems: "center",
+                borderRadius: 12,
+                backgroundColor: confessionTab === "penance" ? colors.primary : colors.secondary,
+                borderWidth: 1,
+                borderColor: confessionTab === "penance" ? colors.primary : colors.border,
+              }}
+            >
+              <Text
+                tone="label"
+                style={{
+                  fontSize: 12,
+                  fontWeight: "800",
+                  color: confessionTab === "penance" ? "#FFFFFF" : colors.text,
+                }}
+              >
+                {language === "am" ? "ቀኖና" : "Penance"} ({spiritualFather.penanceItems.length})
+              </Text>
+            </Pressable>
           </View>
 
-          {/* Private Notes for Confession */}
-          <SectionHeader title={language === "am" ? "የግል ማስታወሻ" : "Private Reflection Notes"} />
-          <AppTextInput
-            value={confessionNotes}
-            onChangeText={setConfessionNotes}
-            placeholder={language === "am" ? "የግል የንስሐ ማስታወሻ ይጻፉ..." : "Write your private reflections..."}
-            multiline
-          />
+          {/* TAB 1: CONFESSION NOTES (CRUD) */}
+          {confessionTab === "notes" && (
+            <View style={{ gap: 12 }}>
+              <PrimaryButton
+                label={
+                  showAddNoteForm
+                    ? (language === "am" ? "ዝጋ" : "Close")
+                    : (language === "am" ? "+ አዲስ የንስሐ ማስታወሻ ጻፍ" : "+ Write Confession Note")
+                }
+                icon={showAddNoteForm ? "x" : "plus"}
+                tone={showAddNoteForm ? "soft" : "primary"}
+                onPress={() => {
+                  if (showAddNoteForm) {
+                    setShowAddNoteForm(false);
+                    setEditingNoteId(null);
+                    setNoteTitle("");
+                    setNoteBody("");
+                    setNotePriestQuestions("");
+                  } else {
+                    setShowAddNoteForm(true);
+                  }
+                }}
+              />
 
-          {/* Questions for Spiritual Father */}
-          <SectionHeader title={language === "am" ? "ለነፍስ አባት የሚጠየቁ ጥያቄዎች" : "Questions for Spiritual Father"} />
-          <AppTextInput
-            value={priestQuestions}
-            onChangeText={setPriestQuestions}
-            placeholder={language === "am" ? "ለካህኑ የሚቀርቡ ጥያቄዎች..." : "Questions for your confessor..."}
-            multiline
-          />
-
-          <PrimaryButton
-            label={editingSessionId ? (language === "am" ? "አስተካክል ✓" : "Update ✓") : confessionSaved ? (language === "am" ? "ተቀምጧል ✓" : "Saved ✓") : (language === "am" ? "ዝግጅቱን አስቀምጥ" : "Save Preparation")}
-            icon="check"
-            onPress={handleSaveConfession}
-          />
-
-          {/* Saved Sessions List */}
-          {confessionSessions.length > 0 && (
-            <View style={{ gap: 8, marginTop: 16 }}>
-              <SectionHeader title={language === "am" ? "የተቀመጡ የንስሐ ማስታወሻዎች" : "Saved Confession Sessions"} />
-              {confessionSessions.map(session => (
-                <Card key={session.id} style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
-                  <View style={styles.rowBetween}>
-                    <Pressable
-                      onPress={() => handleLoadSession(session)}
-                      style={{ flex: 1, gap: 4 }}
-                    >
-                      <Text tone="title" style={{ fontSize: 14, fontWeight: "800", color: colors.text }}>
-                        {session.preparationDate} • {session.selectedPromptIds?.length || 0} {language === "am" ? "ነጥቦች" : "Items"}
-                      </Text>
-                      {session.notes ? (
-                        <Text style={{ fontSize: 13, color: colors.muted }} numberOfLines={1}>
-                          {session.notes.substring(0, 60)}
-                        </Text>
-                      ) : null}
-                    </Pressable>
-                    <IconButton
-                      icon="trash"
-                      size={34}
-                      color={colors.danger}
-                      backgroundColor={colors.dangerContainer}
-                      accessibilityLabel="Delete Session"
-                      onPress={() => deleteConfessionSession(session.id!)}
-                    />
-                  </View>
+              {showAddNoteForm && (
+                <Card style={{ backgroundColor: colors.surface, borderColor: colors.primary, gap: 10, borderWidth: 1.5 }}>
+                  <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text }}>
+                    {editingNoteId
+                      ? (language === "am" ? "የንስሐ ማስታወሻ ማስተካከያ" : "Edit Confession Note")
+                      : (language === "am" ? "አዲስ የንስሐ ዝግጅት ማስታወሻ" : "New Confession Note")}
+                  </Text>
+                  <AppTextInput
+                    value={noteTitle}
+                    onChangeText={setNoteTitle}
+                    placeholder={language === "am" ? "የርዕስ ስም (ለምሳሌ፡ የዐቢይ ጾም ንስሐ)..." : "Title (e.g. Lent Confession)..."}
+                  />
+                  <AppTextInput
+                    value={noteBody}
+                    onChangeText={setNoteBody}
+                    placeholder={language === "am" ? "የሚናዘዙትን ኃጢአት፣ ድካምና የጸጸት ማስታወሻ እዚህ በነፃነት ይጻፉ..." : "Write your private sins, struggles, and repentance reflections here..."}
+                    multiline
+                    style={{ minHeight: 140 }}
+                  />
+                  <AppTextInput
+                    value={notePriestQuestions}
+                    onChangeText={setNotePriestQuestions}
+                    placeholder={language === "am" ? "ለነፍስ አባት የሚጠየቁ ጥያቄዎች ወይም ምክር..." : "Questions or guidance to ask spiritual father..."}
+                    multiline
+                    style={{ minHeight: 70 }}
+                  />
+                  <PrimaryButton
+                    label={
+                      editingNoteId
+                        ? (language === "am" ? "አስተካክል ✓" : "Update Note ✓")
+                        : (language === "am" ? "ማስታወሻውን አስቀምጥ" : "Save Confession Note")
+                    }
+                    icon="check"
+                    onPress={handleSaveConfessionNote}
+                  />
                 </Card>
-              ))}
+              )}
+
+              {noteSavedFeedback && (
+                <View style={{ backgroundColor: colors.primaryContainer, padding: 10, borderRadius: 10, alignItems: "center" }}>
+                  <Text tone="label" style={{ color: colors.primary, fontWeight: "800" }}>
+                    {language === "am" ? "የንስሐ ማስታወሻው ተቀምጧል ✓" : "Confession Note Saved Successfully ✓"}
+                  </Text>
+                </View>
+              )}
+
+              <SectionHeader title={language === "am" ? "የተቀመጡ የንስሐ ማስታወሻዎች" : "My Confession Notes"} />
+
+              {confessionSessions.length === 0 ? (
+                <Card style={{ backgroundColor: colors.surface, borderColor: colors.border, padding: 24, alignItems: "center", gap: 8 }}>
+                  <IconCircle icon="file-text" color="muted" size={48} />
+                  <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text, textAlign: "center" }}>
+                    {language === "am" ? "ምንም የንስሐ ማስታወሻ አልተጻፈም" : "No Confession Notes Yet"}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: colors.muted, textAlign: "center", lineHeight: 18 }}>
+                    {language === "am"
+                      ? "የንስሐ ማስታወሻዎችዎ እዚህ በመሣሪያዎ ብቻ በምስጢር ይቀመጣሉ። አዲስ ማስታወሻ ለመጻፍ ከላይ ያለውን ይጫኑ።"
+                      : "Your private journal entries stay encrypted on your phone. Tap above to write."}
+                  </Text>
+                </Card>
+              ) : (
+                confessionSessions.map((session) => (
+                  <Card key={session.id} style={{ backgroundColor: colors.surface, borderColor: colors.border, gap: 10 }}>
+                    <View style={styles.rowBetween}>
+                      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                        <Text tone="title" style={{ fontSize: 16, fontWeight: "800", color: colors.text }}>
+                          {session.title || (language === "am" ? "የንስሐ ማስታወሻ" : "Confession Note")}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: colors.muted }}>
+                          {session.preparationDate}
+                        </Text>
+                      </View>
+                      <Pill
+                        label={session.completed ? (language === "am" ? "ተናዝዣለሁ ✓" : "Confessed ✓") : (language === "am" ? "በዝግጅት ላይ" : "Preparing")}
+                        tone={session.completed ? "primary" : "gold"}
+                      />
+                    </View>
+
+                    {session.notes ? (
+                      <Text style={{ fontSize: 13, color: colors.text, lineHeight: 20 }}>
+                        {session.notes}
+                      </Text>
+                    ) : null}
+
+                    {session.questionsForPriest ? (
+                      <View style={{ backgroundColor: colors.secondary, padding: 10, borderRadius: 10, gap: 4 }}>
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                          <LucideIcon name="church" size={14} color={colors.primary} />
+                          <Text tone="label" style={{ fontSize: 11, fontWeight: "800", color: colors.primary }}>
+                            {language === "am" ? "ለነፍስ አባት የሚቀርብ ጥያቄ" : "Question for Priest"}
+                          </Text>
+                        </View>
+                        <Text style={{ fontSize: 12, color: colors.muted, lineHeight: 17 }}>
+                          {session.questionsForPriest}
+                        </Text>
+                      </View>
+                    ) : null}
+
+                    <View style={[styles.rowBetween, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
+                      <Pressable
+                        onPress={() => handleToggleConfessionCompleted(session)}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 6,
+                          paddingHorizontal: 12,
+                          paddingVertical: 6,
+                          borderRadius: 8,
+                          backgroundColor: session.completed ? colors.primary : colors.secondary,
+                          borderWidth: 1,
+                          borderColor: session.completed ? colors.primary : colors.border,
+                        }}
+                      >
+                        <LucideIcon name="check" size={14} color={session.completed ? "#FFFFFF" : colors.muted} strokeWidth={2.6} />
+                        <Text
+                          tone="label"
+                          style={{
+                            fontSize: 11,
+                            fontWeight: "800",
+                            color: session.completed ? "#FFFFFF" : colors.text,
+                          }}
+                        >
+                          {session.completed ? (language === "am" ? "ተናዝዣለሁ ✓" : "Confessed ✓") : (language === "am" ? "ተናዝዣለሁ በል" : "Mark Confessed")}
+                        </Text>
+                      </Pressable>
+
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                        <IconButton
+                          icon="edit"
+                          size={34}
+                          color={colors.primary}
+                          backgroundColor={colors.primaryContainer}
+                          accessibilityLabel="Edit note"
+                          onPress={() => handleEditConfessionNote(session)}
+                        />
+                        <IconButton
+                          icon="trash"
+                          size={34}
+                          color={colors.danger}
+                          backgroundColor={colors.dangerContainer}
+                          accessibilityLabel="Delete note"
+                          onPress={() => deleteConfessionSession(session.id)}
+                        />
+                      </View>
+                    </View>
+                  </Card>
+                ))
+              )}
             </View>
           )}
 
-          {/* Penance Items Section */}
-          <SectionHeader
-            title={language === "am" ? "የግል የሕሊና ምርመራና ቀኖና" : "Custom Examination Items & Penance"}
-            action={
-              <Pressable onPress={() => setShowAddPenance((prev) => !prev)}>
-                <Text tone="title" style={{ fontSize: 13, color: colors.primary }}>
-                  {showAddPenance ? (language === "am" ? "ዝጋ" : "Close") : (language === "am" ? "+ አዲስ ጨምር" : "+ Add Item")}
-                </Text>
-              </Pressable>
-            }
-          />
-
-          {showAddPenance && (
-            <Card style={{ backgroundColor: colors.surface, borderColor: colors.primary, gap: 10, borderWidth: 1.5 }}>
-              <AppTextInput
-                value={newPenanceTitle}
-                onChangeText={setNewPenanceTitle}
-                placeholder={language === "am" ? "የነጥቡ ስም (ለምሳሌ፡ 41 ስግደት፣ የጾም ሕግጋት)..." : "Item text (e.g. 41 Prostrations)..."}
-              />
-              <AppTextInput
-                value={newPenanceCount}
-                onChangeText={setNewPenanceCount}
-                placeholder={language === "am" ? "ቁጥር (ካለ)..." : "Target Count (optional)..."}
-              />
+          {/* TAB 2: CUSTOM TICKS (CRUD) */}
+          {confessionTab === "ticks" && (
+            <View style={{ gap: 12 }}>
               <PrimaryButton
-                label={language === "am" ? "መዝግብ" : "Save Item"}
-                icon="check"
-                onPress={handleAddPenance}
+                label={
+                  showAddTickForm
+                    ? (language === "am" ? "ዝጋ" : "Close")
+                    : (language === "am" ? "+ አዲስ የንስሐ ነጥብ ጨምር" : "+ Add Custom Examination Point")
+                }
+                icon={showAddTickForm ? "x" : "plus"}
+                tone={showAddTickForm ? "soft" : "primary"}
+                onPress={() => setShowAddTickForm((prev) => !prev)}
               />
-            </Card>
-          )}
 
-          <View style={{ gap: 8 }}>
-            {spiritualFather.penanceItems.map((item) => (
-              <Card key={item.id} style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
-                {editingPenanceId === item.id ? (
-                  <View style={styles.rowBetween}>
-                    <AppTextInput
-                      value={editPenanceTitle}
-                      onChangeText={setEditPenanceTitle}
-                      style={{ flex: 1 }}
-                    />
-                    <IconButton
-                      icon="check"
-                      size={34}
-                      color={colors.primary}
-                      backgroundColor={colors.primaryContainer}
-                      accessibilityLabel="Save Edit"
-                      onPress={() => handleSavePenanceEdit(item.id)}
-                    />
-                    <IconButton
-                      icon="x"
-                      size={34}
-                      color={colors.muted}
-                      backgroundColor={colors.surface}
-                      accessibilityLabel="Cancel Edit"
-                      onPress={() => setEditingPenanceId(null)}
-                    />
-                  </View>
-                ) : (
-                  <View style={styles.rowBetween}>
-                    <Pressable
-                      onPress={() => togglePenanceItem(item.id)}
-                      style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 10 }}
-                    >
-                      <View
-                        style={[
-                          styles.promptCheck,
-                          {
-                            borderColor: item.completed ? colors.primary : colors.muted,
-                            backgroundColor: item.completed ? colors.primary : "transparent",
-                          },
-                        ]}
-                      >
-                        {item.completed && <LucideIcon name="check" size={12} color="#FFFFFF" strokeWidth={3} />}
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text
-                          tone="title"
+              {showAddTickForm && (
+                <Card style={{ backgroundColor: colors.surface, borderColor: colors.primary, gap: 10, borderWidth: 1.5 }}>
+                  <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text }}>
+                    {language === "am" ? "አዲስ የሕሊና ምርመራ / የንስሐ ነጥብ" : "New Custom Examination Point"}
+                  </Text>
+                  <AppTextInput
+                    value={newTickText}
+                    onChangeText={setNewTickText}
+                    placeholder={language === "am" ? "የሚናዘዙት ኃጢአት ወይም የሕሊና ነጥብ (ለምሳሌ፡ ቁጣ፣ ስንፍና)..." : "Point to confess or examine (e.g. anger, sloth)..."}
+                  />
+                  <PrimaryButton
+                    label={language === "am" ? "ነጥቡን ጨምር" : "Add Point"}
+                    icon="check"
+                    onPress={handleAddCustomTick}
+                  />
+                </Card>
+              )}
+
+              {/* Suggested Church Examination Prompts Library */}
+              <Pressable
+                onPress={() => setShowChurchPrompts((prev) => !prev)}
+                style={{
+                  backgroundColor: colors.secondary,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  padding: 12,
+                  borderRadius: 12,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <LucideIcon name="sparkles" size={16} color={colors.gold} />
+                  <Text tone="title" style={{ fontSize: 13, fontWeight: "800", color: colors.text }}>
+                    {language === "am" ? "የቤተክርስቲያን መመርመሪያ ነጥቦች (Suggested)" : "Orthodox Examination Prompts"}
+                  </Text>
+                </View>
+                <LucideIcon name={showChurchPrompts ? "chevron-up" : "chevron-down"} size={16} color={colors.muted} />
+              </Pressable>
+
+              {showChurchPrompts && (
+                <View style={{ gap: 8 }}>
+                  {confessionPrompts.map((prompt) => (
+                    <Card key={prompt.id} style={{ backgroundColor: colors.surface, borderColor: colors.border, padding: 12 }}>
+                      <View style={styles.rowBetween}>
+                        <Text style={{ flex: 1, fontSize: 13, lineHeight: 18, color: colors.text }}>
+                          {prompt.text[language] || prompt.text.en}
+                        </Text>
+                        <Pressable
+                          onPress={() => handleImportPrompt(prompt.text[language] || prompt.text.en)}
                           style={{
-                            fontSize: 14,
-                            fontWeight: "700",
-                            color: item.completed ? colors.muted : colors.text,
-                            textDecorationLine: item.completed ? "line-through" : "none",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 4,
+                            backgroundColor: colors.primaryContainer,
+                            paddingHorizontal: 10,
+                            paddingVertical: 6,
+                            borderRadius: 8,
+                            flexShrink: 0,
                           }}
                         >
-                          {item.title} {item.targetCount ? `(${item.targetCount}x)` : ""}
-                        </Text>
+                          <LucideIcon name="plus" size={12} color={colors.primary} strokeWidth={3} />
+                          <Text tone="label" style={{ fontSize: 11, fontWeight: "800", color: colors.primary }}>
+                            {language === "am" ? "ጨምር" : "Add"}
+                          </Text>
+                        </Pressable>
                       </View>
-                    </Pressable>
-                    <IconButton
-                      icon="edit-2"
-                      size={34}
-                      color={colors.primary}
-                      backgroundColor={colors.primaryContainer}
-                      accessibilityLabel="Edit"
-                      onPress={() => {
-                        setEditingPenanceId(item.id);
-                        setEditPenanceTitle(item.title);
-                      }}
-                    />
-                    <IconButton
-                      icon="trash"
-                      size={34}
-                      color={colors.danger}
-                      backgroundColor={colors.dangerContainer}
-                      accessibilityLabel="Delete"
-                      onPress={() => deletePenanceItem(item.id)}
-                    />
-                  </View>
-                )}
-              </Card>
-            ))}
-          </View>
+                    </Card>
+                  ))}
+                </View>
+              )}
+
+              <SectionHeader title={language === "am" ? "የግል የንስሐ ነጥቦች ዝርዝር" : "My Custom Checklist"} />
+
+              {confessionTicks.length === 0 ? (
+                <Card style={{ backgroundColor: colors.surface, borderColor: colors.border, padding: 24, alignItems: "center", gap: 8 }}>
+                  <IconCircle icon="check-circle" color="muted" size={48} />
+                  <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text, textAlign: "center" }}>
+                    {language === "am" ? "ምንም የግል የንስሐ ነጥብ የለም" : "No Custom Ticks Yet"}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: colors.muted, textAlign: "center", lineHeight: 18 }}>
+                    {language === "am"
+                      ? "የሚናዘዟቸውን ኃጢአቶች በነጥብ ለመያዝ ከላይ አዲስ ነጥብ ይጨምሩ ወይም ከመመርመሪያዎች ይምረጡ።"
+                      : "Add your personal examination check-items above or select from Orthodox prompts."}
+                  </Text>
+                </Card>
+              ) : (
+                confessionTicks.map((tick) => (
+                  <Card key={tick.id} style={{ backgroundColor: colors.surface, borderColor: colors.border, padding: 12 }}>
+                    {editingTickId === tick.id ? (
+                      <View style={styles.rowBetween}>
+                        <AppTextInput
+                          value={editTickText}
+                          onChangeText={setEditTickText}
+                          placeholder={language === "am" ? "ነጥቡን ያስተካክሉ..." : "Edit item..."}
+                          style={{ flex: 1 }}
+                        />
+                        <IconButton
+                          icon="check"
+                          size={34}
+                          color={colors.primary}
+                          backgroundColor={colors.primaryContainer}
+                          accessibilityLabel="Save Edit"
+                          onPress={() => handleSaveTickEdit(tick.id)}
+                        />
+                        <IconButton
+                          icon="x"
+                          size={34}
+                          color={colors.muted}
+                          backgroundColor={colors.surface}
+                          accessibilityLabel="Cancel Edit"
+                          onPress={() => setEditingTickId(null)}
+                        />
+                      </View>
+                    ) : (
+                      <View style={styles.rowBetween}>
+                        <Pressable
+                          onPress={() => {
+                            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                            toggleConfessionTick(tick.id);
+                          }}
+                          style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 10 }}
+                        >
+                          <View
+                            style={[
+                              styles.promptCheck,
+                              {
+                                borderColor: tick.completed ? colors.primary : colors.muted,
+                                backgroundColor: tick.completed ? colors.primary : "transparent",
+                              },
+                            ]}
+                          >
+                            {tick.completed && <LucideIcon name="check" size={12} color="#FFFFFF" strokeWidth={3} />}
+                          </View>
+                          <Text
+                            style={{
+                              flex: 1,
+                              fontSize: 14,
+                              fontWeight: "600",
+                              color: tick.completed ? colors.muted : colors.text,
+                              textDecorationLine: tick.completed ? "line-through" : "none",
+                              lineHeight: 19,
+                            }}
+                          >
+                            {tick.text}
+                          </Text>
+                        </Pressable>
+
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                          <IconButton
+                            icon="edit"
+                            size={32}
+                            color={colors.primary}
+                            backgroundColor={colors.primaryContainer}
+                            accessibilityLabel="Edit item"
+                            onPress={() => {
+                              setEditingTickId(tick.id);
+                              setEditTickText(tick.text);
+                            }}
+                          />
+                          <IconButton
+                            icon="trash"
+                            size={32}
+                            color={colors.danger}
+                            backgroundColor={colors.dangerContainer}
+                            accessibilityLabel="Delete item"
+                            onPress={() => deleteConfessionTick(tick.id)}
+                          />
+                        </View>
+                      </View>
+                    )}
+                  </Card>
+                ))
+              )}
+            </View>
+          )}
+
+          {/* TAB 3: PENANCE & PROSTRATIONS (CRUD) */}
+          {confessionTab === "penance" && (
+            <View style={{ gap: 12 }}>
+              <PrimaryButton
+                label={
+                  showAddPenance
+                    ? (language === "am" ? "ዝጋ" : "Close")
+                    : (language === "am" ? "+ አዲስ ቀኖና / ስግደት ጨምር" : "+ Add Penance Item")
+                }
+                icon={showAddPenance ? "x" : "plus"}
+                tone={showAddPenance ? "soft" : "primary"}
+                onPress={() => setShowAddPenance((prev) => !prev)}
+              />
+
+              {showAddPenance && (
+                <Card style={{ backgroundColor: colors.surface, borderColor: colors.primary, gap: 10, borderWidth: 1.5 }}>
+                  <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text }}>
+                    {language === "am" ? "አዲስ የቀኖና ትእዛዝ" : "New Penance Item"}
+                  </Text>
+                  <AppTextInput
+                    value={newPenanceTitle}
+                    onChangeText={setNewPenanceTitle}
+                    placeholder={language === "am" ? "የቀኖናው ስም (ለምሳሌ፡ 41 ስግደት)..." : "Penance item (e.g. 41 Prostrations)..."}
+                  />
+                  <AppTextInput
+                    value={newPenanceCount}
+                    onChangeText={setNewPenanceCount}
+                    placeholder={language === "am" ? "የስግደት ቁጥር (41)..." : "Target Count (41)..."}
+                  />
+                  <PrimaryButton
+                    label={language === "am" ? "ቀኖናውን መዝግብ" : "Save Penance Item"}
+                    icon="check"
+                    onPress={handleAddPenance}
+                  />
+                </Card>
+              )}
+
+              <SectionHeader title={language === "am" ? "የቀኖናና የስግደት ዝርዝር" : "Penance & Prostrations List"} />
+
+              {spiritualFather.penanceItems.length === 0 ? (
+                <Card style={{ backgroundColor: colors.surface, borderColor: colors.border, padding: 24, alignItems: "center", gap: 8 }}>
+                  <IconCircle icon="church" color="muted" size={48} />
+                  <Text tone="title" style={{ fontSize: 15, fontWeight: "800", color: colors.text, textAlign: "center" }}>
+                    {language === "am" ? "ምንም የተመዘገበ ቀኖና የለም" : "No Penance Items Yet"}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: colors.muted, textAlign: "center", lineHeight: 18 }}>
+                    {language === "am"
+                      ? "የነፍስ አባትዎ ያዘዙዎትን ቀኖናና ስግደት እዚህ መዝግበው ይፈጽሙ።"
+                      : "Record and track prostrations or prayers given by your confessor."}
+                  </Text>
+                </Card>
+              ) : (
+                spiritualFather.penanceItems.map((item) => (
+                  <Card key={item.id} style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
+                    {editingPenanceId === item.id ? (
+                      <View style={styles.rowBetween}>
+                        <AppTextInput
+                          value={editPenanceTitle}
+                          onChangeText={setEditPenanceTitle}
+                          placeholder={language === "am" ? "ቀኖናውን ያስተካክሉ..." : "Edit penance..."}
+                          style={{ flex: 1 }}
+                        />
+                        <IconButton
+                          icon="check"
+                          size={34}
+                          color={colors.primary}
+                          backgroundColor={colors.primaryContainer}
+                          accessibilityLabel="Save Edit"
+                          onPress={() => handleSavePenanceEdit(item.id)}
+                        />
+                        <IconButton
+                          icon="x"
+                          size={34}
+                          color={colors.muted}
+                          backgroundColor={colors.surface}
+                          accessibilityLabel="Cancel Edit"
+                          onPress={() => setEditingPenanceId(null)}
+                        />
+                      </View>
+                    ) : (
+                      <View style={styles.rowBetween}>
+                        <Pressable
+                          onPress={() => togglePenanceItem(item.id)}
+                          style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 10 }}
+                        >
+                          <View
+                            style={[
+                              styles.promptCheck,
+                              {
+                                borderColor: item.completed ? colors.primary : colors.muted,
+                                backgroundColor: item.completed ? colors.primary : "transparent",
+                              },
+                            ]}
+                          >
+                            {item.completed && <LucideIcon name="check" size={12} color="#FFFFFF" strokeWidth={3} />}
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text
+                              tone="title"
+                              style={{
+                                fontSize: 14,
+                                fontWeight: "700",
+                                color: item.completed ? colors.muted : colors.text,
+                                textDecorationLine: item.completed ? "line-through" : "none",
+                              }}
+                            >
+                              {item.title} {item.targetCount ? `(${item.targetCount}x)` : ""}
+                            </Text>
+                          </View>
+                        </Pressable>
+                        <IconButton
+                          icon="edit"
+                          size={34}
+                          color={colors.primary}
+                          backgroundColor={colors.primaryContainer}
+                          accessibilityLabel="Edit"
+                          onPress={() => {
+                            setEditingPenanceId(item.id);
+                            setEditPenanceTitle(item.title);
+                          }}
+                        />
+                        <IconButton
+                          icon="trash"
+                          size={34}
+                          color={colors.danger}
+                          backgroundColor={colors.dangerContainer}
+                          accessibilityLabel="Delete"
+                          onPress={() => deletePenanceItem(item.id)}
+                        />
+                      </View>
+                    )}
+                  </Card>
+                ))
+              )}
+            </View>
+          )}
         </>
       )}
     </AppScreen>

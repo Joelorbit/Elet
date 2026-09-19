@@ -123,27 +123,29 @@ jobs:
 
             ### ✝️ What's New in v1.3.0:
 
-            **Confession & Spiritual Preparation (ንስሐ)**
-            - Full CRUD for confession session notes — create, view, edit, and delete private confession preparations
-            - Saved confession sessions list with tap-to-edit and delete
-            - Custom examination of conscience items — add your own spiritual reflection points
-            - Editable penance items (ቀኖና) with inline title editing
-            - All confession data protected behind biometric authentication (fingerprint / Face ID)
+            **ምስጢረ ንስሐ • Confession Sanctuary (Complete User CRUD & Biometric Protection)**
+            - **የንስሐ ማስታወሻዎች (Confession Notes CRUD)**: Full Create, Read, Update, and Delete for private confession reflection notes, detailed sins to confess, and questions/counsel for your spiritual father.
+            - **የንስሐ ነጥቦች (Custom Examination Ticks CRUD)**: User-driven custom examination points — add custom sins or faults, edit text inline, delete items, and check them off.
+            - **የቤተክርስቲያን መመርመሪያዎች (Orthodox Examination Library)**: Quick import from Ethiopian Orthodox spiritual examination prompts directly into your personal custom checklist.
+            - **ቀኖናና ስግደት (Penance & Prostrations CRUD)**: Track canonical prostrations and prayer rules assigned by your confessor with inline title/count editing.
+            - **የጣት አሻራ ጥበቃ (Biometric Encryption)**: The entire Confession sanctuary is locked with biometric authentication (fingerprint / Face ID / passcode) with instant one-tap re-locking.
 
-            **Alarm & Notification Fixes**
-            - Fixed Android fullscreen alarm overlay — alarms now properly show over other apps
-            - Live permission status checks in Alarm Diagnostics (notification, exact alarm)
-            - Improved overlay permission guidance with step-by-step instructions
+            **የደወልና ማሳወቂያ ሥርዓት • Alarm Overdraw & Heads-Up Display Fixes**
+            - **Overdraw & Heads-Up Alerting**: Added Android MAX priority, heads-up channel routing, and alarm audio attributes so alarms reliably pop up over other open apps and wake device screens.
+            - **Deep Link & Notification Response Catch**: Seamlessly captures alarm launches from background or killed state via `getLastNotificationResponseAsync` and opens the liturgical fullscreen alarm immediately.
+            - **Translucent Status Bar**: Fullscreen alarm modal now renders with `statusBarTranslucent` and hardware acceleration for uninterrupted full-screen canonical bells.
+            - **Interactive Alarm Diagnostics**: Dynamic runtime permission checks in Settings with guided one-tap navigation to system overlay, exact alarm, and battery exemption settings.
 
-            **Code Quality**
-            - Clean architecture with updatePenanceItem store action
-            - Precise biometric lock for confession-only mode
-            - 100% offline, zero cloud tracking
+            **🏛️ Codebase Quality & Stability**
+            - 100% strict TypeScript typing (`npx tsc --noEmit` clean with 0 errors).
+            - All 334+ liturgical Bahire Hasab tests passing.
+            - Strict zero-mock blank slate store state.
+            - 100% offline-first, private and secure on-device storage.
 
             ### ⚡ Performance:
             - **Single Lightweight APK**: ~30 MB (arm64-v8a)
-            - **R8 ProGuard Shrinking**: Tree-shaken unused native code
-            - **100% Offline-First**: All data stays on your device
+            - **R8 ProGuard Shrinking**: Tree-shaken unused native code & resources
+            - **100% Offline**: Zero cloud dependence
 
             ### 📱 Download:
             Download **`Elet-Release.apk`** (~30 MB) below.

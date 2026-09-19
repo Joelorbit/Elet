@@ -76,28 +76,42 @@ export async function openBatterySettings() {
 
 export async function openOverlaySettings() {
   if (Platform.OS === "android") {
+    const IntentLauncher = await import("expo-intent-launcher");
     try {
-      const IntentLauncher = await import("expo-intent-launcher");
       await IntentLauncher.startActivityAsync("android.settings.action.MANAGE_OVERLAY_PERMISSION", {
-        data: "package:me.eyuel.elet"
+        data: "package:me.eyuel.elet",
       });
-    } catch {}
+    } catch {
+      try {
+        await IntentLauncher.startActivityAsync("android.settings.action.MANAGE_OVERLAY_PERMISSION");
+      } catch {
+        try {
+          await IntentLauncher.startActivityAsync(IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS, {
+            data: "package:me.eyuel.elet",
+          });
+        } catch {}
+      }
+    }
   }
 }
 
 export async function openAlarmSettings() {
   if (Platform.OS === "android") {
+    const IntentLauncher = await import("expo-intent-launcher");
     try {
-      // expo-intent-launcher doesn't have REQUEST_SCHEDULE_EXACT_ALARM typed directly, so we use string
-      const IntentLauncher = await import("expo-intent-launcher");
-      await IntentLauncher.startActivityAsync("android.settings.REQUEST_SCHEDULE_EXACT_ALARM");
+      await IntentLauncher.startActivityAsync("android.settings.REQUEST_SCHEDULE_EXACT_ALARM", {
+        data: "package:me.eyuel.elet",
+      });
     } catch {
       try {
-        const IntentLauncher = await import("expo-intent-launcher");
-        await IntentLauncher.startActivityAsync(IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS, {
-          data: "package:me.eyuel.elet"
-        });
-      } catch {}
+        await IntentLauncher.startActivityAsync("android.settings.REQUEST_SCHEDULE_EXACT_ALARM");
+      } catch {
+        try {
+          await IntentLauncher.startActivityAsync(IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS, {
+            data: "package:me.eyuel.elet",
+          });
+        } catch {}
+      }
     }
   }
 }
@@ -129,6 +143,10 @@ export async function setupNotificationChannels(): Promise<void> {
       bypassDnd: true,
       lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
       showBadge: true,
+      audioAttributes: {
+        usage: Notifications.AndroidAudioUsage.ALARM,
+        contentType: Notifications.AndroidAudioContentType.SONIFICATION,
+      },
     });
 
     await Notifications.setNotificationChannelAsync(FEAST_CHANNEL, {
@@ -150,6 +168,10 @@ export async function setupNotificationChannels(): Promise<void> {
       bypassDnd: true,
       lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
       showBadge: true,
+      audioAttributes: {
+        usage: Notifications.AndroidAudioUsage.ALARM,
+        contentType: Notifications.AndroidAudioContentType.SONIFICATION,
+      },
     });
 
     await Notifications.setNotificationChannelAsync(SCRIPTURE_CHANNEL, {
@@ -220,12 +242,24 @@ export interface ReminderSyncPayload {
 
 async function scheduleNotificationMulti(Notifications: any, req: { content: any; triggers?: any[]; trigger?: any }) {
   if (req.trigger !== undefined) {
-    await Notifications.scheduleNotificationAsync({ content: req.content, trigger: req.trigger });
+    const channelId = req.content.channelId || req.trigger?.channelId;
+    const content = {
+      ...req.content,
+      ...(channelId ? { channelId } : {}),
+      priority: Notifications.AndroidNotificationPriority?.MAX ?? "max",
+    };
+    await Notifications.scheduleNotificationAsync({ content, trigger: req.trigger });
     return;
   }
   if (req.triggers && req.triggers.length > 0) {
     for (const t of req.triggers) {
-      await Notifications.scheduleNotificationAsync({ content: req.content, trigger: t });
+      const channelId = req.content.channelId || t?.channelId;
+      const content = {
+        ...req.content,
+        ...(channelId ? { channelId } : {}),
+        priority: Notifications.AndroidNotificationPriority?.MAX ?? "max",
+      };
+      await Notifications.scheduleNotificationAsync({ content, trigger: t });
     }
   }
 }
@@ -449,7 +483,7 @@ export async function sendTestNotificationNow(language: "am" | "en" = "am"): Pro
 
     await setupNotificationChannels();
 
-    await scheduleNotificationMulti(Notifications, {
+    await Notifications.scheduleNotificationAsync({
       content: {
         title: language === "am" ? "ዕለት • የጸሎት ደወልና ማሳወቂያ" : "Elet • Canonical Bell & Notification",
         body:
@@ -458,8 +492,9 @@ export async function sendTestNotificationNow(language: "am" | "en" = "am"): Pro
             : "Canonical prayer bells, fasting alerts, and liturgical notifications are active and working flawlessly.",
         sound: true,
         color: "#8E4424",
+        priority: "max",
       },
-      trigger: null, // deliver immediately
+      trigger: { channelId: DAILY_CHANNEL },
     });
     return true;
   } catch {
@@ -486,6 +521,8 @@ export async function scheduleTestAlarmInSeconds(seconds: number = 5, language: 
             : "Canonical prayer hour: Evening Prayer. Lift your heart in prayer.",
         sound: true,
         color: "#C89D42",
+        priority: "max",
+        categoryIdentifier: "alarm",
         data: {
           alarmMode: "full_alarm",
           titleAm: "የሰዓታት ጸሎት • የሠርክ ጸሎት",
