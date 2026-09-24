@@ -1,19 +1,49 @@
-# 🕊️ Elet (ዕለት)
+<div align="center">
 
-**The Offline Spiritual Companion for the Ethiopian Orthodox Tewahedo Church**  
-*የኢትዮጵያ ኦርቶዶክስ ተዋሕዶ መንፈሳዊ ጓደኛ — 100% ከመስመር ውጭ የሚሠራ*
+  <img src="assets/images/icon.png" width="88" height="88" alt="Elet Icon" style="border-radius: 20px;" />
+
+  # Elet • ዕለት
+
+  **The Offline Spiritual Companion for the Ethiopian Orthodox Tewahedo Church**  
+  *የኢትዮጵያ ኦርቶዶክስ ተዋሕዶ መንፈሳዊ ጓደኛ — 100% ከመስመር ውጭ የሚሠራ*
+
+  <br />
+
+  <a href="https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk">
+    <img src="assets/elet-apk.svg" alt="Download Elet APK" width="280" />
+  </a>
+
+  <br />
+  <br />
+
+  [![Release](https://img.shields.io/badge/Release-v1.3.0-8E4424?style=flat-square)](https://github.com/Joelorbit/Elet/releases/latest)
+  [![Tests](https://img.shields.io/badge/Tests-334%20Passing-2e7d32?style=flat-square)](https://github.com/Joelorbit/Elet)
+  [![Size](https://img.shields.io/badge/APK%20Size-~30%20MB-8E4424?style=flat-square)](https://github.com/Joelorbit/Elet/releases/latest)
+  [![Offline](https://img.shields.io/badge/Offline-100%25-blue?style=flat-square)](https://github.com/Joelorbit/Elet)
+
+</div>
 
 ---
 
-## 🌟 Core Highlights
+## ✨ Features
 
-- **📅 24-Year Bahire Hasab (2018–2041 ዓ.ም.)**: Exact mathematical calculation of movable fasts & major feasts (*ዐቢይ ጾም፣ ትንሣኤ፣ ጾመ ነነዌ፣ ዕርገት፣ ጰራቅሊጦስ*).
-- **⛪ 30 Monthly Tabot Commemorations & Annual Feasts**: Full 13-month calendar with bilingual Amharic & English details.
-- **⏰ The 7 Canonical Prayer Hours (ሰዓታት)**: Configurable prayer hours (*ነግህ፣ ሠለስት፣ ቀትር፣ ተስዓት፣ ሰርክ፣ ንዋም፣ መንፈቀ ሌሊት*) with 3D Roller Time Picker & exact Android alarms.
-- **🍽️ Live Fasting Clock**: Real-time countdown timer to fasting break hours with canonical fast guidance.
-- **📖 81-Canon Scriptures & Daily Verse**: Offline Deuterocanon & random inspirational verse generator.
-- **🔒 Biometric Spiritual Journal & Confession Hub**: Face ID / Fingerprint protected notes and penance checklist.
-- **🔥 Pure Zero-Seeded Clean Slate**: Clean start with 0 days and interactive streak tracking heatmap.
+- **📅 24-Year Bahire Hasab (2018–2041 ዓ.ም.)** — Canonical mathematical calculation of movable fasts & feasts (*ዐቢይ ጾም፣ ትንሣኤ፣ ጾመ ነነዌ*).
+- **⛪ 30 Monthly Tabots & Feasts** — Full 13-month calendar commemorations in bilingual Amharic and English.
+- **⏰ 7 Canonical Prayer Hours (ሰዓታት)** — 3D Roller Time Picker, exact Android alarms & cathedral chimes.
+- **🍽️ Live Fasting Clock** — Real-time countdown to fast-breaking hours with canonical rules.
+- **📖 81-Canon Scriptures** — Complete offline deuterocanon & daily liturgical verse reflections.
+- **🔒 Biometric Confession Sanctuary** — Fingerprint/Face ID locked spiritual notes, examination & penance tracking.
+- **🌱 Pure Blank Slate** — Zero mock seed data; starts fresh at 0 days with unlit streak heatmap.
+
+---
+
+## 📲 Download APK
+
+| Version | Architecture | Size | Direct Download |
+| :--- | :--- | :--- | :--- |
+| **v1.3.0** | `arm64-v8a` | **~30 MB** | [**`Elet-Release.apk`**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk) |
+
+> View all releases, architectures, and release notes on the [GitHub Releases](https://github.com/Joelorbit/Elet/releases) page.
 
 ---
 
@@ -23,13 +53,13 @@
 # 1. Install dependencies
 npm install
 
-# 2. Run test suite (330+ unit tests)
+# 2. Run test suite (334 liturgical tests)
 npm test
 
-# 3. Start local development server
+# 3. Start Expo development server
 npx expo start
 
-# 4. Build and run on Android
+# 4. Run on Android device / emulator
 npx expo run:android
 ```
 
@@ -37,15 +67,15 @@ npx expo run:android
 
 ## 🛠️ Tech Stack
 
-- **Framework**: React Native 0.76.7 / Expo SDK 52 (Expo Router v4)
-- **Typography**: `@expo-google-fonts/lexend`, `@expo-google-fonts/noto-sans-ethiopic`, `@expo-google-fonts/outfit`
-- **Security & Storage**: `expo-local-authentication`, `@react-native-async-storage/async-storage`
-- **Notifications**: `expo-notifications` with native Android 8.0+ channel priorities
-- **Theme**: Terracotta Sacred Dark / Light Mode with gold accents
+- **Platform**: React Native 0.86 / Expo SDK 57 (Expo Router v4)
+- **Typography**: `@expo-google-fonts/lexend`, `noto-sans-ethiopic`, `outfit`
+- **Security & Storage**: `expo-local-authentication`, AsyncStorage
+- **Notifications**: `expo-notifications` with native Android channels & exact alarms
+- **Design**: Terracotta Sacred theme (`#8E4424`) with dark/light mode support
 
 ---
 
-## 📄 License & Creator
+## 📜 License & Author
 
-Designed & Built with reverence by **[eyuel.me](https://eyuel.me)**.  
-All liturgical algorithms verified against Ethiopian Orthodox Tewahedo Church canonical records.
+Crafted with reverence by **[eyuel.me](https://eyuel.me)**.  
+Liturgical algorithms verified against Ethiopian Orthodox Tewahedo Church canonical records.
