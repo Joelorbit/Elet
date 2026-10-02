@@ -96,10 +96,28 @@ function withAlarmMainActivity(config) {
         'super.onCreate(null)\n    checkAlarmIntent(intent)'
       );
 
-      contents = contents.replace(
-        /setIntent\(intent\)/,
-        'setIntent(intent)\n    checkAlarmIntent(intent)'
-      );
+      if (!contents.includes('onNewIntent')) {
+        const onNewIntentCode = `
+  override fun onNewIntent(intent: android.content.Intent) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    checkAlarmIntent(intent)
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+      setShowWhenLocked(true)
+      setTurnScreenOn(true)
+    }
+  }
+`;
+        contents = contents.replace(
+          /super\.onCreate\(null\)[\s\S]*?\n  \}/,
+          (match) => `${match}\n${onNewIntentCode}`
+        );
+      } else {
+        contents = contents.replace(
+          /setIntent\(intent\)/,
+          'setIntent(intent)\n    checkAlarmIntent(intent)'
+        );
+      }
     }
 
     config.modResults.contents = contents;

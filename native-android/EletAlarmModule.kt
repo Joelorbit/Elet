@@ -70,7 +70,7 @@ class EletAlarmModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
 
             // Intent to show when user taps the alarm widget in system UI
             val showIntent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }
             val showPendingIntent = PendingIntent.getActivity(context, alarmId + 100000, showIntent, flags)
 
