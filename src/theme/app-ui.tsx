@@ -92,12 +92,14 @@ export function AppText({
   const colors = useAppColors();
   const { preferences } = useAppStore();
   const language = preferences.language;
+  const scale = preferences.textScale === 'large' ? 1.15 : 1;
   const flattened = StyleSheet.flatten(style) || {};
 
-  const rawFontSize = Number(
+  const baseFontSize = Number(
     flattened.fontSize ||
       (tone === "display" ? 28 : tone === "title" ? 18 : tone === "label" ? 12 : 14)
   );
+  const rawFontSize = Math.round(baseFontSize * scale);
 
   const autoLineHeight = Math.round(
     rawFontSize * (language === "am" ? 1.4 : tone === "display" ? 1.15 : 1.35)

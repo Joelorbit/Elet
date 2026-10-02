@@ -1,9 +1,10 @@
 import { PostHogProvider } from "posthog-react-native";
 import React, { useEffect } from "react";
 import { Stack } from "expo-router";
-import { Platform, StyleSheet, View, ActivityIndicator } from "react-native";
+import { Platform, StyleSheet, View, ActivityIndicator, AppState } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
+import { getAlarmLaunchData, clearAlarmLaunchData } from "@/src/shared/utils/native-alarm";
 import {
   useFonts,
   Outfit_400Regular,
@@ -121,6 +122,30 @@ function MainAppShell() {
   useEffect(() => {
     if (Platform.OS === "web") return;
 
+    const checkNativeAlarm = async () => {
+      try {
+        const data = await getAlarmLaunchData();
+        if (data && data.alarmMode === "full_alarm") {
+          setActiveAlarm({
+            titleAm: data.titleAm || "የጸሎት ሰዓት ደርሷል",
+            titleEn: data.titleEn || "Canonical Prayer Time",
+            subtitleAm: data.subtitleAm || "",
+            subtitleEn: data.subtitleEn || "",
+          });
+          await clearAlarmLaunchData();
+        }
+      } catch (e) {}
+    };
+
+    // Check on mount
+    checkNativeAlarm();
+
+    const appStateSub = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        checkNativeAlarm();
+      }
+    });
+
     Notifications.getLastNotificationResponseAsync().then((response) => {
       if (response) {
         const { data, title, body } = response.notification.request.content;
@@ -162,6 +187,7 @@ function MainAppShell() {
     return () => {
       subReceived.remove();
       subResponse.remove();
+      appStateSub.remove();
     };
   }, []);
 

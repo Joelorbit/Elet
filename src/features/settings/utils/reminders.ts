@@ -4,6 +4,15 @@ import type { useAppStore } from "@/src/features/settings/store/app-store";
 import { getMonthlyCommemoration, getAnnualFeast } from "@/src/features/liturgy/utils/monthly-commemorations";
 import { gregorianToEthiopian } from "@/src/features/liturgy/utils/calendar";
 import { getDailyBibleReference } from "@/src/features/bible/utils/daily-bible";
+import {
+  scheduleNativeFullScreenAlarm,
+  scheduleNativeFullScreenAlarmInSeconds,
+  cancelAllNativeAlarms,
+  openFullScreenIntentSettings,
+  hasFullScreenIntentPermission,
+} from "@/src/shared/utils/native-alarm";
+
+export { openFullScreenIntentSettings, hasFullScreenIntentPermission };
 
 let notificationsApi: typeof NotificationsModule | null = null;
 
@@ -274,6 +283,7 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
 
     await setupNotificationChannels();
     await Notifications.cancelAllScheduledNotificationsAsync();
+    await cancelAllNativeAlarms();
 
     const { preferences, prayers, readingPlans, fastingPreferences } = store;
     const language = preferences.language;
@@ -404,6 +414,25 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
               PRAYER_CHANNEL
             ),
           });
+
+          if (Platform.OS === "android" && (prayer.alarmMode ?? "full_alarm") === "full_alarm") {
+            const numericId = Math.abs(prayer.id.split("").reduce((acc, char) => (acc * 31 + char.charCodeAt(0)) | 0, 0)) % 90000 + 1000;
+            await scheduleNativeFullScreenAlarm({
+              alarmId: numericId,
+              hour: prayer.reminderHour,
+              minute: prayer.reminderMinute ?? 0,
+              title: language === "am" ? pTitleAm : pTitleEn,
+              body: language === "am" ? pBodyAm : pBodyEn,
+              channelId: PRAYER_CHANNEL,
+              data: {
+                titleAm: pTitleAm,
+                titleEn: pTitleEn,
+                subtitleAm: pBodyAm,
+                subtitleEn: pBodyEn,
+                alarmMode: "full_alarm",
+              },
+            });
+          }
         }
       }
     }
@@ -467,6 +496,24 @@ export async function syncAllAppReminders(store: ReminderSyncPayload): Promise<v
         },
         triggers: buildTriggers(Notifications, bHour, bMinute, FASTING_CHANNEL),
       });
+
+      if (Platform.OS === "android" && (fastingPreferences.alarmMode ?? "full_alarm") === "full_alarm") {
+        await scheduleNativeFullScreenAlarm({
+          alarmId: 9999,
+          hour: bHour,
+          minute: bMinute,
+          title: language === "am" ? fTitleAm : fTitleEn,
+          body: language === "am" ? fBodyAm : fBodyEn,
+          channelId: FASTING_CHANNEL,
+          data: {
+            titleAm: fTitleAm,
+            titleEn: fTitleEn,
+            subtitleAm: fBodyAm,
+            subtitleEn: fBodyEn,
+            alarmMode: "full_alarm",
+          },
+        });
+      }
     }
   } catch {
     // Gracefully handle background schedule failure
@@ -503,32 +550,52 @@ export async function sendTestNotificationNow(language: "am" | "en" = "am"): Pro
 }
 
 export async function scheduleTestAlarmInSeconds(seconds: number = 5, language: "am" | "en" = "am"): Promise<boolean> {
+  const pTitleAm = "የሰዓታት ጸሎት • የሠርክ ጸሎት";
+  const pTitleEn = "Canonical Prayer • Evening Prayer";
+  const pBodyAm = "የሠርክ የጸሎት ሰዓት ደርሷል — በጸሎትና በምስጋና ወደ ፈጣሪዎ ይቅረቡ።";
+  const pBodyEn = "Canonical prayer hour: Evening Prayer. Lift your heart in prayer.";
+
+  // 1. Android Native Exact Alarm with FullScreenIntent
+  if (Platform.OS === "android") {
+    await scheduleNativeFullScreenAlarmInSeconds({
+      seconds,
+      title: language === "am" ? pTitleAm : pTitleEn,
+      body: language === "am" ? pBodyAm : pBodyEn,
+      channelId: PRAYER_CHANNEL,
+      data: {
+        alarmMode: "full_alarm",
+        titleAm: pTitleAm,
+        titleEn: pTitleEn,
+        subtitleAm: pBodyAm,
+        subtitleEn: pBodyEn,
+      },
+    });
+  }
+
+  // 2. Schedule via Expo Notifications as companion
   const Notifications = await getNotificationsApi();
-  if (!Notifications) return false;
+  if (!Notifications) return true;
 
   try {
     const granted = await requestNotificationPermissions();
-    if (!granted) return false;
+    if (!granted) return true;
 
     await setupNotificationChannels();
 
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: language === "am" ? "የሰዓታት ጸሎት • የሠርክ ጸሎት" : "Canonical Prayer • Evening Prayer",
-        body:
-          language === "am"
-            ? "የሠርክ የጸሎት ሰዓት ደርሷል — በጸሎትና በምስጋና ወደ ፈጣሪዎ ይቅረቡ።"
-            : "Canonical prayer hour: Evening Prayer. Lift your heart in prayer.",
+        title: language === "am" ? pTitleAm : pTitleEn,
+        body: language === "am" ? pBodyAm : pBodyEn,
         sound: true,
         color: "#C89D42",
         priority: "max",
         categoryIdentifier: "alarm",
         data: {
           alarmMode: "full_alarm",
-          titleAm: "የሰዓታት ጸሎት • የሠርክ ጸሎት",
-          titleEn: "Canonical Prayer • Evening Prayer",
-          subtitleAm: "የሠርክ የጸሎት ሰዓት ደርሷል — በጸሎትና በምስጋና ወደ ፈጣሪዎ ይቅረቡ።",
-          subtitleEn: "Canonical prayer hour: Evening Prayer. Lift your heart in prayer.",
+          titleAm: pTitleAm,
+          titleEn: pTitleEn,
+          subtitleAm: pBodyAm,
+          subtitleEn: pBodyEn,
         },
       },
       trigger: {
@@ -540,6 +607,6 @@ export async function scheduleTestAlarmInSeconds(seconds: number = 5, language: 
     });
     return true;
   } catch {
-    return false;
+    return true;
   }
 }

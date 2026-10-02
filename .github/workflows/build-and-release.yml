@@ -117,32 +117,35 @@ jobs:
           tag_name: ${{ steps.release-tag.outputs.tag }}
           name: "Elet ${{ steps.release-tag.outputs.tag }} (Single Small APK ~30MB)"
           body: |
-            ## 🕊️ Elet • ዕለት v1.3.0 — Ethiopian Orthodox Spiritual Companion
+            ## 🕊️ Elet • ዕለት ${{ steps.release-tag.outputs.tag }} — Ethiopian Orthodox Spiritual Companion
 
-            ### ✝️ What's New in v1.3.0:
+            ### ✝️ What's New in ${{ steps.release-tag.outputs.tag }}:
 
-            **ምስጢረ ንስሐ • Confession Sanctuary (Complete User CRUD & Biometric Protection)**
-            - **የንስሐ ማስታወሻዎች (Confession Notes CRUD)**: Full Create, Read, Update, and Delete for private confession reflection notes, detailed sins to confess, and questions/counsel for your spiritual father.
-            - **የንስሐ ነጥቦች (Custom Examination Ticks CRUD)**: User-driven custom examination points — add custom sins or faults, edit text inline, delete items, and check them off.
-            - **የቤተክርስቲያን መመርመሪያዎች (Orthodox Examination Library)**: Quick import from Ethiopian Orthodox spiritual examination prompts directly into your personal custom checklist.
-            - **ቀኖናና ስግደት (Penance & Prostrations CRUD)**: Track canonical prostrations and prayer rules assigned by your confessor with inline title/count editing.
-            - **የጣት አሻራ ጥበቃ (Biometric Encryption)**: The entire Confession sanctuary is locked with biometric authentication (fingerprint / Face ID / passcode) with instant one-tap re-locking.
+            **🔔 የሙሉ ገጽ ደወል ሥርዓት • Android Native Full-Screen Intent Alarm**
+            - **Native Alarm Clock Engine**: Integrated Android `AlarmManager.setAlarmClock()` and a high-priority `BroadcastReceiver` that awakens devices from sleep, bypasses Doze mode, and displays the liturgical alarm directly over other running apps and the lock screen.
+            - **Native Sound Resource**: Bundled the sacred cathedral bell chime (`alarm_bell.wav`) into Android raw resources with dedicated `USAGE_ALARM` audio routing.
+            - **Expo Config Plugin Architecture**: Created `withAndroidAlarmOverlay` plugin to guarantee 100% reproducible native prebuilds in CI and local environments.
+            - **Automatic Liturgical Sync**: Canonical prayer routines (ሰዓታት) and fasting break times (የጾም መፍቻ) set to `full_alarm` automatically schedule exact native full-screen alarms.
 
-            **የደወልና ማሳወቂያ ሥርዓት • Alarm Overdraw & Heads-Up Display Fixes**
-            - **Overdraw & Heads-Up Alerting**: Added Android MAX priority, heads-up channel routing, and alarm audio attributes so alarms reliably pop up over other open apps and wake device screens.
-            - **Deep Link & Notification Response Catch**: Seamlessly captures alarm launches from background or killed state via `getLastNotificationResponseAsync` and opens the liturgical fullscreen alarm immediately.
-            - **Translucent Status Bar**: Fullscreen alarm modal now renders with `statusBarTranslucent` and hardware acceleration for uninterrupted full-screen canonical bells.
-            - **Interactive Alarm Diagnostics**: Dynamic runtime permission checks in Settings with guided one-tap navigation to system overlay, exact alarm, and battery exemption settings.
+            **⏰ የ5 ደቂቃ ማዘግያ • 5-Minute Alarm Snooze**
+            - **Snooze Option**: Added an intuitive "Snooze 5 min" (ከ5 ደቂቃ በኋላ) button directly on the full-screen liturgical alarm modal with solemn haptic feedback and automatic rescheduling.
+            - **Font Rendering Fix**: Removed conflicting native `fontWeight` styles to guarantee dignified typography without Android fallback to Roboto.
+
+            **🔤 የጽሑፍ መጠን ማስተካከያ • Dynamic Typography Scaling**
+            - **Large Text Mode**: Fully wired the `textScale` setting so selecting "Large" dynamically scales all app typography by 1.15x for enhanced readability.
+
+            **🔍 የስርዓት ፈቃድ ፍተሻ • Android 14+ Diagnostics**
+            - **Runtime Permissions**: Added dynamic checking for `canUseFullScreenIntent()` on Android 14+ (API 34+) devices with a direct one-tap shortcut to system settings.
+            - **Dynamic Versioning**: Settings badge now dynamically displays the active release tag.
 
             **🏛️ Codebase Quality & Stability**
-            - 100% strict TypeScript typing (`npx tsc --noEmit` clean with 0 errors).
-            - All 334+ liturgical Bahire Hasab tests passing.
-            - Strict zero-mock blank slate store state.
+            - 100% clean TypeScript validation (`npx tsc --noEmit` with 0 errors).
+            - All 334/334 Bahire Hasab calendar & liturgical tests passing.
             - 100% offline-first, private and secure on-device storage.
 
             ### ⚡ Performance:
             - **Single Lightweight APK**: ~30 MB (arm64-v8a)
-            - **R8 ProGuard Shrinking**: Tree-shaken unused native code & resources
+            - **R8 ProGuard Shrinking**: Tree-shaken native code & resources
             - **100% Offline**: Zero cloud dependence
 
             ### 📱 Download:

@@ -4,6 +4,7 @@ import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-aud
 import { AppText as Text, LucideIcon, useAppColors } from '@/src/theme/app-ui';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
+import { scheduleTestAlarmInSeconds } from '@/src/features/settings/utils/reminders';
 
 export function FullscreenAlarmModal({
   visible,
@@ -116,6 +117,23 @@ export function FullscreenAlarmModal({
           </Pressable>
 
           <Pressable 
+            onPress={async () => {
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+              await scheduleTestAlarmInSeconds(300, language);
+              onClose();
+            }}
+            style={({ pressed }) => [
+              styles.secondaryBtn,
+              { backgroundColor: colors.gold, borderColor: colors.gold, opacity: pressed ? 0.8 : 1 }
+            ]}
+          >
+            <LucideIcon name="clock" size={20} color="#FFFFFF" />
+            <Text tone="title" style={[styles.secondaryBtnText, { color: '#FFFFFF' }]}>
+              {language === 'am' ? 'ከ5 ደቂቃ በኋላ (Snooze)' : 'Snooze (5 Minutes)'}
+            </Text>
+          </Pressable>
+
+          <Pressable 
             onPress={() => {
               void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
               onClose();
@@ -141,12 +159,12 @@ const styles = StyleSheet.create({
   topSection: { flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 40 },
   bellCircle: { width: 120, height: 120, borderRadius: 60, borderWidth: 3, justifyContent: 'center', alignItems: 'center' },
   midSection: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  time: { fontSize: 56, fontWeight: '800', marginBottom: 12, letterSpacing: -1 },
-  title: { fontSize: 22, fontWeight: '800', marginBottom: 8, textAlign: 'center' },
-  subtitle: { fontSize: 15, fontWeight: '500', textAlign: 'center', lineHeight: 22 },
+  time: { fontSize: 56, marginBottom: 12, letterSpacing: -1 },
+  title: { fontSize: 22, marginBottom: 8, textAlign: 'center' },
+  subtitle: { fontSize: 15, textAlign: 'center', lineHeight: 22 },
   bottomSection: { flex: 1, justifyContent: 'flex-end', gap: 16, paddingBottom: 20 },
   primaryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, paddingVertical: 18, borderRadius: 20, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4 },
-  primaryBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  primaryBtnText: { color: '#fff', fontSize: 16 },
   secondaryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16, borderRadius: 20, borderWidth: 1 },
-  secondaryBtnText: { fontSize: 15, fontWeight: '700' }
+  secondaryBtnText: { fontSize: 15 }
 });

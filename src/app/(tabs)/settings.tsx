@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as Linking from "expo-linking";
 import * as Haptics from "expo-haptics";
+import Constants from 'expo-constants';
 
 import {
   AppLogo,
@@ -26,7 +27,15 @@ import {
   useAppColors,
 } from "@/src/theme/app-ui";
 import { useAppStore } from "@/src/features/settings/store/app-store";
-import { sendTestNotificationNow, scheduleTestAlarmInSeconds, openAlarmSettings, openOverlaySettings, openBatterySettings } from "@/src/features/settings/utils/reminders";
+import {
+  sendTestNotificationNow,
+  scheduleTestAlarmInSeconds,
+  openAlarmSettings,
+  openOverlaySettings,
+  openBatterySettings,
+  openFullScreenIntentSettings,
+  hasFullScreenIntentPermission,
+} from "@/src/features/settings/utils/reminders";
 import { translate } from "@/src/shared/utils/i18n";
 import { promptUpdateCheck, type ReleaseInfo } from "@/src/shared/utils/update-checker";
 import type { AppLockMode, AutoLockTimeout, ThemeMode } from "@/src/types/app";
@@ -41,22 +50,25 @@ export default function SettingsScreen() {
   const [showReminderPicker, setShowReminderPicker] = useState(false);
   const [showFastingPicker, setShowFastingPicker] = useState(false);
   const [showAlarmDiagnostic, setShowAlarmDiagnostic] = useState(false);
-  const [alarmPermStatus, setAlarmPermStatus] = useState<{ notifications: boolean; overlay: boolean } | null>(null);
+  const [alarmPermStatus, setAlarmPermStatus] = useState<{
+    notifications: boolean;
+    overlay: boolean;
+    fullScreenIntent: boolean;
+  } | null>(null);
 
   const checkAlarmPermissions = useCallback(async () => {
-    if (Platform.OS !== 'android') {
-      setAlarmPermStatus({ notifications: true, overlay: true });
+    if (Platform.OS !== "android") {
+      setAlarmPermStatus({ notifications: true, overlay: true, fullScreenIntent: true });
       return;
     }
     try {
-      const Notifications = await import('expo-notifications');
+      const Notifications = await import("expo-notifications");
       const settings = await Notifications.getPermissionsAsync();
       const notifGranted = settings.granted;
-      // For overlay, we can't check programmatically without native module,
-      // so we just show the button to check in system settings
-      setAlarmPermStatus({ notifications: notifGranted, overlay: true });
+      const fsGranted = await hasFullScreenIntentPermission();
+      setAlarmPermStatus({ notifications: notifGranted, overlay: true, fullScreenIntent: fsGranted });
     } catch {
-      setAlarmPermStatus({ notifications: false, overlay: false });
+      setAlarmPermStatus({ notifications: false, overlay: false, fullScreenIntent: true });
     }
   }, []);
 
@@ -207,7 +219,7 @@ export default function SettingsScreen() {
               <Text tone="title" style={[styles.brandTitle, { color: colors.text }]}>
                 {language === "am" ? "ዕለት (Elet)" : "Elet (ዕለት)"}
               </Text>
-              <Pill label="v1.0.0" tone="gold" />
+              <Pill label={`v${Constants.expoConfig?.version ?? '1.3.0'}`} tone="gold" />
             </View>
             <Text style={[styles.brandSubtitle, { color: colors.muted }]}>
               {language === "am"
@@ -445,6 +457,20 @@ export default function SettingsScreen() {
 
               <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                 <Text style={{ fontSize: 12, color: colors.text }}>
+                  {language === "am" ? "• ሙሉ ገጽ ደወል ፈቃድ (Full-Screen Alarms)" : "• Full-Screen Alarm Permission"}
+                </Text>
+                <Pill
+                  label={
+                    alarmPermStatus?.fullScreenIntent !== false
+                      ? (language === "am" ? "ተፈቅዷል ✓" : "Granted ✓")
+                      : (language === "am" ? "አልተፈቀደም ✗" : "Not Granted ✗")
+                  }
+                  tone={alarmPermStatus?.fullScreenIntent !== false ? "primary" : "danger"}
+                />
+              </View>
+
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                <Text style={{ fontSize: 12, color: colors.text }}>
                   {language === "am" ? "• የድምፅና ንዝረት ቻናሎች (Channels)" : "• Sound & Vibration Channels"}
                 </Text>
                 <Pill label="5 Channels" tone="primary" />
@@ -529,6 +555,23 @@ export default function SettingsScreen() {
                     </Text>
                   </View>
                   <LucideIcon name="external-link" size={18} color="#FFFFFF" />
+                </Pressable>
+              )}
+
+              {Platform.OS === "android" && (
+                <Pressable
+                  onPress={() => {
+                    void openFullScreenIntentSettings();
+                  }}
+                  style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.gold, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, alignItems: "center", flexDirection: "row", justifyContent: "space-between" }}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                    <LucideIcon name="shield-check" size={20} color={colors.gold} strokeWidth={2.5} />
+                    <Text tone="title" style={{ fontSize: 13, fontWeight: "800", color: colors.gold }}>
+                      {language === "am" ? "የሙሉ ገጽ ፈቃድ (Full-Screen Intent)" : "Full-Screen Intent Settings"}
+                    </Text>
+                  </View>
+                  <LucideIcon name="external-link" size={18} color={colors.gold} />
                 </Pressable>
               )}
 
