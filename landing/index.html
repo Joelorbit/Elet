@@ -394,6 +394,43 @@
     }
 
     /* ==========================================================
+       SCROLL-REVEAL & MODERN ANIMATIONS
+       ========================================================== */
+    .reveal {
+      opacity: 0;
+      transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform, opacity;
+    }
+
+    .reveal.reveal-left {
+      transform: translateX(-60px);
+    }
+
+    .reveal.reveal-right {
+      transform: translateX(60px);
+    }
+
+    .reveal.reveal-up {
+      transform: translateY(45px);
+    }
+
+    .reveal.reveal-scale {
+      transform: scale(0.92);
+    }
+
+    .reveal.is-revealed {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+
+    .delay-1 { transition-delay: 0.08s; }
+    .delay-2 { transition-delay: 0.16s; }
+    .delay-3 { transition-delay: 0.24s; }
+    .delay-4 { transition-delay: 0.32s; }
+    .delay-5 { transition-delay: 0.40s; }
+    .delay-6 { transition-delay: 0.48s; }
+
+    /* ==========================================================
        DEEP FEATURE WALKTHROUGHS (Uniform 2-Column Grid)
        ========================================================== */
     .walkthrough-section {
@@ -404,19 +441,38 @@
       background: var(--surface);
       border: 1.5px solid var(--border);
       border-radius: var(--radius-xl);
-      padding: 54px 60px;
-      margin-bottom: 50px;
+      padding: 56px 64px;
+      margin-bottom: 56px;
       display: grid;
       grid-template-columns: 1.2fr 0.8fr;
-      gap: 56px;
+      gap: 60px;
       align-items: center;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.03);
-      transition: all 0.3s ease;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.03);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .walkthrough-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, var(--primary-light) 40%, var(--gold) 70%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
     }
 
     .walkthrough-card:hover {
-      border-color: var(--primary);
-      box-shadow: 0 20px 50px rgba(142, 68, 36, 0.1);
+      border-color: var(--border-accent);
+      box-shadow: 0 24px 60px rgba(142, 68, 36, 0.12);
+      transform: translateY(-4px);
+    }
+
+    .walkthrough-card:hover::before {
+      opacity: 1;
     }
 
     .walkthrough-card.reverse {
@@ -446,6 +502,7 @@
       border: 1px solid var(--primary);
       font-family: 'Outfit', sans-serif;
       margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(142, 68, 36, 0.08);
     }
 
     .walkthrough-title {
@@ -468,39 +525,109 @@
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
     }
 
     .walkthrough-checklist li {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      align-items: flex-start;
+      gap: 14px;
       font-size: 15px;
       font-weight: 500;
       color: var(--text);
+      line-height: 1.5;
     }
 
-    .walkthrough-checklist li i {
+    .walkthrough-checklist li .check-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(142, 68, 36, 0.12);
       color: var(--primary);
-      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
       flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.3s ease;
+    }
+
+    .walkthrough-card:hover .walkthrough-checklist li .check-icon {
+      background: var(--primary);
+      color: #FFFFFF;
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(142, 68, 36, 0.25);
     }
 
     .walkthrough-phone-col {
       display: flex;
       justify-content: center;
       align-items: center;
+      position: relative;
+      perspective: 1200px;
+    }
+
+    .phone-ambient-orb {
+      position: absolute;
+      width: 280px;
+      height: 420px;
+      background: radial-gradient(circle at center, rgba(197, 137, 54, 0.25) 0%, rgba(142, 68, 36, 0.08) 55%, transparent 75%);
+      filter: blur(48px);
+      border-radius: 50%;
+      z-index: 1;
+      pointer-events: none;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
+    .walkthrough-card:hover .phone-ambient-orb {
+      transform: scale(1.15);
+      background: radial-gradient(circle at center, rgba(197, 137, 54, 0.35) 0%, rgba(142, 68, 36, 0.14) 55%, transparent 75%);
     }
 
     .walkthrough-phone-frame {
-      width: 280px;
+      width: 286px;
       aspect-ratio: 9 / 19.5;
       background: #151312;
-      border-radius: 44px;
+      border-radius: 46px;
       border: 9px solid #24201D;
-      box-shadow: 0 24px 60px rgba(142, 68, 36, 0.22);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.08);
       position: relative;
       overflow: hidden;
+      z-index: 2;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+    }
+
+    .walkthrough-card:hover .walkthrough-phone-frame {
+      transform: translateY(-8px) scale(1.025);
+      box-shadow: 0 32px 75px rgba(142, 68, 36, 0.28), 0 0 0 2px rgba(224, 169, 109, 0.4);
+    }
+
+    .phone-screen-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 12px 14px;
+      background: linear-gradient(180deg, transparent 0%, rgba(18, 16, 15, 0.88) 35%, rgba(18, 16, 15, 0.98) 100%);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 0.35px;
+      font-family: 'Outfit', sans-serif;
+      z-index: 15;
+      border-top: 1px solid rgba(224, 169, 109, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .phone-screen-caption i {
+      color: var(--gold);
+      font-size: 15px;
     }
 
     /* ==========================================================
@@ -530,7 +657,7 @@
     .features-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+      gap: 26px;
       margin-bottom: 80px;
     }
 
@@ -538,31 +665,57 @@
       background: var(--surface);
       border: 1.5px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 34px 28px;
+      padding: 36px 30px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+      gap: 16px;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--gold));
+      opacity: 0;
+      transition: opacity 0.35s ease;
     }
 
     .feature-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--primary);
-      box-shadow: 0 14px 32px rgba(142, 68, 36, 0.1);
+      transform: translateY(-6px);
+      border-color: var(--border-accent);
+      box-shadow: 0 18px 40px rgba(142, 68, 36, 0.12);
+    }
+
+    .feature-card:hover::after {
+      opacity: 1;
     }
 
     .feature-icon-box {
-      width: 54px;
-      height: 54px;
-      border-radius: 16px;
-      background: var(--primary-container);
-      border: 1px solid var(--primary);
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(142, 68, 36, 0.12) 0%, rgba(197, 137, 54, 0.16) 100%);
+      border: 1.5px solid rgba(142, 68, 36, 0.25);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: 28px;
       color: var(--primary);
+      transition: all 0.35s ease;
+    }
+
+    .feature-card:hover .feature-icon-box {
+      background: var(--primary);
+      color: #FFFFFF;
+      transform: scale(1.08) rotate(3deg);
+      box-shadow: 0 8px 20px rgba(142, 68, 36, 0.3);
     }
 
     .feature-name {
@@ -653,6 +806,7 @@
       .walkthrough-card, .walkthrough-card.reverse { grid-template-columns: 1fr; padding: 36px 28px; gap: 36px; }
       .walkthrough-card.reverse .walkthrough-phone-col { order: 2; }
       .walkthrough-card.reverse .walkthrough-content-col { order: 1; }
+      .reveal.reveal-left, .reveal.reveal-right { transform: translateY(28px); }
       .features-grid { grid-template-columns: 1fr; }
       .download-card { grid-template-columns: 1fr; padding: 36px 28px; }
       .crescent-arch { height: 560px; clip-path: ellipse(110% 100% at 50% 0%); }
@@ -744,88 +898,96 @@
     <section class="walkthrough-section">
       <!-- Walkthrough 1: 24-Year Bahire Hasab Calendar -->
       <div class="walkthrough-card">
-        <div class="walkthrough-content-col">
-          <div class="walkthrough-pill">Liturgical Math Integrity</div>
-          <h2 class="walkthrough-title">24-Year Bahire Hasab (2018–2041)</h2>
-          <p class="walkthrough-desc">
+        <div class="walkthrough-content-col reveal reveal-left">
+          <div class="walkthrough-pill" id="wt1-pill">Liturgical Math Integrity</div>
+          <h2 class="walkthrough-title" id="wt1-title">24-Year Bahire Hasab (2018–2041)</h2>
+          <p class="walkthrough-desc" id="wt1-desc">
             Exact Julian & Ethiopian calendar formulas calculated entirely on-device with zero internet dependency. Accurately determines all movable fasts (Nenewe, Abiy Tsom, Debre Zeit, Hosanna, Siklet, Tensae, Rikbe Kahnat, Erget, Paraklitos, Tsome Hawaryat, Tsome Dihnet) and 30 monthly tabot commemorations.
           </p>
           <ul class="walkthrough-checklist">
-            <li><i class="ph-bold ph-check-circle"></i> Verified against YEBEALAT_MAWECHA_2018_2041 canonical benchmarks</li>
-            <li><i class="ph-bold ph-check-circle"></i> 330+ automated unit tests guaranteeing calendar precision</li>
-            <li><i class="ph-bold ph-check-circle"></i> Automatic leap year and Pagume 5/6 day alignment</li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt1-c1">Verified against YEBEALAT_MAWECHA_2018_2041 canonical benchmarks</span></li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt1-c2">330+ automated unit tests guaranteeing calendar precision</span></li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt1-c3">Automatic leap year and Pagume 5/6 day alignment</span></li>
           </ul>
         </div>
-        <div class="walkthrough-phone-col">
+        <div class="walkthrough-phone-col reveal reveal-right">
+          <div class="phone-ambient-orb"></div>
           <div class="walkthrough-phone-frame">
             <div class="phone-island"></div>
             <img class="phone-screen" src="assets/screenshots/screen-calendar.jpg" alt="Bahire Hasab Calendar Screen" />
+            <div class="phone-screen-caption" id="wt1-cap"><i class="ph-bold ph-calendar-blank"></i><span class="cap-text">Bahire Hasab Calendar Screen</span></div>
           </div>
         </div>
       </div>
 
       <!-- Walkthrough 2: Practice Rhythm & 52-Week Heatmap -->
       <div class="walkthrough-card reverse">
-        <div class="walkthrough-content-col">
-          <div class="walkthrough-pill">Devotional Discipline</div>
-          <h2 class="walkthrough-title">Spiritual Practice & 52-Week Heatmap</h2>
-          <p class="walkthrough-desc">
+        <div class="walkthrough-content-col reveal reveal-right">
+          <div class="walkthrough-pill" id="wt2-pill">Devotional Discipline</div>
+          <h2 class="walkthrough-title" id="wt2-title">Spiritual Practice & 52-Week Heatmap</h2>
+          <p class="walkthrough-desc" id="wt2-desc">
             Track daily canonical prayer hours (Seven Prayer Hours ሰዓታት), custom fasting vows, penance dates given by your spiritual father (Yenesha Abat), and scripture reading plans with an interactive 7-Day, 30-Day, and 52-Week devotion heatmap matrix.
           </p>
           <ul class="walkthrough-checklist">
-            <li><i class="ph-bold ph-check-circle"></i> 7 Canonical prayer hour tracking and streak counters</li>
-            <li><i class="ph-bold ph-check-circle"></i> Fasting calendar, abstinence rules, and fasting break countdown</li>
-            <li><i class="ph-bold ph-check-circle"></i> 81-Canon daily scripture verse reading plans</li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt2-c1">7 Canonical prayer hour tracking and streak counters</span></li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt2-c2">Fasting calendar, abstinence rules, and fasting break countdown</span></li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt2-c3">81-Canon daily scripture verse reading plans</span></li>
           </ul>
         </div>
-        <div class="walkthrough-phone-col">
+        <div class="walkthrough-phone-col reveal reveal-left">
+          <div class="phone-ambient-orb"></div>
           <div class="walkthrough-phone-frame">
             <div class="phone-island"></div>
             <img class="phone-screen" src="assets/screenshots/screen-practice.jpg" alt="Practice Rhythm Screen" />
+            <div class="phone-screen-caption" id="wt2-cap"><i class="ph-bold ph-chart-polar"></i><span class="cap-text">Practice Rhythm Screen</span></div>
           </div>
         </div>
       </div>
 
       <!-- Walkthrough 3: Daily Liturgy & Live Countdowns -->
       <div class="walkthrough-card">
-        <div class="walkthrough-content-col">
-          <div class="walkthrough-pill">Daily Ecclesiastical Rhythm</div>
-          <h2 class="walkthrough-title">Daily Holy Scripture & Fast Countdown</h2>
-          <p class="walkthrough-desc">
+        <div class="walkthrough-content-col reveal reveal-left">
+          <div class="walkthrough-pill" id="wt3-pill">Daily Ecclesiastical Rhythm</div>
+          <h2 class="walkthrough-title" id="wt3-title">Daily Holy Scripture & Fast Countdown</h2>
+          <p class="walkthrough-desc" id="wt3-desc">
             An instant daily spiritual overview displaying today's Ethiopian liturgical date, the day's Tabot saint commemoration, live countdown until fasting break time (e.g. 3:00 PM), daily holy scripture readings, and canonical prayer progress.
           </p>
           <ul class="walkthrough-checklist">
-            <li><i class="ph-bold ph-check-circle"></i> Daily Tabot commemorations with saint explanations</li>
-            <li><i class="ph-bold ph-check-circle"></i> Dynamic fasting break countdown arithmetic</li>
-            <li><i class="ph-bold ph-check-circle"></i> Daily Holy Scripture verse from 81-Canon bible</li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt3-c1">Daily Tabot commemorations with saint explanations</span></li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt3-c2">Dynamic fasting break countdown arithmetic</span></li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt3-c3">Daily Holy Scripture verse from 81-Canon bible</span></li>
           </ul>
         </div>
-        <div class="walkthrough-phone-col">
+        <div class="walkthrough-phone-col reveal reveal-right">
+          <div class="phone-ambient-orb"></div>
           <div class="walkthrough-phone-frame">
             <div class="phone-island"></div>
             <img class="phone-screen" src="assets/screenshots/screen-today.jpg" alt="Today Screen View" />
+            <div class="phone-screen-caption" id="wt3-cap"><i class="ph-bold ph-clock"></i><span class="cap-text">Today Screen View</span></div>
           </div>
         </div>
       </div>
 
       <!-- Walkthrough 4: Biometrics & Confession Journal -->
       <div class="walkthrough-card reverse">
-        <div class="walkthrough-content-col">
-          <div class="walkthrough-pill">Zero-Knowledge Privacy</div>
-          <h2 class="walkthrough-title">Biometric App Lock & Spiritual Journal</h2>
-          <p class="walkthrough-desc">
+        <div class="walkthrough-content-col reveal reveal-right">
+          <div class="walkthrough-pill" id="wt4-pill">Zero-Knowledge Privacy</div>
+          <h2 class="walkthrough-title" id="wt4-title">Biometric App Lock & Spiritual Journal</h2>
+          <p class="walkthrough-desc" id="wt4-desc">
             Hardware FaceID and Fingerprint biometric security protecting your confidential spiritual reflections and confession prep notes with local device encryption.
           </p>
           <ul class="walkthrough-checklist">
-            <li><i class="ph-bold ph-check-circle"></i> Lock entire app or protect private confession notes only</li>
-            <li><i class="ph-bold ph-check-circle"></i> 100% offline-first storage — zero tracking, zero cloud accounts</li>
-            <li><i class="ph-bold ph-check-circle"></i> In-app update downloader and diagnostic center</li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt4-c1">Lock entire app or protect private confession notes only</span></li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt4-c2">100% offline-first storage — zero tracking, zero cloud accounts</span></li>
+            <li><div class="check-icon"><i class="ph-bold ph-check"></i></div> <span id="wt4-c3">In-app update downloader and diagnostic center</span></li>
           </ul>
         </div>
-        <div class="walkthrough-phone-col">
+        <div class="walkthrough-phone-col reveal reveal-left">
+          <div class="phone-ambient-orb"></div>
           <div class="walkthrough-phone-frame">
             <div class="phone-island"></div>
             <img class="phone-screen" src="assets/screenshots/screen-privacy.jpg" alt="Biometric Privacy View" />
+            <div class="phone-screen-caption" id="wt4-cap"><i class="ph-bold ph-shield-check"></i><span class="cap-text">Biometric Privacy View</span></div>
           </div>
         </div>
       </div>
@@ -839,58 +1001,58 @@
       </div>
 
       <div class="features-grid">
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-up delay-1">
           <div class="feature-icon-box">
             <i class="ph-fill ph-book-open"></i>
           </div>
-          <div class="feature-name">81-Canon Scriptures</div>
-          <div class="feature-text">Complete Ethiopian Orthodox canon including Henok, Jubilees, Meqabyan, and Sinodos with fast offline search.</div>
+          <div class="feature-name" id="feat-1-title">81-Canon Scriptures</div>
+          <div class="feature-text" id="feat-1-desc">Complete Ethiopian Orthodox canon including Henok, Jubilees, Meqabyan, and Sinodos with fast offline search.</div>
         </div>
 
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-up delay-2">
           <div class="feature-icon-box">
             <i class="ph-fill ph-calendar-dots"></i>
           </div>
-          <div class="feature-name">24-Year Bahire Hasab</div>
-          <div class="feature-text">330+ unit-tested calendar algorithms verifying movable fasts and 30 monthly saint tabot observances from 2018 to 2041.</div>
+          <div class="feature-name" id="feat-2-title">24-Year Bahire Hasab</div>
+          <div class="feature-text" id="feat-2-desc">330+ unit-tested calendar algorithms verifying movable fasts and 30 monthly saint tabot observances from 2018 to 2041.</div>
         </div>
 
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-up delay-3">
           <div class="feature-icon-box">
             <i class="ph-fill ph-bell-ringing"></i>
           </div>
-          <div class="feature-name">Exact Android Alarms</div>
-          <div class="feature-text">Android Exact Alarm Manager + Notification Channels ensuring prayer reminders wake you even in deep Doze mode.</div>
+          <div class="feature-name" id="feat-3-title">Exact Android Alarms</div>
+          <div class="feature-text" id="feat-3-desc">Android Exact Alarm Manager + Notification Channels ensuring prayer reminders wake you even in deep Doze mode.</div>
         </div>
 
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-up delay-4">
           <div class="feature-icon-box">
             <i class="ph-fill ph-plant"></i>
           </div>
-          <div class="feature-name">Custom Fasting Engine</div>
-          <div class="feature-text">Track personal fasting vows, penance fasts assigned by your spiritual father, and daily devotional streaks.</div>
+          <div class="feature-name" id="feat-4-title">Custom Fasting Engine</div>
+          <div class="feature-text" id="feat-4-desc">Track personal fasting vows, penance fasts assigned by your spiritual father, and daily devotional streaks.</div>
         </div>
 
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-up delay-5">
           <div class="feature-icon-box">
             <i class="ph-fill ph-fingerprint"></i>
           </div>
-          <div class="feature-name">Biometric Privacy</div>
-          <div class="feature-text">Hardware FaceID / Fingerprint lock protecting your private spiritual journals and confession notes with local encryption.</div>
+          <div class="feature-name" id="feat-5-title">Biometric Privacy</div>
+          <div class="feature-text" id="feat-5-desc">Hardware FaceID / Fingerprint lock protecting your private spiritual journals and confession notes with local encryption.</div>
         </div>
 
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-up delay-6">
           <div class="feature-icon-box">
             <i class="ph-fill ph-shield-check"></i>
           </div>
-          <div class="feature-name">100% Offline-First</div>
-          <div class="feature-text">Zero tracking, zero analytics, zero cloud account dependency. Your spiritual life stays strictly on your phone.</div>
+          <div class="feature-name" id="feat-6-title">100% Offline-First</div>
+          <div class="feature-text" id="feat-6-desc">Zero tracking, zero analytics, zero cloud account dependency. Your spiritual life stays strictly on your phone.</div>
         </div>
       </div>
     </section>
 
     <!-- DOWNLOAD & ALWAYS-SYNCED QR CARD -->
-    <section class="download-card">
+    <section class="download-card reveal reveal-scale">
       <div>
         <h2 style="font-size: 34px; font-weight: 900; color: var(--text); margin-bottom: 14px;" id="dl-box-title">Get Elet on your Android Phone</h2>
         <p style="color: var(--muted); font-size: 16px; margin-bottom: 26px; line-height: 1.6;" id="dl-box-desc">
@@ -953,7 +1115,52 @@
         featHead: "Engineered for Spiritual Devotion",
         featSub: "Every calculation, scripture, and chime crafted to ecclesiastical precision.",
         dlBoxTitle: "Get Elet on your Android Phone",
-        dlBoxDesc: "Download the latest release APK directly or scan the QR code with your mobile camera for instant installation."
+        dlBoxDesc: "Download the latest release APK directly or scan the QR code with your mobile camera for instant installation.",
+
+        wt1Pill: "Liturgical Math Integrity",
+        wt1Title: "24-Year Bahire Hasab (2018–2041)",
+        wt1Desc: "Exact Julian & Ethiopian calendar formulas calculated entirely on-device with zero internet dependency. Accurately determines all movable fasts (Nenewe, Abiy Tsom, Debre Zeit, Hosanna, Siklet, Tensae, Rikbe Kahnat, Erget, Paraklitos, Tsome Hawaryat, Tsome Dihnet) and 30 monthly tabot commemorations.",
+        wt1C1: "Verified against YEBEALAT_MAWECHA_2018_2041 canonical benchmarks",
+        wt1C2: "330+ automated unit tests guaranteeing calendar precision",
+        wt1C3: "Automatic leap year and Pagume 5/6 day alignment",
+        wt1Cap: "Bahire Hasab Calendar Screen",
+
+        wt2Pill: "Devotional Discipline",
+        wt2Title: "Spiritual Practice & 52-Week Heatmap",
+        wt2Desc: "Track daily canonical prayer hours (Seven Prayer Hours ሰዓታት), custom fasting vows, penance dates given by your spiritual father (Yenesha Abat), and scripture reading plans with an interactive 7-Day, 30-Day, and 52-Week devotion heatmap matrix.",
+        wt2C1: "7 Canonical prayer hour tracking and streak counters",
+        wt2C2: "Fasting calendar, abstinence rules, and fasting break countdown",
+        wt2C3: "81-Canon daily scripture verse reading plans",
+        wt2Cap: "Practice Rhythm Screen",
+
+        wt3Pill: "Daily Ecclesiastical Rhythm",
+        wt3Title: "Daily Holy Scripture & Fast Countdown",
+        wt3Desc: "An instant daily spiritual overview displaying today's Ethiopian liturgical date, the day's Tabot saint commemoration, live countdown until fasting break time (e.g. 3:00 PM), daily holy scripture readings, and canonical prayer progress.",
+        wt3C1: "Daily Tabot commemorations with saint explanations",
+        wt3C2: "Dynamic fasting break countdown arithmetic",
+        wt3C3: "Daily Holy Scripture verse from 81-Canon bible",
+        wt3Cap: "Today Screen View",
+
+        wt4Pill: "Zero-Knowledge Privacy",
+        wt4Title: "Biometric App Lock & Spiritual Journal",
+        wt4Desc: "Hardware FaceID and Fingerprint biometric security protecting your confidential spiritual reflections and confession prep notes with local device encryption.",
+        wt4C1: "Lock entire app or protect private confession notes only",
+        wt4C2: "100% offline-first storage — zero tracking, zero cloud accounts",
+        wt4C3: "In-app update downloader and diagnostic center",
+        wt4Cap: "Biometric Privacy View",
+
+        feat1Title: "81-Canon Scriptures",
+        feat1Desc: "Complete Ethiopian Orthodox canon including Henok, Jubilees, Meqabyan, and Sinodos with fast offline search.",
+        feat2Title: "24-Year Bahire Hasab",
+        feat2Desc: "330+ unit-tested calendar algorithms verifying movable fasts and 30 monthly saint tabot observances from 2018 to 2041.",
+        feat3Title: "Exact Android Alarms",
+        feat3Desc: "Android Exact Alarm Manager + Notification Channels ensuring prayer reminders wake you even in deep Doze mode.",
+        feat4Title: "Custom Fasting Engine",
+        feat4Desc: "Track personal fasting vows, penance fasts assigned by your spiritual father, and daily devotional streaks.",
+        feat5Title: "Biometric Privacy",
+        feat5Desc: "Hardware FaceID / Fingerprint lock protecting your private spiritual journals and confession notes with local encryption.",
+        feat6Title: "100% Offline-First",
+        feat6Desc: "Zero tracking, zero analytics, zero cloud account dependency. Your spiritual life stays strictly on your phone."
       },
       am: {
         brandSub: "የኦርቶዶክስ መንፈሳዊ ጓደኛ",
@@ -965,7 +1172,52 @@
         featHead: "ለመንፈሳዊ ተጋድሎ የተዘጋጀ",
         featSub: "እያንዳንዱ ቀመር፣ ምንባብና የደወል ስርዓት በሥርዓተ ቤተክርስቲያን ቀኖና የተረጋገጠ።",
         dlBoxTitle: "ዕለት አፕን በስልክዎ ይጫኑ",
-        dlBoxDesc: "የቅርብ ጊዜውን ይፋዊ ስሪት በቀጥታ ያውርዱ ወይም በስልክዎ ካሜራ የQR ኮዱን በመቃኘት በቀላሉ ይጫኑ።"
+        dlBoxDesc: "የቅርብ ጊዜውን ይፋዊ ስሪት በቀጥታ ያውርዱ ወይም በስልክዎ ካሜራ የQR ኮዱን በመቃኘት በቀላሉ ይጫኑ።",
+
+        wt1Pill: "የሥርዓተ ቤተክርስቲያን ቀመር",
+        wt1Title: "የ24 ዓመታት የባሕረ ሐሳብ ቀመር (2018–2041)",
+        wt1Desc: "ያለ ምንም የኢንተርኔት ግንኙነት በስልክዎ ላይ ብቻ የሚሰላ ትክክለኛ የኢትዮጵያና የዮልዮስ ዘመን አቆጣጠር። ተንቀሳቃሽ አጽዋማትንና በዓላትን (ነነዌ፣ ዐቢይ ጾም፣ ደብረ ዘይት፣ ሆሣዕና፣ ስቅለት፣ ትንሣኤ፣ ርክበ ካህናት፣ ዕርገት፣ ጰራቅሊጦስ፣ ጾመ ሐዋርያት፣ ጾመ ድኅነት) እና 30ዎቹን ወርሃዊ የታቦታት መታሰቢያ በሙሉ ያሰላል።",
+        wt1C1: "በየበዓላት ማውጫ (2018–2041) የቀኖና ሰንጠረዥ የተረጋገጠ",
+        wt1C2: "ትክክለኛነቱ በ330+ ራስ-ሰር የኮድ ፈተናዎች (Unit Tests) የጸደቀ",
+        wt1C3: "የዘመነ ዮሐንስ የጳጉሜን 6 እና የዘመን መለወጫ አሰላለፍ",
+        wt1Cap: "የባሕረ ሐሳብ ቀን መቁጠሪያ ገጽ",
+
+        wt2Pill: "መንፈሳዊ ተጋድሎ",
+        wt2Title: "የመንፈሳዊ ልምምድ ሪትምና የ52-ሳምንት ሒደት",
+        wt2Desc: "የሰባቱን የጸሎት ሰዓታት አፈጻጸም፣ የግል የጾም ስእለቶችን፣ በንስሐ አባትዎ የተሰጡዎትን የንስሐ ቀናትና የመጽሐፍ ቅዱስ ንባብ ዕቅዶችን በ7-ቀን፣ 30-ቀን እና 52-ሳምንት በይነተገናኝ የቀለም ሠንጠረዥ ይከታተሉ።",
+        wt2C1: "7ቱ የጸሎት ሰዓታት ክትትልና የመንፈሳዊ ተጋድሎ ቆጣሪ",
+        wt2C2: "የጾም መቁጠሪያ፣ የሥርዓት ደንቦችና የጾም መፍቻ ሰዓት ቆጣሪ",
+        wt2C3: "የ81 አዕማደ መጻሕፍት ዕለታዊ የንባብ ዕቅዶች",
+        wt2Cap: "የመንፈሳዊ ተጋድሎ ሪትም ገጽ",
+
+        wt3Pill: "ዕለታዊ የቤተክርስቲያን ሥርዓት",
+        wt3Title: "ዕለታዊ ቅዱስ ምንባብና የጾም መፍቻ ሰዓት",
+        wt3Desc: "የዕለቱ የኢትዮጵያ ዘመን አቆጣጠር፣ የዕለቱ የታቦትና የቅዱሳን መታሰቢያ፣ እስከ ጾም መፍቻ ሰዓት (ለምሳሌ 9:00 ሰዓት) ድረስ የቀረው የቀጥታ ሰዓት ቆጣሪ፣ የዕለቱ ምንባባትና የሰዓታት ጸሎት ደረጃ በቅጽበት የሚታይበት።",
+        wt3C1: "ዕለታዊ የታቦታት መታሰቢያ ከቅዱሳን ታሪክ ማብራሪያ ጋር",
+        wt3C2: "ተለዋዋጭ የጾም መፍቻ ሰዓት የቀጥታ ቆጣሪ",
+        wt3C3: "ከ81 መጻሕፍት የተወሰደ ዕለታዊ የቅዱስ ቃል ምንባብ",
+        wt3Cap: "የዕለቱ ዋና ገጽ",
+
+        wt4Pill: "ፍጹም ምሥጢራዊነትና ደህንነት",
+        wt4Title: "የባዮሜትሪክ መቆለፊያና የንስሐ ማስታወሻ",
+        wt4Desc: "የንስሐ ዝግጅት ማስታወሻዎችዎንና ምስጢራዊ መንፈሳዊ ማስታወሻዎችዎን በስልክዎ የፊት ገጽታ (FaceID) ወይም የጣት አሻራ በመቆለፍ በአስተማማኝ ሁኔታ ይጠብቃል።",
+        wt4C1: "ሙሉውን መተግበሪያ ወይም የንስሐ ማስታወሻውን ለብቻ የመቆለፍ አማራጭ",
+        wt4C2: "100% ከመስመር ውጭ — ምንም ዓይነት ክላውድ ወይም መከታተያ የሌለው",
+        wt4C3: "የውስጠ-መተግበሪያ ስሪት ማውረጃና የደህንነት መመርመሪያ",
+        wt4Cap: "የባዮሜትሪክ ደህንነት ገጽ",
+
+        feat1Title: "81 አዕማደ መጻሕፍት",
+        feat1Desc: "ሄኖክ፣ ኩፋሌ፣ መቃብያን እና ሲኖዶስን ያካተተ የተሟላ የኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቀኖና ፈጣን ፍለጋ ጋር።",
+        feat2Title: "የ24 ዓመታት ባሕረ ሐሳብ",
+        feat2Desc: "ከ2018 እስከ 2041 ድረስ ያሉትን ተንቀሳቃሽ አጽዋማትና 30ዎቹን ወርሃዊ በዓላት የሚያሰሉ 330+ የተፈተኑ ቀመሮች።",
+        feat3Title: "ትክክለኛ የአንድሮይድ ደወል",
+        feat3Desc: "ስልክዎ በጥልቅ እንቅልፍ (Doze mode) ውስጥ ቢሆን እንኳ ለጸሎት ሰዓታት የሚያነቃቃ የአንድሮይድ Exact Alarm ሥርዓት።",
+        feat4Title: "የግል ጾም መከታተያ",
+        feat4Desc: "የግል ስእለቶችን፣ በንስሐ አባት የተሰጡ የንስሐ ጾሞችንና ዕለታዊ የመንፈሳዊ ተጋድሎ ሒደቶችን ይከታተሉ።",
+        feat5Title: "የባዮሜትሪክ ጥበቃ",
+        feat5Desc: "የንስሐ ዝግጅት ማስታወሻዎችዎንና መንፈሳዊ ምሥጢራትዎን በጣት አሻራና በFaceID የሚቆልፍ አስተማማኝ ጥበቃ።",
+        feat6Title: "100% ከመስመር ውጭ",
+        feat6Desc: "ምንም ዓይነት የኢንተርኔት ግንኙነት፣ መለያ ወይም ክላውድ ሳያስፈልገው መንፈሳዊ ሕይወትዎ በስልክዎ ብቻ ተጠብቆ ይኖራል።"
       }
     };
 
@@ -977,16 +1229,101 @@
       }
       
       const c = content[currentLang];
-      document.getElementById('brand-sub').textContent = c.brandSub;
-      document.getElementById('nav-btn-text').textContent = c.navBtn;
-      document.getElementById('hero-heading').innerHTML = c.heroHead;
-      document.getElementById('hero-desc').textContent = c.heroDesc;
-      document.getElementById('hero-btn-text').textContent = c.heroBtn;
-      document.getElementById('box-btn-text').textContent = c.boxBtn;
-      document.getElementById('feat-heading').textContent = c.featHead;
-      document.getElementById('feat-sub').textContent = c.featSub;
-      document.getElementById('dl-box-title').textContent = c.dlBoxTitle;
-      document.getElementById('dl-box-desc').textContent = c.dlBoxDesc;
+      const setTxt = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
+      const setHtml = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = val;
+      };
+      const setCap = (id, val) => {
+        const el = document.querySelector(`#${id} .cap-text`);
+        if (el) el.textContent = val;
+      };
+
+      setTxt('brand-sub', c.brandSub);
+      setTxt('nav-btn-text', c.navBtn);
+      setHtml('hero-heading', c.heroHead);
+      setTxt('hero-desc', c.heroDesc);
+      setTxt('hero-btn-text', c.heroBtn);
+      setTxt('box-btn-text', c.boxBtn);
+      setTxt('feat-heading', c.featHead);
+      setTxt('feat-sub', c.featSub);
+      setTxt('dl-box-title', c.dlBoxTitle);
+      setTxt('dl-box-desc', c.dlBoxDesc);
+
+      // Walkthrough 1
+      setTxt('wt1-pill', c.wt1Pill);
+      setTxt('wt1-title', c.wt1Title);
+      setTxt('wt1-desc', c.wt1Desc);
+      setTxt('wt1-c1', c.wt1C1);
+      setTxt('wt1-c2', c.wt1C2);
+      setTxt('wt1-c3', c.wt1C3);
+      setCap('wt1-cap', c.wt1Cap);
+
+      // Walkthrough 2
+      setTxt('wt2-pill', c.wt2Pill);
+      setTxt('wt2-title', c.wt2Title);
+      setTxt('wt2-desc', c.wt2Desc);
+      setTxt('wt2-c1', c.wt2C1);
+      setTxt('wt2-c2', c.wt2C2);
+      setTxt('wt2-c3', c.wt2C3);
+      setCap('wt2-cap', c.wt2Cap);
+
+      // Walkthrough 3
+      setTxt('wt3-pill', c.wt3Pill);
+      setTxt('wt3-title', c.wt3Title);
+      setTxt('wt3-desc', c.wt3Desc);
+      setTxt('wt3-c1', c.wt3C1);
+      setTxt('wt3-c2', c.wt3C2);
+      setTxt('wt3-c3', c.wt3C3);
+      setCap('wt3-cap', c.wt3Cap);
+
+      // Walkthrough 4
+      setTxt('wt4-pill', c.wt4Pill);
+      setTxt('wt4-title', c.wt4Title);
+      setTxt('wt4-desc', c.wt4Desc);
+      setTxt('wt4-c1', c.wt4C1);
+      setTxt('wt4-c2', c.wt4C2);
+      setTxt('wt4-c3', c.wt4C3);
+      setCap('wt4-cap', c.wt4Cap);
+
+      // 6 Pillars Features Grid
+      setTxt('feat-1-title', c.feat1Title);
+      setTxt('feat-1-desc', c.feat1Desc);
+      setTxt('feat-2-title', c.feat2Title);
+      setTxt('feat-2-desc', c.feat2Desc);
+      setTxt('feat-3-title', c.feat3Title);
+      setTxt('feat-3-desc', c.feat3Desc);
+      setTxt('feat-4-title', c.feat4Title);
+      setTxt('feat-4-desc', c.feat4Desc);
+      setTxt('feat-5-title', c.feat5Title);
+      setTxt('feat-5-desc', c.feat5Desc);
+      setTxt('feat-6-title', c.feat6Title);
+      setTxt('feat-6-desc', c.feat6Desc);
+    }
+
+    // Scroll reveal observer for modern entering animations
+    function initScrollAnimations() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+          }
+        });
+      }, {
+        threshold: 0.12,
+        rootMargin: '0px 0px -40px 0px'
+      });
+
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initScrollAnimations);
+    } else {
+      initScrollAnimations();
     }
 
     // Dynamic Live Release Fetcher (Auto-syncs with any new tag or release APK)

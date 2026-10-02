@@ -9,7 +9,12 @@
 
   <br />
 
-  [Download APK (v1.3.0)](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk) • [Releases](https://github.com/Joelorbit/Elet/releases)
+  [![Latest Release](https://img.shields.io/github/v/release/Joelorbit/Elet?color=8E4424&label=Latest%20Release&logo=android)](https://github.com/Joelorbit/Elet/releases/latest)
+  [![All Releases](https://img.shields.io/badge/Releases-GitHub-gold.svg)](https://github.com/Joelorbit/Elet/releases)
+
+  <br />
+
+  [⬇️ **Download Latest Release APK**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk) • [📦 **All Releases**](https://github.com/Joelorbit/Elet/releases)
 
 </div>
 
@@ -29,11 +34,11 @@
 
 ## Download APK
 
-Pre-built release build for Android:
+Pre-built release build for Android (always dynamically links to the latest official release):
 
-| Version | Architecture | Size | Download |
+| Release | Architecture | Target Size | Direct Download Link |
 | :--- | :--- | :--- | :--- |
-| **v1.3.0** | `arm64-v8a` | **~30 MB** | [**Elet-Release.apk**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk) |
+| **Latest Release** | `arm64-v8a` | **~30–40 MB** | [**⬇️ Download Latest APK (Elet-Release.apk)**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk) |
 
 ---
 
