@@ -37,7 +37,7 @@ jobs:
           cache: "npm"
 
       - name: 📥 Install Dependencies
-        run: npm ci --prefer-offline
+        run: npm ci --include=dev --prefer-offline
 
       - name: 🏷️ Verify release version
         env:
@@ -86,7 +86,9 @@ jobs:
           cache: "npm"
 
       - name: 📥 Install Dependencies
-        run: npm ci --prefer-offline
+        # NODE_ENV=production is set for this job, but postinstall requires the
+        # dev dependency patch-package. Explicitly include dev deps for install.
+        run: npm ci --include=dev --prefer-offline
 
       - name: 🔨 Generate Native Android Project
         run: npx expo prebuild --platform android --no-install
