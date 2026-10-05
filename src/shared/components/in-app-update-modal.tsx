@@ -11,6 +11,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as Linking from "expo-linking";
 import * as Haptics from "expo-haptics";
+import * as Device from "expo-device";
 import { LucideIcon } from "@/src/shared/components/icons";
 import { useAppColors } from "@/src/theme/theme-provider";
 import { AppText as Text, Card, PrimaryButton } from "@/src/theme/app-ui";
@@ -86,8 +87,6 @@ export function InAppUpdateModal({
         setIsDownloaded(true);
         setDownloadedFileUri(result.uri);
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-        // Auto trigger install prompt
-        await triggerInstall(result.uri);
       }
     } catch (err: unknown) {
       setIsDownloading(false);
@@ -104,8 +103,20 @@ export function InAppUpdateModal({
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
 
       if (Platform.OS === "android") {
+        // Android 8+ requires the user to allow this app as an install source.
+        // Send them to Elet's system setting; the downloaded APK remains ready
+        // when they return and tap Install Now again.
+        const canInstallPackages = await Device.isSideLoadingEnabledAsync();
+        if (!canInstallPackages) {
+          await IntentLauncher.startActivityAsync(
+            "android.settings.MANAGE_UNKNOWN_APP_SOURCES",
+            { data: "package:me.eyuel.elet" }
+          );
+          return;
+        }
+
         const contentUri = await FileSystem.getContentUriAsync(fileUri);
-        await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
+        await IntentLauncher.startActivityAsync("android.intent.action.INSTALL_PACKAGE", {
           data: contentUri,
           flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
           type: "application/vnd.android.package-archive",
@@ -113,10 +124,11 @@ export function InAppUpdateModal({
       } else {
         void Linking.openURL(releaseInfo.htmlUrl);
       }
-    } catch {
-      // Fallback to external browser download if native intent blocked
-      const fallbackUrl = releaseInfo.apkDownloadUrl || releaseInfo.htmlUrl;
-      void Linking.openURL(fallbackUrl);
+    } catch (err: unknown) {
+      // Keep the completed APK and show the install error. Opening its remote
+      // URL here sends users back to Chrome and downloads it a second time.
+      const msg = err instanceof Error ? err.message : "Could not open Android package installer";
+      setErrorMessage(msg);
     }
   };
 
@@ -221,7 +233,7 @@ export function InAppUpdateModal({
             {errorMessage && (
               <Card style={{ backgroundColor: colors.dangerContainer, borderColor: colors.danger, padding: 12 }}>
                 <Text style={{ fontSize: 12, color: colors.danger, fontWeight: "700" }}>
-                  {`${language === "am" ? "ማውረድ አልተሳካም" : "Download Error"}: ${errorMessage}`}
+                  {`${language === "am" ? "ማውረድ/መጫን አልተሳካም" : "Download / Install Error"}: ${errorMessage}`}
                 </Text>
               </Card>
             )}
