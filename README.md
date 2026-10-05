@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="assets/images/icon.png" width="80" height="80" alt="Elet Icon" style="border-radius: 18px;" />
+  <img src="assets/images/icon.png" width="80" height="80" alt="Elet Icon" />
 
   # Elet • ዕለት
 
@@ -27,7 +27,8 @@
 - **7 Canonical Prayer Hours (ሰዓታት)**: 3D Roller Time Picker, exact Android alarms, and liturgical chimes.
 - **Live Fasting Clock**: Real-time countdown to fast-breaking hours with canonical rules.
 - **81-Canon Scriptures**: Complete offline deuterocanon and daily verse reflections.
-- **Biometric Confession Sanctuary**: Fingerprint and Face ID locked spiritual notes, examination points, and penance tracking.
+- **Biometric Confession Sanctuary**: Device biometrics and credential fallback protect spiritual notes, examination points, and penance tracking.
+- **Android Home Widget**: Quick access to prayer hours, the calendar, and daily scripture from Android home screens.
 - **Pure Blank Slate**: Zero mock seed data; starts fresh at 0 days with unlit streak heatmap.
 
 ---
@@ -38,7 +39,9 @@ Pre-built release build for Android (always dynamically links to the latest offi
 
 | Release | Architecture | Target Size | Direct Download Link |
 | :--- | :--- | :--- | :--- |
-| **Latest Release** | `arm64-v8a` | **~30–40 MB** | [**⬇️ Download Latest APK (Elet-Release.apk)**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk) |
+| **64-bit Android** | `arm64-v8a` | Per-device APK | [**⬇️ Download APK**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk) |
+| **32-bit Android** | `armeabi-v7a` | Per-device APK | [**⬇️ Download APK**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release-armeabi-v7a.apk) |
+| **Google Play** | Android App Bundle | Store optimized | [**Download AAB**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.aab) |
 
 ---
 
@@ -62,7 +65,7 @@ npx expo run:android
 
 ## Tech Stack
 
-- **Platform**: React Native 0.86 / Expo SDK 57 (Expo Router v4)
+- **Platform**: React Native 0.86 / Expo SDK 57 / Expo Router SDK 57
 - **Typography**: Lexend, Noto Sans Ethiopic, Outfit
 - **Security & Storage**: Local Authentication, AsyncStorage
 - **Notifications**: Expo Notifications with native Android channels and exact alarms

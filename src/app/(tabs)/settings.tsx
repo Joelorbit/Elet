@@ -31,10 +31,10 @@ import {
   sendTestNotificationNow,
   scheduleTestAlarmInSeconds,
   openAlarmSettings,
-  openOverlaySettings,
   openBatterySettings,
   openFullScreenIntentSettings,
   hasFullScreenIntentPermission,
+  hasExactAlarmPermission,
 } from "@/src/features/settings/utils/reminders";
 import { translate } from "@/src/shared/utils/i18n";
 import { promptUpdateCheck, type ReleaseInfo } from "@/src/shared/utils/update-checker";
@@ -52,13 +52,13 @@ export default function SettingsScreen() {
   const [showAlarmDiagnostic, setShowAlarmDiagnostic] = useState(false);
   const [alarmPermStatus, setAlarmPermStatus] = useState<{
     notifications: boolean;
-    overlay: boolean;
+    exactAlarm: boolean;
     fullScreenIntent: boolean;
   } | null>(null);
 
   const checkAlarmPermissions = useCallback(async () => {
     if (Platform.OS !== "android") {
-      setAlarmPermStatus({ notifications: true, overlay: true, fullScreenIntent: true });
+      setAlarmPermStatus({ notifications: true, exactAlarm: true, fullScreenIntent: true });
       return;
     }
     try {
@@ -66,9 +66,10 @@ export default function SettingsScreen() {
       const settings = await Notifications.getPermissionsAsync();
       const notifGranted = settings.granted;
       const fsGranted = await hasFullScreenIntentPermission();
-      setAlarmPermStatus({ notifications: notifGranted, overlay: true, fullScreenIntent: fsGranted });
+      const exactGranted = await hasExactAlarmPermission();
+      setAlarmPermStatus({ notifications: notifGranted, exactAlarm: exactGranted, fullScreenIntent: fsGranted });
     } catch {
-      setAlarmPermStatus({ notifications: false, overlay: false, fullScreenIntent: true });
+      setAlarmPermStatus({ notifications: false, exactAlarm: false, fullScreenIntent: false });
     }
   }, []);
 
@@ -452,7 +453,10 @@ export default function SettingsScreen() {
                 <Text style={{ fontSize: 12, color: colors.text }}>
                   {language === "am" ? "• ትክክለኛ የደወል አገልግሎት (Exact Alarms)" : "• Exact Alarm Clock Service"}
                 </Text>
-                <Pill label={language === "am" ? "ንቁ ✓" : "Active ✓"} tone="gold" />
+                <Pill
+                  label={alarmPermStatus?.exactAlarm ? (language === "am" ? "ንቁ ✓" : "Granted ✓") : (language === "am" ? "አልተፈቀደም ✗" : "Not granted ✗")}
+                  tone={alarmPermStatus?.exactAlarm ? "primary" : "danger"}
+                />
               </View>
 
               <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
@@ -503,7 +507,7 @@ export default function SettingsScreen() {
                       language === "am" ? "የ5 ሰከንድ ደወል ተይዟል!" : "5-Second Alarm Scheduled!",
                       language === "am"
                         ? "አሁን መተግበሪያውን ዘግተው ወደ ሌላ መተግበሪያ (ወይም Home Screen) ይሂዱ። በ5 ሰከንድ ውስጥ ደውሎ በላዩ ላይ ይከፈታል።"
-                        : "Now minimize Elet and switch to another app or home screen. It will ring and pop up over other apps in 5 seconds."
+                        : "Minimize Elet or switch apps. In 5 seconds, the alarm will ring; Android may show it full-screen or as an alarm alert depending on device state and permissions."
                     );
                   } else {
                     Alert.alert("Error", "Could not schedule alarm.");
@@ -575,23 +579,7 @@ export default function SettingsScreen() {
                 </Pressable>
               )}
 
-              {Platform.OS === "android" && (
-                <Pressable
-                  onPress={() => {
-                    void openOverlaySettings();
-                  }}
-                  style={{ backgroundColor: colors.primaryContainer, borderWidth: 1, borderColor: colors.primary, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, alignItems: "center", flexDirection: "row", justifyContent: "space-between" }}
-                >
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                    <LucideIcon name="layers" size={20} color={colors.primary} strokeWidth={2.5} />
-                    <Text tone="title" style={{ fontSize: 13, fontWeight: "800", color: colors.primary }}>
-                      {language === "am" ? "በሌሎች ላይ አሳይ (Overlay)" : "Draw Over Other Apps"}
-                    </Text>
-                  </View>
-                  <LucideIcon name="external-link" size={18} color={colors.primary} />
-                </Pressable>
-              )}
-              {/* Overlay Helper Guide */}
+              {/* Android may restrict full-screen launches while the device is unlocked. */}
               {Platform.OS === "android" && (
                 <View style={{ backgroundColor: colors.primaryContainer, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.primary, marginTop: 12, marginBottom: 4 }}>
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 }}>
@@ -602,8 +590,8 @@ export default function SettingsScreen() {
                   </View>
                   <Text style={{ fontSize: 12, color: colors.text, lineHeight: 18 }}>
                     {language === "am"
-                      ? "ሙሉ ገጽ ደወል (Full-Screen Alarm) በሌሎች መተግበሪያዎች ላይ ሆኖ እንዲሠራ፣ ከላይ ያለውን \"በሌሎች ላይ አሳይ (Overlay)\" ተጭነው መተግበሪያውን ይምረጡና \"Allow display over other apps\" የሚለውን ያብሩ።"
-                      : "For the Full-Screen Alarm to wake your device and show over other apps, you MUST tap the Overlay Settings above and enable \"Allow display over other apps\" for Elet."}
+                      ? "ሙሉ ገጽ ደወል ለማሳየት የማሳወቂያ ፈቃድና የFull-Screen Intent ፈቃድ ያስፈልጋሉ። ስልኩ ክፍት ሲሆን Android ሙሉ ገጽ ማሳያን ሊገድብ ይችላል።"
+                      : "Full-screen alarms need notification permission and Full-Screen Intent permission. While your phone is unlocked, Android may limit full-screen launches and show an alert instead."}
                   </Text>
                 </View>
               )}

@@ -10,7 +10,7 @@ index 610d303..eee6edd 100644
  import java.io.IOException
  import kotlin.math.max
  import kotlin.math.min
-@@ -139,13 +140,45 @@ open class ExpoNotificationBuilder(
+@@ -139,13 +140,49 @@ open class ExpoNotificationBuilder(
  
      val defaultAction =
        NotificationAction(NotificationResponse.DEFAULT_ACTION_IDENTIFIER, null, true)
@@ -44,6 +44,10 @@ index 610d303..eee6edd 100644
 +        putExtra("alarmMode", "full_alarm")
 +        putExtra("title", content.title)
 +        putExtra("body", content.text)
++        putExtra("titleAm", bodyJson?.optString("titleAm", content.title ?: "") ?: "")
++        putExtra("titleEn", bodyJson?.optString("titleEn", content.title ?: "") ?: "")
++        putExtra("subtitleAm", bodyJson?.optString("subtitleAm", content.text ?: "") ?: "")
++        putExtra("subtitleEn", bodyJson?.optString("subtitleEn", content.text ?: "") ?: "")
 +      }
 +      if (launchIntent != null) {
 +        val fullScreenPendingIntent = android.app.PendingIntent.getActivity(
@@ -62,57 +66,3 @@ index 610d303..eee6edd 100644
  
      if (notificationContent.containsImage()) {
        val bitmap = notificationContent.getImage(context)
-diff --git a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt
-index 38f6fba..37791fc 100644
---- a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt
-+++ b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt
-@@ -20,6 +20,7 @@ import expo.modules.notifications.notifications.model.Notification
- import expo.modules.notifications.notifications.model.NotificationContent
- import expo.modules.notifications.notifications.model.NotificationRequest
- import expo.modules.notifications.notifications.presentation.builders.ExpoNotificationBuilder
-+import expo.modules.notifications.notifications.triggers.ChannelAwareTrigger
- import expo.modules.notifications.service.interfaces.PresentationDelegate
- import kotlinx.coroutines.CoroutineScope
- import kotlinx.coroutines.Dispatchers
-@@ -110,6 +111,41 @@ open class ExpoPresentationDelegate(
-         getNotifyId(notification.notificationRequest),
-         androidNotification
-       )
-+
-+      try {
-+        val bodyJson = notification.notificationRequest.content.body
-+        val alarmMode = bodyJson?.optString("alarmMode")
-+        val channelId = (notification.notificationRequest.trigger as? ChannelAwareTrigger)?.channelId
-+        val isFullAlarm = alarmMode == "full_alarm" || (alarmMode != "notification_only" && (
-+          channelId?.contains("alarm") == true ||
-+          channelId?.contains("prayer") == true ||
-+          channelId?.contains("fasting") == true ||
-+          channelId?.contains("daily") == true
-+        ))
-+
-+        if (isFullAlarm) {
-+          val canDraw = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-+            Settings.canDrawOverlays(context)
-+          } else {
-+            true
-+          }
-+
-+          if (canDraw) {
-+            val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
-+              addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)
-+              putExtra("full_screen_alarm", true)
-+              putExtra("alarmMode", "full_alarm")
-+              putExtra("title", notification.notificationRequest.content.title)
-+              putExtra("body", notification.notificationRequest.content.text)
-+            }
-+            if (launchIntent != null) {
-+              context.startActivity(launchIntent)
-+            }
-+          }
-+        }
-+      } catch (e: Exception) {
-+        Log.e("expo-notifications", "Failed to launch full screen alarm activity over other apps", e)
-+      }
-     }
-   }
- 

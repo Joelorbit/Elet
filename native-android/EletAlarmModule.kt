@@ -130,6 +130,16 @@ class EletAlarmModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     }
 
     @ReactMethod
+    fun hasExactAlarmPermission(promise: Promise) {
+        try {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            promise.resolve(Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms())
+        } catch (_: Exception) {
+            promise.resolve(false)
+        }
+    }
+
+    @ReactMethod
     fun hasFullScreenIntentPermission(promise: Promise) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

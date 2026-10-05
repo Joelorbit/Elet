@@ -1,4 +1,4 @@
-const { withAndroidManifest, withMainActivity, withMainApplication, withDangerousMod } = require('@expo/config-plugins');
+const { withAndroidManifest, withMainActivity, withMainApplication, withDangerousMod, withAppBuildGradle } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
@@ -10,16 +10,33 @@ function withAlarmFiles(config) {
       const platformRoot = config.modRequest.platformProjectRoot;
       const targetJavaDir = path.join(platformRoot, 'app/src/main/java/me/eyuel/elet');
       const targetRawDir = path.join(platformRoot, 'app/src/main/res/raw');
+      const targetResDir = path.join(platformRoot, 'app/src/main/res');
 
       fs.mkdirSync(targetJavaDir, { recursive: true });
       fs.mkdirSync(targetRawDir, { recursive: true });
 
-      const files = ['EletAlarmReceiver.kt', 'EletAlarmModule.kt', 'EletAlarmPackage.kt'];
+      const files = ['EletAlarmReceiver.kt', 'EletAlarmModule.kt', 'EletAlarmPackage.kt', 'EletHomeWidgetProvider.kt'];
       for (const file of files) {
         const src = path.join(projectRoot, 'native-android', file);
         const dest = path.join(targetJavaDir, file);
         if (fs.existsSync(src)) {
           fs.copyFileSync(src, dest);
+        }
+      }
+
+      const widgetResources = [
+        ['elet_home_widget.xml', 'layout'],
+        ['elet_widget_background.xml', 'drawable'],
+        ['elet_home_widget_info.xml', 'xml'],
+        ['elet_home_widget_styles.xml', 'values'],
+        ['elet_home_widget_strings.xml', 'values'],
+      ];
+      for (const [file, resourceDir] of widgetResources) {
+        const src = path.join(projectRoot, 'native-android', file);
+        const destDir = path.join(targetResDir, resourceDir);
+        if (fs.existsSync(src)) {
+          fs.mkdirSync(destDir, { recursive: true });
+          fs.copyFileSync(src, path.join(destDir, file));
         }
       }
 
@@ -51,6 +68,29 @@ function withAlarmReceiverManifest(config) {
           'android:name': '.EletAlarmReceiver',
           'android:exported': 'false',
         },
+      });
+    }
+
+    const hasWidgetReceiver = mainApplication.receiver.some(
+      (r) => r.$ && r.$['android:name'] === '.EletHomeWidgetProvider'
+    );
+    if (!hasWidgetReceiver) {
+      mainApplication.receiver.push({
+        $: {
+          'android:name': '.EletHomeWidgetProvider',
+          'android:exported': 'true',
+          'android:label': 'Elet Quick Access',
+          'android:permission': 'android.permission.BIND_APPWIDGET',
+        },
+        'intent-filter': [{
+          action: [{ $: { 'android:name': 'android.appwidget.action.APPWIDGET_UPDATE' } }],
+        }],
+        'meta-data': [{
+          $: {
+            'android:name': 'android.appwidget.provider',
+            'android:resource': '@xml/elet_home_widget_info',
+          },
+        }],
       });
     }
 
@@ -141,10 +181,37 @@ function withAlarmMainApplication(config) {
   });
 }
 
+function withAndroidAbiSplits(config) {
+  return withAppBuildGradle(config, (config) => {
+    let contents = config.modResults.contents;
+    if (!contents.includes('universalApk false')) {
+      contents = contents.replace(
+        /android\s*\{\n/,
+        `android {
+    // Publish per-ABI APKs for 64-bit and legacy 32-bit ARM devices.
+    splits {
+        abi {
+            // AGP rejects split APKs and AABs in the same build. CI sets
+            // -Pandroid.bundle=true for the separate Play bundle invocation.
+            enable !project.hasProperty('android.bundle')
+            reset()
+            include "arm64-v8a", "armeabi-v7a"
+            universalApk false
+        }
+    }
+`
+      );
+    }
+    config.modResults.contents = contents;
+    return config;
+  });
+}
+
 module.exports = function withAndroidAlarmOverlay(config) {
   config = withAlarmFiles(config);
   config = withAlarmReceiverManifest(config);
   config = withAlarmMainActivity(config);
   config = withAlarmMainApplication(config);
+  config = withAndroidAbiSplits(config);
   return config;
 };

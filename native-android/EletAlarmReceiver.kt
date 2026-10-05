@@ -28,7 +28,8 @@ class EletAlarmReceiver : BroadcastReceiver() {
         val titleEn = intent.getStringExtra("titleEn") ?: "Canonical Prayer Time"
         val subtitleAm = intent.getStringExtra("subtitleAm") ?: "ጸሎትዎን ለመጀመር ዝግጁ ነዎት?"
         val subtitleEn = intent.getStringExtra("subtitleEn") ?: "It is time for your scheduled devotion."
-        val channelId = intent.getStringExtra("channelId") ?: "prayer-routine"
+        // Android freezes channel sound/vibration settings when first created.
+        val channelId = "elet-native-alarm-v2"
         val alarmId = intent.getIntExtra("alarmId", (System.currentTimeMillis() % 100000).toInt())
 
         // Full-screen and click intent targeting MainActivity
@@ -62,15 +63,13 @@ class EletAlarmReceiver : BroadcastReceiver() {
 
         // Create or update notification channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            var channel = notificationManager.getNotificationChannel(channelId)
-            if (channel == null) {
-                channel = NotificationChannel(channelId, "Orthodox Prayer & Fasting Alarms", NotificationManager.IMPORTANCE_HIGH).apply {
+            if (notificationManager.getNotificationChannel(channelId) == null) {
+                val channel = NotificationChannel(channelId, "Prayer & Fasting Alarms", NotificationManager.IMPORTANCE_HIGH).apply {
                     description = "Solemn Orthodox prayer hours and fasting alerts"
                     setSound(soundUri, audioAttributes)
                     enableVibration(true)
                     vibrationPattern = longArrayOf(0, 500, 300, 500, 300, 500)
                     lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
-                    setBypassDnd(true)
                 }
                 notificationManager.createNotificationChannel(channel)
             }
@@ -88,8 +87,6 @@ class EletAlarmReceiver : BroadcastReceiver() {
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
-            .setSound(soundUri)
-            .setVibrate(longArrayOf(0, 500, 300, 500, 300, 500))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(fullScreenPendingIntent)
             .setFullScreenIntent(fullScreenPendingIntent, true)

@@ -97,6 +97,15 @@ export async function hasFullScreenIntentPermission(): Promise<boolean> {
   }
 }
 
+export async function hasExactAlarmPermission(): Promise<boolean> {
+  if (Platform.OS !== 'android' || !EletAlarmModule) return false;
+  try {
+    return await EletAlarmModule.hasExactAlarmPermission();
+  } catch {
+    return false;
+  }
+}
+
 export async function openFullScreenIntentSettings(): Promise<boolean> {
   if (Platform.OS !== 'android' || !EletAlarmModule) return false;
   try {

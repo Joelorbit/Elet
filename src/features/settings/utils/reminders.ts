@@ -10,9 +10,10 @@ import {
   cancelAllNativeAlarms,
   openFullScreenIntentSettings,
   hasFullScreenIntentPermission,
+  hasExactAlarmPermission,
 } from "@/src/shared/utils/native-alarm";
 
-export { openFullScreenIntentSettings, hasFullScreenIntentPermission };
+export { openFullScreenIntentSettings, hasFullScreenIntentPermission, hasExactAlarmPermission };
 
 let notificationsApi: typeof NotificationsModule | null = null;
 
@@ -36,11 +37,13 @@ async function getNotificationsApi() {
   return notificationsApi;
 }
 
-const DAILY_CHANNEL = "daily-practice";
-const PRAYER_CHANNEL = "prayer-routine";
-const FEAST_CHANNEL = "orthodox-feasts";
-const FASTING_CHANNEL = "fasting-alerts";
-const SCRIPTURE_CHANNEL = "daily-scripture";
+// Versioned IDs let Android recreate channel settings after users have an older,
+// silent channel saved by the OS. Android channel settings cannot be edited later.
+const DAILY_CHANNEL = "daily-practice-v2";
+const PRAYER_CHANNEL = "prayer-routine-v2";
+const FEAST_CHANNEL = "orthodox-feasts-v2";
+const FASTING_CHANNEL = "fasting-alerts-v2";
+const SCRIPTURE_CHANNEL = "daily-scripture-v2";
 
 export async function requestNotificationPermissions(): Promise<boolean> {
   const Notifications = await getNotificationsApi();
@@ -79,27 +82,6 @@ export async function openBatterySettings() {
           data: "package:me.eyuel.elet"
         });
       } catch {}
-    }
-  }
-}
-
-export async function openOverlaySettings() {
-  if (Platform.OS === "android") {
-    const IntentLauncher = await import("expo-intent-launcher");
-    try {
-      await IntentLauncher.startActivityAsync("android.settings.action.MANAGE_OVERLAY_PERMISSION", {
-        data: "package:me.eyuel.elet",
-      });
-    } catch {
-      try {
-        await IntentLauncher.startActivityAsync("android.settings.action.MANAGE_OVERLAY_PERMISSION");
-      } catch {
-        try {
-          await IntentLauncher.startActivityAsync(IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS, {
-            data: "package:me.eyuel.elet",
-          });
-        } catch {}
-      }
     }
   }
 }
@@ -556,8 +538,9 @@ export async function scheduleTestAlarmInSeconds(seconds: number = 5, language: 
   const pBodyEn = "Canonical prayer hour: Evening Prayer. Lift your heart in prayer.";
 
   // 1. Android Native Exact Alarm with FullScreenIntent
+  let nativeScheduled = false;
   if (Platform.OS === "android") {
-    await scheduleNativeFullScreenAlarmInSeconds({
+    nativeScheduled = await scheduleNativeFullScreenAlarmInSeconds({
       seconds,
       title: language === "am" ? pTitleAm : pTitleEn,
       body: language === "am" ? pBodyAm : pBodyEn,
@@ -574,11 +557,11 @@ export async function scheduleTestAlarmInSeconds(seconds: number = 5, language: 
 
   // 2. Schedule via Expo Notifications as companion
   const Notifications = await getNotificationsApi();
-  if (!Notifications) return true;
+  if (!Notifications) return nativeScheduled;
 
   try {
     const granted = await requestNotificationPermissions();
-    if (!granted) return true;
+    if (!granted) return nativeScheduled;
 
     await setupNotificationChannels();
 
@@ -607,6 +590,6 @@ export async function scheduleTestAlarmInSeconds(seconds: number = 5, language: 
     });
     return true;
   } catch {
-    return true;
+    return nativeScheduled;
   }
 }

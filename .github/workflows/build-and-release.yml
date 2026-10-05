@@ -1,4 +1,7 @@
-name: Fast Build & Release APK
+name: Elet Android 2.0 Release
+
+permissions:
+  contents: write
 
 on:
   push:
@@ -7,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       version_tag:
-        description: "Release version tag (e.g. v1.0.1)"
+        description: "Release version tag (must match package.json, e.g. v2.0.0)"
         required: true
-        default: "v1.0.1"
+        default: "v2.0.0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,7 +20,8 @@ concurrency:
 
 jobs:
   # ==========================================
-  # 1. PARALLEL VALIDATION JOB (Fast Lint & Tests)
+  # Validate the exact package/config version and run checks sequentially so
+  # a failing typecheck or test cannot be hidden by a successful background job.
   # ==========================================
   validate:
     name: 🧪 Validate & Test Suite
@@ -26,23 +30,33 @@ jobs:
       - name: 📦 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js 20
+      - name: 🟢 Setup Node.js 22.13.1 (Expo SDK 57 minimum)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22.13.1
           cache: "npm"
 
       - name: 📥 Install Dependencies
         run: npm ci --prefer-offline
 
-      - name: 🔍 Parallel TypeCheck & Tests
+      - name: 🏷️ Verify release version
+        env:
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version_tag || github.ref_name }}
         run: |
-          npx tsc --noEmit &
-          PID_TSC=$!
-          npm test &
-          PID_TEST=$!
-          wait $PID_TSC
-          wait $PID_TEST
+          node <<'NODE'
+          const pkg = require('./package.json');
+          const expo = require('./app.json').expo;
+          const expected = `v${pkg.version}`;
+          if (expo.version !== pkg.version) throw new Error(`app.json (${expo.version}) must match package.json (${pkg.version})`);
+          if (process.env.RELEASE_TAG !== expected) throw new Error(`Release tag ${process.env.RELEASE_TAG} must equal ${expected}`);
+          console.log(`Validated ${expected}`);
+          NODE
+
+      - name: 🔍 TypeScript validation
+        run: npx tsc --noEmit
+
+      - name: 🧪 Unit suite
+        run: npm test
 
   # ==========================================
   # 2. OPTIMIZED ANDROID BUILD JOB (With Gradle & Hermes Cache)
@@ -51,6 +65,8 @@ jobs:
     name: 🤖 Fast Android Release Build
     needs: validate
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
     steps:
       - name: 📦 Checkout Repository
         uses: actions/checkout@v4
@@ -63,10 +79,10 @@ jobs:
           distribution: "temurin"
           java-version: 17
 
-      - name: 🟢 Setup Node.js 20
+      - name: 🟢 Setup Node.js 22.13.1 (Expo SDK 57 minimum)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22.13.1
           cache: "npm"
 
       - name: 📥 Install Dependencies
@@ -80,23 +96,29 @@ jobs:
         with:
           cache-read-only: false
 
-      - name: 🤖 Compile Small Release APK (~30MB)
+      - name: 🤖 Build arm64 and ARMv7 APKs
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a --parallel --build-cache --max-workers=4
+          ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a --parallel --build-cache --max-workers=4
 
-      - name: 📦 Prepare Release APK (~30 MB)
+      - name: 📦 Build Play App Bundle
+        working-directory: android
+        run: ./gradlew bundleRelease -Pandroid.bundle=true -PreactNativeArchitectures=arm64-v8a,armeabi-v7a --parallel --build-cache --max-workers=4
+
+      - name: 📦 Prepare architecture APKs and AAB
         id: prepare-artifacts
         run: |
           mkdir -p ./release-artifacts
-          APK_PATH=$(find android/app/build/outputs/apk/release/ -name "*.apk" | head -n 1)
-          if [ -z "$APK_PATH" ]; then
-            echo "Searching in build/outputs/apk/..."
-            APK_PATH=$(find android/app/build/outputs/apk/ -name "*.apk" | head -n 1)
-          fi
-          echo "Found release APK at: $APK_PATH"
-          cp "$APK_PATH" ./release-artifacts/Elet-Release.apk
+          ARM64_APK=$(find android/app/build/outputs/apk/release/ -name "*arm64-v8a*.apk" -print -quit)
+          ARMV7_APK=$(find android/app/build/outputs/apk/release/ -name "*armeabi-v7a*.apk" -print -quit)
+          AAB=$(find android/app/build/outputs/bundle/release/ -name "*.aab" -print -quit)
+          test -n "$ARM64_APK" || { echo "arm64-v8a APK missing"; exit 1; }
+          test -n "$ARMV7_APK" || { echo "armeabi-v7a APK missing"; exit 1; }
+          test -n "$AAB" || { echo "Android App Bundle missing"; exit 1; }
+          cp "$ARM64_APK" ./release-artifacts/Elet-Release.apk
+          cp "$ARMV7_APK" ./release-artifacts/Elet-Release-armeabi-v7a.apk
+          cp "$AAB" ./release-artifacts/Elet-Release.aab
           ls -la ./release-artifacts
 
       - name: 🏷️ Determine Release Version
@@ -111,47 +133,30 @@ jobs:
             echo "tag=$VERSION" >> $GITHUB_OUTPUT
           fi
 
-      - name: 🚀 Create GitHub Release & Upload Single Small APK
+      - name: 🚀 Create GitHub Release & Upload Android Artifacts
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release-tag.outputs.tag }}
-          name: "Elet ${{ steps.release-tag.outputs.tag }} (Single Small APK ~30MB)"
+          name: "Elet ${{ steps.release-tag.outputs.tag }} (Android APKs and App Bundle)"
           body: |
-            ## 🕊️ Elet • ዕለት ${{ steps.release-tag.outputs.tag }} — Ethiopian Orthodox Spiritual Companion
+            ## Elet • ዕለት ${{ steps.release-tag.outputs.tag }} — Ethiopian Orthodox Spiritual Companion
 
-            ### ✝️ What's New in ${{ steps.release-tag.outputs.tag }}:
+            ### What's new
 
-            **🔔 የሙሉ ገጽ ደወል ሥርዓት • Android Native Full-Screen Intent Alarm**
-            - **Native Alarm Clock Engine**: Integrated Android `AlarmManager.setAlarmClock()` and a high-priority `BroadcastReceiver` that awakens devices from sleep, bypasses Doze mode, and displays the liturgical alarm directly over other running apps and the lock screen.
-            - **Native Sound Resource**: Bundled the sacred cathedral bell chime (`alarm_bell.wav`) into Android raw resources with dedicated `USAGE_ALARM` audio routing.
-            - **Expo Config Plugin Architecture**: Created `withAndroidAlarmOverlay` plugin to guarantee 100% reproducible native prebuilds in CI and local environments.
-            - **Automatic Liturgical Sync**: Canonical prayer routines (ሰዓታት) and fasting break times (የጾም መፍቻ) set to `full_alarm` automatically schedule exact native full-screen alarms.
+            - Android alarm channel reliability, notification icon, exact-alarm diagnostics, and biometric device-credential fallback.
+            - Android home-screen quick widget for Prayer, Calendar, and Scripture.
+            - Separate arm64-v8a and armeabi-v7a APKs, plus an Android App Bundle for Play distribution.
 
-            **⏰ የ5 ደቂቃ ማዘግያ • 5-Minute Alarm Snooze**
-            - **Snooze Option**: Added an intuitive "Snooze 5 min" (ከ5 ደቂቃ በኋላ) button directly on the full-screen liturgical alarm modal with solemn haptic feedback and automatic rescheduling.
-            - **Font Rendering Fix**: Removed conflicting native `fontWeight` styles to guarantee dignified typography without Android fallback to Roboto.
+            This release targets Android 8.0 (API 26) and newer. Full-screen alarm presentation remains subject to Android permission and device-state rules.
 
-            **🔤 የጽሑፍ መጠን ማስተካከያ • Dynamic Typography Scaling**
-            - **Large Text Mode**: Fully wired the `textScale` setting so selecting "Large" dynamically scales all app typography by 1.15x for enhanced readability.
-
-            **🔍 የስርዓት ፈቃድ ፍተሻ • Android 14+ Diagnostics**
-            - **Runtime Permissions**: Added dynamic checking for `canUseFullScreenIntent()` on Android 14+ (API 34+) devices with a direct one-tap shortcut to system settings.
-            - **Dynamic Versioning**: Settings badge now dynamically displays the active release tag.
-
-            **🏛️ Codebase Quality & Stability**
-            - 100% clean TypeScript validation (`npx tsc --noEmit` with 0 errors).
-            - All 334/334 Bahire Hasab calendar & liturgical tests passing.
-            - 100% offline-first, private and secure on-device storage.
-
-            ### ⚡ Performance:
-            - **Single Lightweight APK**: ~30 MB (arm64-v8a)
-            - **R8 ProGuard Shrinking**: Tree-shaken native code & resources
-            - **100% Offline**: Zero cloud dependence
-
-            ### 📱 Download:
-            Download **`Elet-Release.apk`** (~30 MB) below.
+            ### Downloads
+            - `Elet-Release.apk`: arm64-v8a phones and tablets.
+            - `Elet-Release-armeabi-v7a.apk`: 32-bit ARM devices.
+            - `Elet-Release.aab`: Google Play upload.
           files: |
             ./release-artifacts/Elet-Release.apk
+            ./release-artifacts/Elet-Release-armeabi-v7a.apk
+            ./release-artifacts/Elet-Release.aab
           draft: false
           prerelease: false
         env:

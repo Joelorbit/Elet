@@ -42,13 +42,6 @@ export async function authenticateBiometrics({
 
   try {
     pauseAppLock(4000);
-    const hasHardware = await LocalAuthentication.hasHardwareAsync();
-    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-
-    if (!hasHardware || !isEnrolled) {
-      return true;
-    }
-
     const result = await LocalAuthentication.authenticateAsync({
       promptMessage,
       fallbackLabel: fallbackLabel || "Use Passcode",
@@ -91,16 +84,6 @@ export function useAppLock() {
     try {
       authInProgress.current = true;
       setIsAuthenticating(true);
-
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-
-      if (!hasHardware || !isEnrolled) {
-        setIsLocked(false);
-        setIsAuthenticating(false);
-        authInProgress.current = false;
-        return true;
-      }
 
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage:
