@@ -40,11 +40,20 @@ export async function checkGitHubRelease(): Promise<UpdateCheckResult> {
     const tag = (data.tag_name || "").replace(/^v/, "");
     const latestVersion = tag || currentVersion;
 
-    const apkAsset = Array.isArray(data.assets)
-      ? data.assets.find((a: { name?: string; browser_download_url?: string }) =>
-          (a.name || "").endsWith(".apk")
+    const apkAssets = Array.isArray(data.assets)
+      ? data.assets.filter(
+          (a: { name?: string; browser_download_url?: string }) =>
+            (a.name || "").toLowerCase().endsWith(".apk") &&
+            typeof a.browser_download_url === "string"
         )
-      : undefined;
+      : [];
+    // The legacy asset name remains the universal APK. Never pick the first
+    // architecture split: it can be incompatible with the device requesting
+    // the in-app update.
+    const apkAsset =
+      apkAssets.find((asset: { name?: string }) => asset.name === "Elet-Release.apk") ??
+      apkAssets.find((asset: { name?: string }) => (asset.name || "").toLowerCase().includes("universal")) ??
+      apkAssets[0];
 
     const releaseInfo: ReleaseInfo = {
       version: latestVersion,

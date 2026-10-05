@@ -39,7 +39,8 @@ Pre-built release build for Android (always dynamically links to the latest offi
 
 | Release | Architecture | Target Size | Direct Download Link |
 | :--- | :--- | :--- | :--- |
-| **64-bit Android** | `arm64-v8a` | Per-device APK | [**⬇️ Download APK**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk) |
+| **All Android devices** | Universal APK | In-app updater and broad ABI support | [**⬇️ Download APK**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.apk) |
+| **64-bit Android** | `arm64-v8a` | Smaller optimized APK | [**⬇️ Download APK**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release-arm64-v8a.apk) |
 | **32-bit Android** | `armeabi-v7a` | Per-device APK | [**⬇️ Download APK**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release-armeabi-v7a.apk) |
 | **Google Play** | Android App Bundle | Store optimized | [**Download AAB**](https://github.com/Joelorbit/Elet/releases/latest/download/Elet-Release.aab) |
 

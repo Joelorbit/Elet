@@ -196,7 +196,9 @@ function withAndroidAbiSplits(config) {
             enable !project.hasProperty('android.bundle')
             reset()
             include "arm64-v8a", "armeabi-v7a"
-            universalApk false
+            // Elet-Release.apk is used by the in-app updater for devices whose
+            // ABI is unknown to JS. Keep a universal APK alongside split APKs.
+            universalApk true
         }
     }
 `
